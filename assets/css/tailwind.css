@@ -1,0 +1,76 @@
+/* @tailwind base;
+@tailwind components;
+@tailwind utilities; */
+
+
+@layer tailwind-base, primevue, tailwind-utilities;
+
+@layer tailwind-base {
+  @tailwind base;
+}
+
+@layer primevue {
+  @tailwind components;
+}
+
+@layer tailwind-utilities {
+
+  .label-input {
+    @apply text-gray-500 text-sm mb-1;
+  }
+  .label-survay {
+    @apply  font-medium;
+  }
+  .error-text{
+    @apply text-red-500 mt-1
+  }
+  
+  .card {
+    @apply bg-white shadow-sm rounded-sm p-4;
+    
+  }
+  @tailwind utilities;
+}
+
+
+/* html{
+  font-size: 14px;
+}*/
+body {
+  margin: 0px !important;
+  padding: 0px !important;
+} 
+* {
+  font-family: "Noto Sans Thai", sans-serif;
+}
+
+.custom-border {
+  border: none!important; /* ลบเส้นขอบทั้งหมด */
+  border-bottom: 1px solid #ccc!important; /* แสดงเส้นประเฉพาะด้านล่าง */
+  border-radius: 0!important; /* ลบขอบมน */
+  box-shadow: none!important; /* ลบเงา */
+  transition: border-color 0.3s ease!important; /* เพิ่มเอฟเฟกต์เปลี่ยนสี */
+}
+
+.custom-border:focus {
+  border-bottom: 1px solid #202c54!important; /* เปลี่ยนสีเส้นประเมื่อโฟกัส */
+  outline: none!important; /* ลบเส้นรอบ input */
+}
+
+.upload-button {
+  border: 1px solid #ccc!important;
+  border-radius: 2px!important;
+  background-color: #f3f3f3!important;
+  color: #888888!important;
+  font-weight: 500!important;
+  width: 100%!important;
+  justify-content: center!important;
+  padding: 0.5rem 1rem!important;
+  transition: background-color 0.2s!important;
+}
+
+.upload-button:hover {
+  background-color: #e0e0e0;
+  color: #555;
+}
+

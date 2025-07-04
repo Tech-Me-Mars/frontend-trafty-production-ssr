@@ -1,0 +1,10 @@
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
+
+กำหนดรูปไม่เกิน 5 รููป
+/inspector/inspec-vender/40/safety-form/form3 บัค label radio
+
+ทำการ แก้บัค alert
+
+ไปเช็คหน้า inspector/warning-list/index/index.vue ว่ามี {{ item?.business_type_name }} จากapi จริงไหม
+ค้นหา keyword ร้านอาหาร

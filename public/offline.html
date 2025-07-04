@@ -1,0 +1,34 @@
+<!-- public/offline.html -->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ออฟไลน์</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2rem;
+      background-color: #f8fafc;
+      color: #333;
+    }
+    img {
+      width: 100px;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <img src="/pwa/logo_erp.png" alt="logo" />
+  <h1>คุณออฟไลน์อยู่</h1>
+  <p>โปรดเชื่อมต่ออินเทอร์เน็ตเพื่อใช้งานเว็บไซต์</p>
+
+  <script>
+    window.addEventListener('online', () => {
+      // redirect ไปหน้า root เมื่อกลับมาออนไลน์
+      window.location.href = '/';
+    });
+  </script>
+</body>
+</html>
