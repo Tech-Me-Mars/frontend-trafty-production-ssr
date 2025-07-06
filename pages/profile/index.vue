@@ -13,22 +13,22 @@ const menuItems = [
   {
     label: t('รายการโปรด'),
     icon: 'pi pi-heart',
-    to: '/favorites'
+    to: '/profile/favorite'
   },
   {
     label: t('เกี่ยวกับเรา'),
     icon: 'pi pi-info-circle',
-    to: '/about'
+    to: '/profile/about'
   },
   {
     label: t('ข้อกำหนดและเงื่อนไขความเป็นส่วนตัว'),
     icon: 'pi pi-file',
-    to: '/terms'
+    to: '/profile/terms'
   },
   {
     label: t('ภาษา'),
     icon: 'pi pi-language',
-    to: '/language'
+    to: '/profile/language'
   }
 ]
 
@@ -74,7 +74,7 @@ const goTo = (path) => {
       </template>
     </van-nav-bar> -->
     <LayoutsBaseHeader :title="t('ตั้งค่าโปรไฟล์')" :showIcon="true" :showBack="false" :close="true"
-    :showMenu="false"></LayoutsBaseHeader>
+    :showMenu="false" backTo="/"></LayoutsBaseHeader>
 
     <!-- Profile Section -->
     <div class="bg-white py-4 px-6 flex items-center gap-4 border-b">

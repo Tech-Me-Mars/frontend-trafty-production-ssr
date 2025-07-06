@@ -5,6 +5,14 @@ import * as yup from 'yup'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
+const toast = ref({
+    show: false,
+    type: null,
+    title: null,
+    message: null,
+    life: null, // ถ้าใส่เลข = แสดง auto close
+})
+
 // avatar
 const previewImage = ref('/avartar-default.png')
 const fileInput = ref(null)
@@ -33,6 +41,18 @@ const { value: gender, errorMessage: genderError } = useField('gender', undefine
 const onUploadImage = (event) => {
     const file = event.target.files[0]
     if (file) {
+        if (file.size > 2 * 1024 * 1024) {
+            // แจ้งเตือน
+            toast.value = {
+                show: true,
+                type: 'warning',
+                title: 'แจ้งเตือน',
+                message: 'ไม่สามารถอัปโหลดไฟล์ที่มีขนาดเกิน 2MB ได้',
+                life: null
+            }
+            event.target.value = null // reset file input
+            return
+        }
         previewImage.value = URL.createObjectURL(file)
     }
 }
@@ -44,6 +64,8 @@ const onSubmit = handleSubmit((values) => {
 </script>
 
 <template>
+    <NotifyMessage v-model:show="toast.show" :type="toast.type" :title="toast.title" :message="toast.message"
+        :life="toast.life" />
     <Form @submit="onSubmit">
         <div class="min-h-screen bg-gray-100 pb-24">
             <!-- Top Nav -->

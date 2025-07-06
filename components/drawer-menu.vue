@@ -48,12 +48,12 @@ const baseMenu = ref([
   {
     label: t('รายการโปรด'),
     icon: '',
-    path: '/client/favorite'
+    path: '/profile/favorite'
   },
   {
     label: t('ตั้งค่า'),
     icon: '',
-    path: '/profile/menu'
+    path: '/profile'
   },
 ])
 

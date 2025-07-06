@@ -3,7 +3,7 @@
     :src="selectedFlag"
     alt="Flag"
     class="w-8 h-8 self-start cursor-pointer"
-    @click="navigateTo('/client/lang')"
+    @click="navigateTo('/profile/language')"
   />
 </template>
 

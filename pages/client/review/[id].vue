@@ -9,8 +9,11 @@
 </style>
 <template>
     <div class="bg-zinc-100 min-h-screen">
-        <van-nav-bar :title="t('เขียนรีวิว')" left-arrow @click-left="navigateTo(`/client/ratings/${route.params.id}`)">
-        </van-nav-bar>
+        <!-- <van-nav-bar :title="t('เขียนรีวิว')" left-arrow @click-left="navigateTo(`/client/ratings/${route.params.id}`)">
+        </van-nav-bar> -->
+                <LayoutsBaseHeader :title="t('เขียนรีวิว')" :showBack="true" :backTo="`/client/ratings/${route.params.id}`"
+            :showMenu="false">
+        </LayoutsBaseHeader>
         <Form @submit="handleNext">
 
             <div class="flex flex-col items-center bg-white pt-10 rounded-lg mx-auto">
@@ -28,7 +31,7 @@
                 <div class="grid grid-cols-2 gap-2 mb-6">
                     <button type="button" v-for="item in resTypeBusinessComment" :key="item.id" @click="setSelectionById(item.id)"
                         :class="[
-                            'px-4 py-2 border rounded-full text-gray-700',
+                            'px-4 py-2 border rounded-full text-gray-700 !text-sm',
                             star_id === item.id ? 'bg-primary-main !text-white' : 'bg-gray-100'
                         ]">
                         {{ item.star_name }}
@@ -93,8 +96,11 @@
             </template>
         </ConfirmDialog>
 
-        <MyToast :data="alertToast" />
 
+
+                    <NotificationPopup v-model:visible="notification.visible" :state="notification.state" :title="notification.title"
+      :detail="notification.detail" :timeout="notification.timeout" :redirect-url="notification.redirectUrl"
+      :auto-close="notification.autoClose" @close="onNotificationClose" />
     </div>
 
 
@@ -115,6 +121,23 @@ import { toTypedSchema } from "@vee-validate/zod";
 import * as zod from "zod";
 
 import * as dataApi from './api/data.js'
+const notification = reactive({
+  visible: false,
+  state: 'success',
+  title: '',
+  detail: '',
+  timeout: 0,
+  redirectUrl: null,
+  autoClose: true
+})
+const showNotification = (config) => {
+  Object.assign(notification, {
+    visible: true,
+    ...config
+  })
+}
+
+
 const route = useRoute();
 const alertToast = ref({});
 
@@ -209,27 +232,25 @@ const saveComment = async () => {
         formData.append('star_id', parseInt(star_id.value));
         formData.append('status', true);
         const res = await dataApi.saveComment(formData);
-        alertToast.value = {
-            title: t('สำเร็จ'),
-            color: 'info',
-            isError: false,
-            msg: res.data.message,
-        }
-
-        // setTimeout(() => {
-        navigateTo(`/client/ratings/${route.params.id}`)
-        // navigateTo(`/vendor/warning-list/${route.params.id}/${route.params.subid}/success`)
-        // }, 1500);
+          showNotification({
+    state: 'success',
+    title: t('ขอบคุณสำหรับความคิดเห็น'),
+    detail: '',
+    timeout: 2000,
+    redirectUrl: `/client/ratings/${route.params.id}`,
+    autoClose: true
+  })
 
     } catch (error) {
         console.error(error)
-        alertToast.value = {
-            title: t('ล้มเหลว'),
-            isError: true,
-            color: "error",
-            msg: error.response?.data?.message || "Error occurred",
-            dataError: error,
-        };
+          showNotification({
+    state: 'error',
+    title: t('ล้มเหลว'),
+    detail: error.response?.data?.message || "Error occurred",
+    timeout: 2500,
+    redirectUrl: `/client/ratings/${route.params.id}`,
+    autoClose: false
+  })
     }
 }
 

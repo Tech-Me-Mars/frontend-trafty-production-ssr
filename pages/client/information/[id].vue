@@ -146,6 +146,7 @@
 // definePageMeta({
 //     middleware: ["auth"],
 // });
+import { useEncryptedCookie, useDecryptedCookie, useClearEncryptedCookie } from '~/composables/useEncryptedCookie'
 import * as dataApi from './api/data.js'
 import widgetSocial from './widgets/widget-social.vue';
 import widgetItemsBusiness from './widgets/widget-items-business.vue';
@@ -192,8 +193,9 @@ const onSelect = (option) => {
     console.log(`Selected: ${option.name}`);
     // Add share logic here, such as opening links or triggering actions
 };
-const token = localStorage.getItem("token");
-onMounted(() => {
+
+onMounted(async() => {
+    const token = await useDecryptedCookie('token');
     if (token) {
         loadProfile();
     }

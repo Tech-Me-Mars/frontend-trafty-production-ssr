@@ -1,9 +1,12 @@
 <template>
     <div class=" bg-white min-h-screen">
-        <van-nav-bar :title="t('รายละเอียด')" left-arrow
+        <!-- <van-nav-bar :title="t('รายละเอียด')" left-arrow
             @click-left="navigateTo(`/client/information/${route.params.id}`)">
 
-        </van-nav-bar>
+        </van-nav-bar> -->
+        <LayoutsBaseHeader :title="t('คะแนนรีวิว')" :showBack="true" :backTo="`/client/information/${route.params.id}`"
+            :showMenu="false">
+        </LayoutsBaseHeader>
         <section class="p-4">
 
             <!-- Overall Rating -->
@@ -42,9 +45,9 @@
 
             <div class="mt-6">
                 <h2 class="text-lg font-semibold mb-4">{{ t('รีวิวทั้งหมด') }}</h2>
-
+                <SharedNoData v-if="resComment.length == 0" :detail="t('ไม่พบข้อมูลคอมเม้นต์ที่จะแสดง')"></SharedNoData>
                 <!-- Loop through reviews -->
-                <div v-for="review in resComment" :key="review.id" class="pb-2 border-b mb-5">
+                <div v-else v-for="review in resComment" :key="review.id" class="pb-2 border-b mb-5">
                     <div class="flex items-center space-x-3">
                         <img :src="review?.visitors_img" alt="" class="w-10 h-10 rounded-full object-cover" />
                         <div>
@@ -76,23 +79,17 @@
 
         </section>
 
+
     </div>
 
 
 </template>
-<style scoped>
-.van-nav-bar {
-    --van-nav-bar-background: #281c74;
-    --van-nav-bar-text-color: white;
-    --van-nav-bar-icon-color: white;
-    --van-nav-bar-title-text-color: white;
-    --van-nav-bar-height: 70px
-}
-</style>
+
 <script setup>
 // definePageMeta({
 //   middleware: ["auth"],
 // });
+import { useEncryptedCookie, useDecryptedCookie, useClearEncryptedCookie } from '~/composables/useEncryptedCookie'
 const isloadingAxi = useState("isloadingAxi");
 import * as dataApi from './api/data.js'
 
@@ -101,6 +98,7 @@ const router = useRouter();
 import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 const localPath = useLocalePath();
+
 
 const scoreShop = ref(0)
 const resComment = ref([])
@@ -142,7 +140,6 @@ const countStars = () => {
     });
 };
 
-const token = localStorage.getItem("token");
 
 onMounted(() => {
     loadComment();

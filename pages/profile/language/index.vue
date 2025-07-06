@@ -1,7 +1,10 @@
 <template>
     <div class="bg-zinc-100 min-h-screen">
-        <van-nav-bar title="ภาษา" left-arrow @click-left="router.go(-1)">
-        </van-nav-bar>
+        <!-- <van-nav-bar title="ภาษา" left-arrow @click-left="router.go(-1)">
+        </van-nav-bar> -->
+        <LayoutsBaseHeader :title="t('ภาษา')" showBack>
+
+        </LayoutsBaseHeader>
 
         <ul class="bg-white ">
             <li v-for="localeOption in locales" :key="localeOption.code" 
@@ -21,7 +24,7 @@
 </template>
 
 <script setup>
-  import { ref, computed } from "vue";
+import { ref, computed } from "vue";
   import { useI18n } from "vue-i18n";
   
   const { t, locales, locale, setLocale } = useI18n();
