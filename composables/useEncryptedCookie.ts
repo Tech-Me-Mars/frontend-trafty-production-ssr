@@ -1,11 +1,11 @@
 export async function useEncryptedCookie(key: string, value: any) {
-  const { data } = await useFetch('/api/encrypt', {
+  const res = await $fetch('/api/encrypt', {
     method: 'POST',
     body: { data: value }
   })
 
-  if (data.value?.encrypted) {
-    useCookie(key).value = data.value.encrypted
+  if (res?.encrypted) {
+    useCookie(key).value = res.encrypted
   }
 }
 
@@ -13,12 +13,12 @@ export async function useDecryptedCookie(key: string) {
   const cookie = useCookie<string>(key)
   if (!cookie.value) return null
 
-  const { data } = await useFetch('/api/decrypt', {
+  const res = await $fetch('/api/decrypt', {
     method: 'POST',
     body: { encrypted: cookie.value }
   })
 
-  return data.value?.data || null
+  return res?.data || null
 }
 
 // ❌ ลบ cookie เฉพาะ key

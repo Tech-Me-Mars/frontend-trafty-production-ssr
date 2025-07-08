@@ -4,7 +4,8 @@ import CryptoJS from 'crypto-js'
 export default defineEventHandler(async (event) => {
   const body = await readBody<{ encrypted: string }>(event)
   const config = useRuntimeConfig()
-  const secret = config.cookieSecret || 'default_secret'
+  const secret = config.cookieSecret
+
 
   try {
     const bytes = CryptoJS.AES.decrypt(body.encrypted, secret)

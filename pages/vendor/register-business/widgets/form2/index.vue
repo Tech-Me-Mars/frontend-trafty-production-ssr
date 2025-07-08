@@ -15,7 +15,8 @@ import * as zod from "zod";
 import * as dataApi from "../../api/data.js";
 
 const router = useRouter();
-const alertToast = ref({});
+
+const activeLangTab = ref("th");
 
 const resBusinessModel = ref([])
 const loadBusinessModel = async () => {
@@ -74,66 +75,83 @@ const handleNext = handleSubmit(() => {
     }
 });
 </script>
-<style>
-.van-nav-bar {
-    --van-nav-bar-background: #281c74;
-    --van-nav-bar-text-color: white;
-    --van-nav-bar-icon-color: white;
-    --van-nav-bar-title-text-color: white;
-    --van-nav-bar-height: 70px
-}
-</style>
+
+
+
 <template>
     <div class="bg-zinc-100 min-h-screen">
-        <!-- <van-nav-bar :title="t('รูปแบบธุรกิจในแหล่งท่องเที่ยว')" left-arrow @click-left="formStore.prevPage()">
-        </van-nav-bar> -->
-        <LayoutsBaseHeader :title="t('รูปแบบธุรกิจในแหล่งท่องเที่ยว')">
+        <LayoutsBaseHeader :title="t('หน่วยงานแหล่งท่องเที่ยว')">
             <template #left>
                 <ButtonIconBack @click="formStore.prevPage()" />
             </template>
         </LayoutsBaseHeader>
 
+        <div>
 
-        <div class="p-4 ">
-            <div class="flex space-x-5 items-center justify-center mb-8">
-                <div v-for="(item, index) in stepsBar" :key="index"
-                    :class="item.active ? 'w-8 h-2 bg-blue-900' : 'w-8 h-2 bg-gray-200'"></div>
-            </div>
-
-            <h2 class="text-center font-bold text-lg mb-8">
-                {{ t('เลือกรูปแบบธุรกิจในแหล่งท่องเที่ยว') }}
-            </h2>
-
-            <!-- {{  selectedOption }} -->
             <Form @submit="handleNext">
-                <div class="flex flex-col gap-2 p-4 mb-[17rem]">
-                    <!-- กล่องตัวเลือก 1 -->
-                    <div v-for="(item, index) in resBusinessModel" :key="index"
-                        class="border border-blue-900 card rounded-md p-4 flex items-center space-x-3">
-                        <RadioButton v-model="selectedItem" :inputId="String(item.id)" name="group" :value="item.id"
-                            class="" />
-                        <label :for="String(item.id)" class="text-sm font-medium">{{ item.business_model_name }}</label>
-                    </div>
-                    <!-- <div class="border border-blue-900 card rounded-md p-4 flex items-center space-x-3">
-                    <RadioButton v-model="selectedOption" inputId="option2" name="group" value="บุคคล" class="" />
-                    <label for="option2" class="text-sm font-medium">บุคคล</label>
-                </div> -->
-                </div>
+                <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54">
+                    <!-- 🔵 ภาษาไทย -->
+                    <van-tab title="ภาษาไทย" name="th" class="p-2">
+                        <h2 class="text-center font-bold text-xl mb-8 pt-2">เลือกหน่วยงานของคุณ</h2>
+                        <div class="flex flex-col gap-2 p-4 mb-[6rem]">
+                            <div v-for="(item, index) in resBusinessModel" :key="index"
+                                class="border border-blue-900 card rounded-md p-4 flex items-center space-x-3">
+                                <RadioButton v-model="selectedItem" :inputId="'th_' + item.id" name="group-th"
+                                    :value="item.id" class="" />
 
-                <p v-if="errors.selectedItem" class="text-red-500 text-xl mb-4 text-center">
-                    {{ errors.selectedItem }}
-                </p>
+                                <label :for="'th_' + item.id" class="text-sm font-medium">{{ item.business_model_name
+                                }}</label>
+                            </div>
+                        </div>
+                        <p v-if="errors.selectedItem" class="text-red-500 text-sm text-center mb-4">
+                            {{ errors.selectedItem }}
+                        </p>
+                    </van-tab>
+
+                    <!-- 🔵 English -->
+                    <van-tab title="English" name="en" class="p-2">
+                        <h2 class="text-center font-bold text-xl mb-8 pt-2">Select Your Organization</h2>
+
+                        <div class="flex flex-col gap-2 p-4 mb-[6rem]">
+                            <div v-for="(item, index) in resBusinessModel" :key="index"
+                                class="border border-blue-900 card rounded-md p-4 flex items-center space-x-3">
+                                <RadioButton v-model="selectedItem" :inputId="'en_' + item.id" name="group-en"
+                                    :value="item.id" class="" />
+
+                                <label :for="'en_' + item.id" class="text-sm font-medium">{{ item.business_model_name
+                                }}</label>
+                            </div>
+                        </div>
+                        <p v-if="errors.selectedItem" class="text-red-500 text-sm text-center mb-4">
+                            {{ errors.selectedItem }}
+                        </p>
+                    </van-tab>
+
+                    <!-- 🔵 中文 -->
+                    <van-tab title="中文" name="cn" class="p-2">
+                        <h2 class="text-center font-bold text-xl mb-8 pt-2">选择您的单位</h2>
+
+                        <div class="flex flex-col gap-2 p-4 mb-[6rem]">
+                            <div v-for="(item, index) in resBusinessModel" :key="index"
+                                class="border border-blue-900 card rounded-md p-4 flex items-center space-x-3">
+                                <RadioButton v-model="selectedItem" :inputId="'en_' + item.id" name="group-en"
+                                    :value="item.id" class="" />
+                            
+                                <label :for="'en_' + item.id" class="text-sm font-medium">{{ item.business_model_name
+                                }}</label>
+                            </div>
+                        </div>
+                        <p v-if="errors.selectedItem" class="text-red-500 text-sm text-center mb-4">
+                            {{ errors.selectedItem }}
+                        </p>
+                    </van-tab>
+                </van-tabs>
 
                 <Button :loading="isloadingAxi" :label="t('ถัดไป')" severity="primary" type="submit" rounded
-                    class="w-full" :pt="{
-                        root: {
-                            class: '!border-primary-main'
-                        },
-                    }" />
+                    class="w-full mt-4" :pt="{ root: { class: '!border-primary-main' } }" @click="formStore.nextPage();" />
             </Form>
 
-        </div>
 
-        <MyToast :data="alertToast" />
+        </div>
     </div>
 </template>

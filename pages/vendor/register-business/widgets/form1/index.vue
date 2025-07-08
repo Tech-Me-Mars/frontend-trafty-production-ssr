@@ -50,6 +50,7 @@ const handleNext = handleSubmit(() => {
 onMounted(() => loadBusinessType());
 </script>
 
+<style></style>
 <template>
   <div class="bg-zinc-100 min-h-screen">
     <LayoutsBaseHeader :title="t('ประเภทธุรกิจในแหล่งท่องเที่ยว')">
@@ -60,20 +61,18 @@ onMounted(() => loadBusinessType());
 
     <div class="">
       <Form @submit="handleNext">
-        <van-tabs v-model:active="activeLangTab" type="line" sticky>
-            <div class="text-center pt-10">
-                <h1 class="font-bold text-2xl">{{ t('เลือกประเภทการท่องเที่ยว') }}</h1>
-            </div>
+        <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54">
+
           <!-- 🔵 ภาษาไทย -->
-          <van-tab title="ภาษาไทย" name="th" class="p-4">
+          <van-tab title="ภาษาไทย" name="th" class="p-2">
+
+            <h2 class="text-center font-bold text-xl mb-8 pt-2">เลือกประเภทการท่องเที่ยว</h2>
+
             <div class="grid grid-cols-2 gap-3 my-6">
-              <div
-                v-for="(item, index) in resBusinessType"
-                :key="index"
+              <div v-for="(item, index) in resBusinessType" :key="index"
                 class="flex flex-col items-center justify-center border-2 rounded-sm p-4 cursor-pointer"
                 :class="selectedItem_th === item.id ? '!border-indigo-900 bg-blue-50' : 'border-gray-300'"
-                @click="selectedItem_th = item.id"
-              >
+                @click="selectedItem_th = item.id">
                 <i :class="item.icon" class="text-2xl mb-2 text-primary-main"></i>
                 <span class="text-sm text-center">{{ item.business_type_name }}</span>
               </div>
@@ -84,15 +83,14 @@ onMounted(() => loadBusinessType());
           </van-tab>
 
           <!-- 🔵 English -->
-          <van-tab title="English" name="en">
+          <van-tab title="English" name="en" class="p-2">
+            <h2 class="text-center font-bold text-xl mb-8 pt-2">Select Tourist Attraction Type</h2>
+
             <div class="grid grid-cols-2 gap-3 my-6">
-              <div
-                v-for="(item, index) in resBusinessType"
-                :key="index"
+              <div v-for="(item, index) in resBusinessType" :key="index"
                 class="flex flex-col items-center justify-center border-2 rounded-sm p-4 cursor-pointer"
                 :class="selectedItem_en === item.id ? '!border-indigo-900 bg-blue-50' : 'border-gray-300'"
-                @click="selectedItem_en = item.id"
-              >
+                @click="selectedItem_en = item.id">
                 <i :class="item.icon" class="text-2xl mb-2 text-primary-main"></i>
                 <span class="text-sm text-center">{{ item.business_type_name }}</span>
               </div>
@@ -103,15 +101,14 @@ onMounted(() => loadBusinessType());
           </van-tab>
 
           <!-- 🔵 中文 -->
-          <van-tab title="中文" name="cn">
+          <van-tab title="中文" name="cn" class="p-2">
+            <h2 class="text-center font-bold text-xl mb-8 pt-2">选择旅游景点类型</h2>
+
             <div class="grid grid-cols-2 gap-3 my-6">
-              <div
-                v-for="(item, index) in resBusinessType"
-                :key="index"
+              <div v-for="(item, index) in resBusinessType" :key="index"
                 class="flex flex-col items-center justify-center border-2 rounded-sm p-4 cursor-pointer"
                 :class="selectedItem_cn === item.id ? '!border-indigo-900 bg-blue-50' : 'border-gray-300'"
-                @click="selectedItem_cn = item.id"
-              >
+                @click="selectedItem_cn = item.id">
                 <i :class="item.icon" class="text-2xl mb-2 text-primary-main"></i>
                 <span class="text-sm text-center">{{ item.business_type_name }}</span>
               </div>
@@ -123,7 +120,11 @@ onMounted(() => loadBusinessType());
         </van-tabs>
 
         <!-- ✅ ปุ่มถัดไป -->
-        <Button :label="t('ถัดไป')" type="submit" class="w-full mt-6" />
+        <div class="mx-auto w-full max-w-md pb-10">
+
+          <Button rounded :label="t('ถัดไป')" type="submit" class="w-full mt-6" @click="formStore.nextPage();" />
+
+        </div>
       </Form>
     </div>
   </div>
