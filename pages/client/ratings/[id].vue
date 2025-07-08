@@ -33,7 +33,9 @@
                 <div v-for="star in [5, 4, 3, 2, 1]" :key="star" class="flex items-center">
                     <span class="text-sm text-gray-600">{{ star }}</span>
                     <div class="flex-1 mx-2 bg-gray-200 rounded h-2">
-                        <div class="h-2 bg-orange-500 rounded" :style="{ width: starPercentage[star] + '%' }"></div>
+                        <div class="h-2 bg-orange-500 rounded" :style="{ width: starPercentage[star] + '%' }">
+                            {{ starPercentage[star] }}
+                        </div>
                     </div>
                     <span class="text-sm text-gray-600">
                         {{ starCounts[star] || 0 }}

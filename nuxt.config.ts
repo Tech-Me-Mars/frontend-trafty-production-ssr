@@ -46,7 +46,7 @@ export default defineNuxtConfig({
   },
 
   modules: ['@primevue/nuxt-module', '@nuxtjs/tailwindcss', '@vant/nuxt', '@nuxtjs/google-fonts', '@nuxtjs/i18n', '@nuxtjs/leaflet','@pinia/nuxt',
-    '@vite-pwa/nuxt'
+
   ],
   i18n: {
     lazy: true,

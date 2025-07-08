@@ -5,15 +5,10 @@
 
       <img v-if="showIcon == true" src="/image/logo_erp.png" style="width: 50px;" alt="">
       <!-- ปุ่ม back -->
-      <button
-        v-if="showBack"
-        @click="handleBack"
-        class="text-white p-0 m-0 text-lg"
-      >
-        <i class="pi pi-chevron-left pr-2 cursor-pointer text-lg" />
-      </button>
-      <drawer-menu v-if="showMenu==true" />
-      
+
+      <button-icon-back v-if="showBack" @click="handleBack" />
+      <drawer-menu v-if="showMenu == true" />
+
 
       <!-- custom content -->
       <slot name="left" />
@@ -25,9 +20,9 @@
     <!-- Right -->
     <div>
       <slot name="right" />
-      
+
       <span class="text-center flex justify-center px-2 py-2" v-if="close" @click="clickClose()">
-      <i class="pi pi-times pr-2 cursor-pointer text-lg font-bold " />
+        <i class="pi pi-times pr-2 cursor-pointer text-lg font-bold " />
 
       </span>
 
@@ -41,12 +36,12 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const props = defineProps({
-    title: { type: String, required: true },
-    showBack: { type: Boolean, default: false }, // ใช้ $router.back()
-    showIcon: { type: Boolean, default: false }, // ใช้ $router.back()
-    close: { type: Boolean, default: false }, // ใช้ $router.back()
-    backTo: { type: String, default: '' },       // URL ที่จะกลับไปแบบ custom
-    showMenu: { type: Boolean, default: false }  // แสดง hamburger แทน back
+  title: { type: String, required: true },
+  showBack: { type: Boolean, default: false }, // ใช้ $router.back()
+  showIcon: { type: Boolean, default: false }, // ใช้ $router.back()
+  close: { type: Boolean, default: false }, // ใช้ $router.back()
+  backTo: { type: String, default: '' },       // URL ที่จะกลับไปแบบ custom
+  showMenu: { type: Boolean, default: false }  // แสดง hamburger แทน back
 })
 
 const handleBack = () => {
@@ -57,7 +52,7 @@ const handleBack = () => {
   }
 }
 
-const clickClose = () =>{
+const clickClose = () => {
   if (props.backTo) {
     router.push(props.backTo)
   } else {
