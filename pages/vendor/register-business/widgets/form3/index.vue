@@ -114,11 +114,15 @@ const removeFile = (index, lang) => {
 
 <template>
   <div class="bg-zinc-100 min-h-screen">
-    <van-nav-bar :title="t('ข้อมูลธุรกิจ')" left-arrow @click-left="formStore.prevPage()" />
+        <LayoutsBaseHeader :title="t('ข้อมูลธุรกิจ')">
+            <template #left>
+                <ButtonIconBack @click="formStore.prevPage()" />
+            </template>
+        </LayoutsBaseHeader>
 
-    <div class="ห">
+    <div >
 
-
+      {{ business_name }}
       <Form @submit="handleNext">
         <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54">
           <van-tab title="ภาษาไทย" name="th" class="p-2 pt-10">

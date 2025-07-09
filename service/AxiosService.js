@@ -5,7 +5,9 @@ import { navigateTo } from 'nuxt/app'
 // ตั้งค่า baseURL
 // const config = useRuntimeConfig();
 // axios.defaults.baseURL = "http://localhost:7001"; //https://api-uat.mix-station.com
-axios.defaults.baseURL = "https://trafty1-api.tech-me-mars.com"; // เปลี่ยนตามสภาพแวดล้อม
+// axios.defaults.baseURL = "https://trafty1-api.tech-me-mars.com"; // เปลี่ยนตามสภาพแวดล้อม
+axios.defaults.baseURL = "http://localhost:8091"
+
 
 const getToken = async () => {
   return await useDecryptedCookie('token') || '';

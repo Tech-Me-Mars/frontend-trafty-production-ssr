@@ -1,7 +1,7 @@
 import { request } from "@/service/AxiosService.js";
 
 export function getServiceType() {
-  const url = `/api/v1/service-type`;
+  const url = `/api/v1/management/service_type`;
   return request("get", url, {}, true);
 }
 

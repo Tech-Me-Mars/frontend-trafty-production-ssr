@@ -280,26 +280,9 @@ const triggerFileInputProfile = () => {
 //  MAP SECTIONS 
 
 let map = null;
-
-const loadLongdoMap = () => {
-    return new Promise((resolve, reject) => {
-        if (window.longdo) {
-            resolve(window.longdo);
-            return;
-        }
-        const script = document.createElement("script");
-        script.src = "https://api.longdo.com/map3/?key=f38639d33e37f4e422cd8085d997d55f";
-        script.async = true;
-        script.onload = () => resolve(window.longdo);
-        script.onerror = () => reject(new Error("Failed to load Longdo Map API"));
-        document.head.appendChild(script);
-    });
-};
-
 // สร้างแผนที่
 const initMap = async () => {
     try {
-        const longdo = await loadLongdoMap();
 
         const mapContainer = document.getElementById("map");
         if (!mapContainer) {
@@ -307,7 +290,7 @@ const initMap = async () => {
             return;
         }
 
-        map = new longdo.Map({
+        map = new window.Map({
             placeholder: mapContainer,
             zoom: 12,
             location: { lat: 13.736717, lon: 100.523186 },
@@ -422,23 +405,19 @@ const search = async (event) => {
     }, 250);
 };
 // โหลดแผนที่เมื่อ DOM พร้อม
-onMounted(() => {
-    initMap();
-});
+onMounted(async () => {
+  await useLongdoLoader()
+  initMap()
+})
+
 </script>
-<style scoped>
-.van-nav-bar {
-    --van-nav-bar-background: #281c74;
-    --van-nav-bar-text-color: white;
-    --van-nav-bar-icon-color: white;
-    --van-nav-bar-title-text-color: white;
-    --van-nav-bar-height: 70px
-}
-</style>
 <template>
     <div class="bg-zinc-100 min-h-screen">
-        <van-nav-bar :title="t('ข้อมูลธุรกิจในแหล่งท่องเที่ยว')" left-arrow @click-left="formStore.prevPage()">
-        </van-nav-bar>
+                <LayoutsBaseHeader :title="t('ข้อมูลธุรกิจในแหล่งท่องเที่ยว')">
+            <template #left>
+                <ButtonIconBack @click="formStore.prevPage()" />
+            </template>
+        </LayoutsBaseHeader>
 
         <div class="p-4 ">
             <div class="flex space-x-5 items-center justify-center mb-8">
