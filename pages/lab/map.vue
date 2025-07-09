@@ -42,13 +42,6 @@ const clearMarkers = () => {
     }
 };
 
-// ฟังก์ชันสำหรับค้นหา
-const search = () => {
-    if (text_search.value.trim()) {
-        router.push({ path: "/client/search", query: { find: text_search.value } });
-    }
-};
-
 // โหลดข้อมูลเมื่อเปิดหน้า
 // onMounted(fetchResults);
 
@@ -62,24 +55,7 @@ watch(() => route.query.find, (newFind) => {
 // ################### RENDER MAP ##########################
 
 onMounted(async () => {
-  const res = await fetch('/api/load-longdo') // 🔒 จะได้ script ที่ฝัง key มาแล้ว
-  const scriptCode = await res.text()
-
-  const script = document.createElement('script')
-  script.type = 'text/javascript'
-  script.text = scriptCode
-  document.head.appendChild(script)
-
-  // รอจน window.longdo โหลดเสร็จ
-  const waitForLongdo = () => new Promise(resolve => {
-    const check = () => {
-      if (window.longdo) resolve()
-      else setTimeout(check, 100)
-    }
-    check()
-  })
-
-  await waitForLongdo()
+  await useLongdoLoader()
   initMap()
 })
 
