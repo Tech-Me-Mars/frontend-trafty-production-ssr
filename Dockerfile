@@ -1,23 +1,42 @@
-# ใช้ Node.js base image
-FROM node:18-alpine
+# --- Build Stage ---
+FROM node:20-alpine AS builder
 
-# ตั้งค่า working directory
 WORKDIR /app
 
-# คัดลอกไฟล์ package.json และ package-lock.json
+# Install pnpm (or use npm/yarn, ปรับตามโปรเจคคุณ)
+RUN corepack enable
+
+# Copy only package files for caching dependencies
 COPY package*.json ./
+COPY pnpm-lock.yaml* ./
 
-# ติดตั้ง dependencies
-RUN npm install
+# Install dependencies
+RUN pnpm install
 
-# คัดลอกโค้ดทั้งหมดในโฟลเดอร์ปัจจุบันไปที่ container
+# Copy the rest of the code
 COPY . .
 
-# สร้าง production build
-RUN npm run build
+# Build nuxt app (SSR)
+RUN pnpm run build
 
-# เปิดพอร์ต 3000
+# --- Production Stage ---
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package.json and pnpm-lock.yaml for pnpm install --prod
+COPY package*.json ./
+COPY pnpm-lock.yaml* ./
+
+# Install only production dependencies
+RUN corepack enable && pnpm install --prod
+
+# Copy built files from builder
+COPY --from=builder /app/.output ./.output
+
+# Optionally: copy static files, public, etc. if needed
+
 EXPOSE 3000
 
-# รัน Nuxt ใน production mode
-CMD ["npm", "run", "preview"]
+# Use node entrypoint for Nuxt 3 SSR
+CMD ["node", ".output/server/index.mjs"]
