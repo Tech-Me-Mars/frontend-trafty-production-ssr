@@ -21,7 +21,7 @@ const stepsBar = ref([
 ]);
 
 
-
+// test update main
 const days = [
     { label: t('จันทร์'), value: t('จันทร์') },
     { label: t('อังคาร'), value: t('อังคาร') },
