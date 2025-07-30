@@ -6,7 +6,7 @@ export function getServiceType() {
 }
 
 export function getBusinessType() {
-  const url = `/api/v1/business-type`;
+  const url = `/api/v1/management/business_type`;
   return request("get", url, {}, true);
 }
 export function getBusinessTypeByServiceId(id) {
@@ -16,7 +16,7 @@ export function getBusinessTypeByServiceId(id) {
 
 
 export function getBusinessModel() {
-  const url = `/api/v1/BusinessModel`;
+  const url = `/api/v1/management/business_model`;
   return request("get", url, {}, true);
 }
 

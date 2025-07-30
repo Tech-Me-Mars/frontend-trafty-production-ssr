@@ -3,7 +3,8 @@ definePageMeta({
     middleware: ["auth"],
 });
 import { useI18n } from 'vue-i18n';
-const { t } = useI18n();
+const { t, locale, setLocale } = useI18n();
+
 const isloadingAxi = useState("isloadingAxi");
 const router = useRouter();
 const alertToast = ref({});
@@ -19,6 +20,52 @@ const stepsBar = ref([
     { step: 4, active: true },
     { step: 5, active: false },
 ]);
+
+
+// Language configuration
+const langs = [
+  { code: 'th', label: 'ภาษาไทย', locale: 'th-TH' },
+  { code: 'en', label: 'English', locale: 'en-US' },
+  { code: 'cn', label: '中文', locale: 'ch-Ch' }
+];
+
+const activeLangTab = ref(langs.findIndex(l => l.locale === locale.value) ?? 0);
+onMounted(()=>{
+  setLocale('th-TH')
+})
+// เมื่อเปลี่ยนแท็บ
+watch(activeLangTab, (newIdx) => {
+  setLocale(langs[newIdx].locale);
+});
+
+// เมื่อเปลี่ยน locale
+watch(locale, (newLocale) => {
+  const idx = langs.findIndex(l => l.locale === newLocale);
+  if (idx !== -1) activeLangTab.value = idx;
+});
+
+
+// Language configuration
+const langs = [
+  { code: 'th', label: 'ภาษาไทย', locale: 'th-TH' },
+  { code: 'en', label: 'English', locale: 'en-US' },
+  { code: 'cn', label: '中文', locale: 'ch-Ch' }
+];
+
+const activeLangTab = ref(langs.findIndex(l => l.locale === locale.value) ?? 0);
+onMounted(()=>{
+  setLocale('th-TH')
+})
+// เมื่อเปลี่ยนแท็บ
+watch(activeLangTab, (newIdx) => {
+  setLocale(langs[newIdx].locale);
+});
+
+// เมื่อเปลี่ยน locale
+watch(locale, (newLocale) => {
+  const idx = langs.findIndex(l => l.locale === newLocale);
+  if (idx !== -1) activeLangTab.value = idx;
+});
 
 
 // test update main
@@ -54,50 +101,69 @@ const requireText = t('ระบุข้อมูล');
 // *************  VARIDATOR
 const validationSchema = toTypedSchema(
     zod.object({
-        // shop_name: zod.string().nonempty(requireValue).default(""),
-        shop_address: zod.string().nonempty(requireValue).default(""),
-        // shop_days: zod.string().nonempty(requireValue).default(""),
-        shop_days: zod.array(zod.string()).min(1, t('กรุณาเลือกวันที่ทำการ')).default([]),
-        shop_time_s: zod.date({
-                    required_error: requireValue,
-                    invalid_type_error: requireValue,
-                }),
-        shop_time_e: zod.date({
-                    required_error: requireValue,
-                    invalid_type_error: requireValue,
-                }),
+        // รองรับหลายภาษา
+        shop_name: zod.object({
+            th: zod.string().min(1, t('กรุณากรอก')),
+            en: zod.string().min(1, t('please input shope name')),
+            cn: zod.string().optional().or(zod.literal('')),
+        }),
+        shop_address: zod.object({
+            th: zod.string().min(1, t('validation.required_th')),
+            en: zod.string().min(1, t('validation.required_en')),
+            cn: zod.string().optional().or(zod.literal('')),
+        }),
+        shop_days: zod.object({
+            th: zod.array(zod.string()).min(1, t('กรุณาเลือกวันที่ทำการ (TH)')),
+            en: zod.array(zod.string()).min(1, t('Please select working days (EN)')),
+            cn: zod.array(zod.string()).optional().default([]),
+        }),
+        shop_details: zod.object({
+            th: zod.string().min(1, t('validation.required_th')),
+            en: zod.string().min(1, t('validation.required_en')),
+            cn: zod.string().optional().or(zod.literal('')),
+        }),
 
-        // shop_time: zod.string().nonempty(requireValue).default(""),
-        shop_phone: zod.string().nonempty(requireValue).default(""),
+        // ฟิลด์ภาษาเดียว
+        shop_time_s: zod.date({
+            required_error: t('validation.required'),
+            invalid_type_error: t('validation.invalid_date'),
+        }),
+        shop_time_e: zod.date({
+            required_error: t('validation.required'),
+            invalid_type_error: t('validation.invalid_date'),
+        }),
+        shop_phone: zod.string().nonempty(t('กรุณาระบุเบอร์โทร')),
+
         social_media: zod.array(
             zod.object({
-                social_name: zod.string().nonempty(requireText).default(""),
-                social_link: zod.string()
-                    .url(t('กรุณาระบุลิงก์ที่ถูกต้อง')) // ตรวจสอบว่าเป็นลิงก์ที่ถูกต้อง
-                    .nonempty(t('กรุณาระบุข้อมูลลิงก์')) // ตรวจสอบว่าไม่เป็นค่าว่าง
-                    .default(""),
-
+                social_name: zod.string().nonempty(t('กรุณาระบุชื่อโซเชียล')),
+                social_link: zod
+                    .string()
+                    .url(t('กรุณาระบุลิงก์ที่ถูกต้อง'))
+                    .nonempty(t('กรุณาระบุข้อมูลลิงก์')),
             })
         ),
+
         image_cover: zod
             .union([
-                zod.object({ src: zod.string() }), // Case where an object with `src` is provided
-                zod.instanceof(File),           // Case where the raw File is directly passed
+                zod.object({ src: zod.string() }),
+                zod.instanceof(File),
             ])
             .refine(
                 (value) =>
-                    !(value instanceof File) || value.size > 0, // Ensure the file is not empty
-                { message: requireValue }
+                    !(value instanceof File) || value.size > 0,
+                { message: t('กรุณาอัปโหลดรูปภาพหน้าปก') }
             ),
+
         image_profile: zod
             .union([
-                zod.object({ src: zod.string() }), // Case where an object with `src` is provided
-                zod.instanceof(File),           // Case where the raw File is directly passed
+                zod.object({ src: zod.string() }),
+                zod.instanceof(File),
             ])
             .refine(
                 (value) =>
-                    !(value instanceof File) || value.size > 0, // Ensure the file is not empty
-                { message: requireValue }
+                    !(value instanceof File) || value.size > 0,
+                { message: t('กรุณาอัปโหลดรูปโปรไฟล์') }
             ),
 
         business_img: zod.custom((value) => {
@@ -120,25 +186,68 @@ const { handleSubmit, handleReset, errors } = useForm({
     validationSchema,
 });
 
-const { value: image_profile } = useField('image_profile')
-const { value: image_cover } = useField('image_cover')
-const { value: shop_name } = useField('shop_name')
-const { value: shop_address } = useField('shop_address')
-const { value: shop_days } = useField('shop_days', null, {
-    initialValue: []
-})
-const { value: shop_time_s } = useField('shop_time_s')
-const { value: shop_time_e } = useField('shop_time_e')
 
-const { value: shop_time } = useField('shop_time')
-const { value: shop_phone } = useField('shop_phone')
-const { value: shop_details } = useField('shop_details')
-const { value: latitude } = useField('latitude')
-const { value: longitude } = useField('longitude')
+// ====== Multi-language fields ======
+const { value: shopNameTh } = useField('shop_name.th', undefined, { initialValue: '' });
+const { value: shopNameEn } = useField('shop_name.en', undefined, { initialValue: '' });
+const { value: shopNameCn } = useField('shop_name.cn', undefined, { initialValue: '' });
 
-const { value: business_img } = useField('business_img', null, {
-    initialValue: []
-})
+const { value: shopAddressTh } = useField('shop_address.th', undefined, { initialValue: '' });
+const { value: shopAddressEn } = useField('shop_address.en', undefined, { initialValue: '' });
+const { value: shopAddressCn } = useField('shop_address.cn', undefined, { initialValue: '' });
+
+const { value: shopDaysTh } = useField('shop_days.th', undefined, { initialValue: [] });
+const { value: shopDaysEn } = useField('shop_days.en', undefined, { initialValue: [] });
+const { value: shopDaysCn } = useField('shop_days.cn', undefined, { initialValue: [] });
+
+const { value: shopDetailsTh } = useField('shop_details.th', undefined, { initialValue: '' });
+const { value: shopDetailsEn } = useField('shop_details.en', undefined, { initialValue: '' });
+const { value: shopDetailsCn } = useField('shop_details.cn', undefined, { initialValue: '' });
+// ====== Computed for template binding ======
+const shop_name = ref({
+    get th() { return shopNameTh.value },
+    set th(v) { shopNameTh.value = v },
+    get en() { return shopNameEn.value },
+    set en(v) { shopNameEn.value = v },
+    get cn() { return shopNameCn.value },
+    set cn(v) { shopNameCn.value = v }
+});
+
+const shop_address = ref({
+    get th() { return shopAddressTh.value },
+    set th(v) { shopAddressTh.value = v },
+    get en() { return shopAddressEn.value },
+    set en(v) { shopAddressEn.value = v },
+    get cn() { return shopAddressCn.value },
+    set cn(v) { shopAddressCn.value = v }
+});
+
+const shop_days = ref({
+    get th() { return shopDaysTh.value },
+    set th(v) { shopDaysTh.value = v },
+    get en() { return shopDaysEn.value },
+    set en(v) { shopDaysEn.value = v },
+    get cn() { return shopDaysCn.value },
+    set cn(v) { shopDaysCn.value = v }
+});
+
+const shop_details = ref({
+    get th() { return shopDetailsTh.value },
+    set th(v) { shopDetailsTh.value = v },
+    get en() { return shopDetailsEn.value },
+    set en(v) { shopDetailsEn.value = v },
+    get cn() { return shopDetailsCn.value },
+    set cn(v) { shopDetailsCn.value = v }
+});
+// ====== Single-language fields ======
+const { value: image_profile } = useField('image_profile');
+const { value: image_cover } = useField('image_cover');
+const { value: shop_phone } = useField('shop_phone');
+const { value: shop_time_s } = useField('shop_time_s');
+const { value: shop_time_e } = useField('shop_time_e');
+const { value: latitude } = useField('latitude');
+const { value: longitude } = useField('longitude');
+const { value: business_img } = useField('business_img', null, { initialValue: [] });
 
 
 // const { push, fields, remove } = useFieldArray("social_media");
@@ -151,7 +260,7 @@ import { format } from 'date-fns';
 import { useFormStore } from "@/store/businessStore.js";
 const formStore = useFormStore(); // ใช้ Pinia Store
 const handleNext = handleSubmit(() => {
-    
+
     const time_start = format(shop_time_s.value, "HH:mm");
     const time_end = format(shop_time_e.value, "HH:mm");
     shop_time.value = `${time_start}-${time_end}`
@@ -186,7 +295,12 @@ const handleNext = handleSubmit(() => {
     // เปลี่ยนหน้าไป form5
     formStore.nextPage();
 });
-
+const getFieldError = (fieldName, langCode = null) => {
+    if (langCode) {
+        return errors.value[`${fieldName}.${langCode}`] || null;
+    }
+    return errors.value[fieldName] || null;
+};
 
 // function onFileSelect(event) {
 //     event.files.forEach(file => {
@@ -281,24 +395,16 @@ const triggerFileInputProfile = () => {
 
 let map = null;
 // สร้างแผนที่
-const initMap = async () => {
-    try {
+const initMap = () => {
+    const mapContainer = document.getElementById('map')
+    if (!mapContainer || !window.longdo) return
 
-        const mapContainer = document.getElementById("map");
-        if (!mapContainer) {
-            console.error("Element #map not found");
-            return;
-        }
-
-        map = new window.Map({
-            placeholder: mapContainer,
-            zoom: 12,
-            location: { lat: 13.736717, lon: 100.523186 },
-        });
-    } catch (error) {
-        console.error("Error loading Longdo Map:", error);
-    }
-};
+    map.value = new window.longdo.Map({
+        placeholder: mapContainer,
+        zoom: 12,
+        location: { lat: 13.736717, lon: 100.523186 } // Bangkok
+    })
+}
 
 // ลบ Marker ทั้งหมด
 const clearMarkers = () => {
@@ -342,7 +448,7 @@ const textSearchMap = ref();
 const resLocation = ref([]);
 const onLocationSearchSelect = (e) => {
     try {
-        
+
         if (!e) {
             return
         }
@@ -357,7 +463,7 @@ const onLocationSearchSelect = (e) => {
     }
 };
 // ✅ โฟกัสแผนที่ไปยังพิกัดที่เลือก
-const focusOnLocation = async(lat, lon) => {
+const focusOnLocation = async (lat, lon) => {
     if (!map) return;
     await clearMarkers
     const marker = new longdo.Marker(
@@ -377,43 +483,59 @@ const focusOnLocation = async(lat, lon) => {
 };
 
 // ✅ ฟังก์ชันค้นหาสถานที่จาก API
+// const search = async (event) => {
+//     setTimeout(() => {
+//         if (!event.query.trim().length) {
+//             resLocation.value = [];
+//         } else {
+//             if (event.query?.length >= 4) {
+//                 const requestOptions = {
+//                     method: "GET",
+//                     redirect: "follow"
+//                 };
+//                 fetch(`https://search.longdo.com/mapsearch/json/search?keyword=${event.query}&limit=20&key=cffdefc2f61c2b38e32abe2c7b7e19cd`, requestOptions)
+//                     .then((response) => response.json())
+//                     .then((result) => {
+//                         console.log("Search results:", result);
+//                         resLocation.value = result.data.map(item => ({
+//                             name: item.name,
+//                             address: item.address || t('ไม่มีที่อยู่'),
+//                             lat: item.lat,
+//                             lon: item.lon,
+//                             id: item.id
+//                         }));
+//                     })
+//                     .catch((error) => console.error(error));
+//             }
+//         }
+//     }, 250);
+// };
 const search = async (event) => {
-    setTimeout(() => {
+    setTimeout(async () => {
         if (!event.query.trim().length) {
-            resLocation.value = [];
-        } else {
-            if (event.query?.length >= 4) {
-                const requestOptions = {
-                    method: "GET",
-                    redirect: "follow"
-                };
-                fetch(`https://search.longdo.com/mapsearch/json/search?keyword=${event.query}&limit=20&key=cffdefc2f61c2b38e32abe2c7b7e19cd`, requestOptions)
-                    .then((response) => response.json())
-                    .then((result) => {
-                        console.log("Search results:", result);
-                        resLocation.value = result.data.map(item => ({
-                            name: item.name,
-                            address: item.address || t('ไม่มีที่อยู่'),
-                            lat: item.lat,
-                            lon: item.lon,
-                            id: item.id
-                        }));
-                    })
-                    .catch((error) => console.error(error));
+            resLocation.value = []
+        } else if (event.query.length >= 4) {
+            try {
+                const { data } = await $fetch('/api/longdo-search', {
+                    params: { keyword: event.query }
+                })
+                resLocation.value = data
+            } catch (e) {
+                console.error(e)
             }
         }
-    }, 250);
-};
+    }, 250)
+}
 // โหลดแผนที่เมื่อ DOM พร้อม
 onMounted(async () => {
-  await useLongdoLoader()
-  initMap()
+    await useLongdoLoader()
+    initMap()
 })
 
 </script>
 <template>
     <div class="bg-zinc-100 min-h-screen">
-                <LayoutsBaseHeader :title="t('ข้อมูลธุรกิจในแหล่งท่องเที่ยว')">
+        <LayoutsBaseHeader :title="t('ข้อมูลธุรกิจในแหล่งท่องเที่ยว')">
             <template #left>
                 <ButtonIconBack @click="formStore.prevPage()" />
             </template>
@@ -425,6 +547,8 @@ onMounted(async () => {
                     :class="item.active ? 'w-8 h-2 bg-blue-900' : 'w-8 h-2 bg-gray-200'"></div>
             </div>
             <Form @submit="handleNext">
+                <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54">
+                    <van-tab v-for="(lang, idx) in langs" :key="lang.code" :title="lang.label" :name="idx">
                 <div class="card pt-5 mb-10">
                     <h2 class="font-bold text-lg ">
                         {{ t('ธุรกิจใจแหล่งท่องเที่ยว') }}
@@ -460,7 +584,9 @@ onMounted(async () => {
 
 
                             </div>
-                            <p class="error-text" v-if="errors?.image_profile">{{ t('กรุณาเลือกอย่างน้อย') }} 1 {{ t('ภาพ') }}</p>
+                            <p class="error-text" v-if="errors?.image_profile">{{ t('กรุณาเลือกอย่างน้อย') }} 1 {{
+                                t('ภาพ') }}
+                            </p>
                         </div>
 
 
@@ -492,10 +618,12 @@ onMounted(async () => {
 
 
                             </div>
-                            <p class="error-text" v-if="errors?.image_cover">{{ t('กรุณาเลือกอย่างน้อย') }} 1 {{ t('ภาพ') }}</p>
+                            <p class="error-text" v-if="errors?.image_cover">{{ t('กรุณาเลือกอย่างน้อย') }} 1 {{
+                                t('ภาพ') }}</p>
                         </div>
 
-                        <p class="text-gray-500 text-sm">{{ t('อัพโหลดรูปภาพ') }} ({{ t('ไม่เกิน') }} 3 {{ t('รูป') }})</p>
+                        <p class="text-gray-500 text-sm">{{ t('อัพโหลดรูปภาพ') }} ({{ t('ไม่เกิน') }} 3 {{ t('รูป') }})
+                        </p>
                         <div class="flex flex-wrap gap-2 mb-3 relative">
                             <div v-for="(image, index) in business_img" :key="index" class="relative">
                                 <!-- Image Display -->
@@ -515,18 +643,20 @@ onMounted(async () => {
                                         class="pi pi-plus text-2xl text-gray-600 hover:scale-110 transition-transform"></i>
                                 </label>
                                 <FileUpload ref="fileInput" id="upload-image" mode="basic" accept="image/*"
-                                    @select="onFileSelect" customUpload :auto="true" class="!hidden" multiple  />
+                                    @select="onFileSelect" customUpload :auto="true" class="!hidden" multiple />
                             </div>
                         </div>
-                        <p class="error-text" v-if="errors?.business_img">{{ t('กรุณาเลือกอย่างน้อย') }} 1 {{ 'ภาพ' }}</p>
+                        <p class="error-text" v-if="errors?.business_img">{{ t('กรุณาเลือกอย่างน้อย') }} 1 {{ 'ภาพ' }}
+                        </p>
 
                         <div>
                             <client-only>
                                 <label class="label-input block">{{ t('พิกัดสถานที่ท่องเที่ยวหรือธุรกิจ') }}</label>
                                 <AutoComplete v-model="textSearchMap" forceSelection optionLabel="name"
-                                    :placeholder="`${t('ค้นหาสถานที่ใกล้เคียง')}...`" :suggestions="resLocation" @complete="search"
-                                    @value-change="onLocationSearchSelect" dropdownicon="fa-regular fa-trash-can"
-                                    class="mb-2" inputClass="custom-border w-full">
+                                    :placeholder="`${t('ค้นหาสถานที่ใกล้เคียง')}...`" :suggestions="resLocation"
+                                    @complete="search" @value-change="onLocationSearchSelect"
+                                    dropdownicon="fa-regular fa-trash-can" class="mb-2"
+                                    inputClass="custom-border w-full">
 
                                     <template #option="slotProps" class="w-full">
                                         <div class="flex flex-col p-2 border-b border-gray-200">
@@ -537,9 +667,11 @@ onMounted(async () => {
                                     </template>
                                 </AutoComplete>
                                 <div class="h-[30rem] mb-2">
-                                    <div id="map" class="map-container" style="width: 100%; height: 100%;"></div>
+                                    <div id="map" class="map-container" style="width: 40rem; height: 40rem;"></div>
                                 </div>
-                                <p class="error-text" v-if="errors?.longitude">{{ t('กรุณาปักหมุดสถานที่ท่องเที่ยวหรือธุรกิจ') }}
+                                <p class="error-text" v-if="errors?.longitude">{{
+                                    t('กรุณาปักหมุดสถานที่ท่องเที่ยวหรือธุรกิจ')
+                                    }}
                                 </p>
 
                             </client-only>
@@ -560,45 +692,54 @@ onMounted(async () => {
                         <!-- ชื่อบริษัท -->
                         <div>
                             <label class="label-input">{{ t('ชื่อธุรกิจในแหล่งท่องเที่ยว') }}</label>
-                            <InputText v-model="shop_name" :placeholder="t('ชื่อธุรกิจในแหล่งท่องเที่ยว')"
-                                class="w-full custom-border" :invalid="errors?.shop_name ? true : false" />
-                            <p class="error-text" v-if="errors?.shop_name">{{ errors?.shop_name }}</p>
+                            <InputText v-model="shop_name[lang.code]" :placeholder="t('ชื่อธุรกิจในแหล่งท่องเที่ยว')"
+                                class="w-full custom-border" :invalid="getFieldError('shop_name')" />
+                            <p v-if="getFieldError('shop_name', lang.code)" class="error-text">
+                                {{ getFieldError('shop_name', lang.code) }}
+                            </p>
 
                         </div>
                         <!-- ชื่อบริษัท -->
                         <div>
                             <label class="label-input">{{ t('ที่อยู่ธุรกิจในแหล่งท่องเที่ยว') }}</label>
-                            <InputText v-model="shop_address" :placeholder="t('ที่อยู่ธุรกิจ')"
-                                :invalid="errors?.shop_address ? true : false" class="w-full custom-border" />
-                            <p class="error-text" v-if="errors?.shop_address">{{ errors?.shop_address }}</p>
+                            <InputText v-model="shop_address[lang.code]" :placeholder="t('ที่อยู่ธุรกิจ')"
+                                :invalid="getFieldError(shop_address)" class="w-full custom-border" />
+                                <p v-if="getFieldError('shop_address', lang.code)" class="error-text">
+                                {{ getFieldError('shop_address', lang.code) }}
+                            </p>
 
                         </div>
                         <div>
                             <label class="label-input">{{ t('วันที่ทำการ') }}</label>
                             <!-- <InputText v-model="shop_days" placeholder="วันที่ทำการ" class="w-full custom-border"
                                 :invalid="errors?.shop_days ? true : false" /> -->
-                                <div class="mt-2">
-            <div class="grid grid-cols-3 gap-x-6 gap-y-3 lg:w-fit w-full">
-                <div v-for="day in days" :key="day.value" class="flex items-center space-x-2">
-                    <Checkbox v-model="shop_days" :inputId="day.value" :value="day.value"
-                         size="small" :invalid="errors?.shop_days ? true : false" />
-                    <label :for="day.value" class="text-gray-700 cursor-pointer">{{ day.label }}</label>
-                </div>
-            </div>
-        </div>
+                            <div class="mt-2">
+                                <div class="grid grid-cols-3 gap-x-6 gap-y-3 lg:w-fit w-full">
+                                    <div v-for="day in days" :key="day.value" class="flex items-center space-x-2">
+                                        <Checkbox v-model="shop_days" :inputId="day.value" :value="day.value"
+                                            size="small" :invalid="errors?.shop_days ? true : false" />
+                                        <label :for="day.value" class="text-gray-700 cursor-pointer">{{ day.label
+                                            }}</label>
+                                    </div>
+                                </div>
+                            </div>
                             <p class="error-text" v-if="errors?.shop_days">{{ errors?.shop_days }}</p>
 
                         </div>
                         <div>
                             <label class="label-input block">{{ t('เวลาทำการ') }}</label>
-                            <DatePicker id="datepicker-timeonly" v-model="shop_time_s" timeOnly inputClass="custom-border" style="width: 6rem;"
-                            :invalid="errors?.shop_time_s ? true : false" :placeholder="t('ชั่วโมง:นาที')" />
-                        
+                            <DatePicker id="datepicker-timeonly" v-model="shop_time_s" timeOnly
+                                inputClass="custom-border" style="width: 6rem;"
+                                :invalid="errors?.shop_time_s ? true : false" :placeholder="t('ชั่วโมง:นาที')" />
+
                             <label class="label-input">{{ t('ถึง') }}</label>
-                            <DatePicker id="datepicker-timeonly" v-model="shop_time_e" timeOnly class="custom-border" inputClass="custom-border" style="width: 6rem;"
-                            :invalid="errors?.shop_time_e ? true : false" :placeholder="t('ชั่วโมง:นาที')"/>
-                          
-                            <p class="error-text" v-if="errors?.shop_time_s || errors?.shop_time_e ">{{ t('กรุณาเลือกเวลาทำการ') }}</p>
+                            <DatePicker id="datepicker-timeonly" v-model="shop_time_e" timeOnly class="custom-border"
+                                inputClass="custom-border" style="width: 6rem;"
+                                :invalid="errors?.shop_time_e ? true : false" :placeholder="t('ชั่วโมง:นาที')" />
+
+                            <p class="error-text" v-if="errors?.shop_time_s || errors?.shop_time_e">{{
+                                t('กรุณาเลือกเวลาทำการ')
+                                }}</p>
 
                         </div>
                         <!-- ติดต่อ -->
@@ -628,7 +769,7 @@ onMounted(async () => {
                         social_name: undefined,
                         social_link: undefined,
                     })" />
-                    <div id="table-socia-media" v-if="fields1?.length>0">
+                    <div id="table-socia-media" v-if="fields1?.length > 0">
                         <table>
                             <thead>
                                 <tr>
@@ -644,7 +785,8 @@ onMounted(async () => {
                                         <div class="space-y-0">
                                             <Select v-model="field.value.social_name" :options="resSociaMedia" style=""
                                                 optionLabel="social_media_name" optionValue="social_media_name"
-                                                class="w-full h-full custom-border" :placeholder="`${t('ประเภทโซเชียล')}...`">
+                                                class="w-full h-full custom-border"
+                                                :placeholder="`${t('ประเภทโซเชียล')}...`">
                                                 <template #value="slotProps">
                                                     <div class="flex items-center space-x-2">
                                                         <i :class="getIcon(slotProps.value)" class="text-lg"></i>
@@ -690,13 +832,15 @@ onMounted(async () => {
                     </div>
 
                 </div>
-
-                <Button :loading="isloadingAxi" :label="t('ถัดไป')" severity="primary" type="submit" rounded class="w-full"
-                    :pt="{
+            </van-tab>
+        </van-tabs>
+                <Button :loading="isloadingAxi" :label="t('ถัดไป')" severity="primary" type="submit" rounded
+                    class="w-full" :pt="{
                         root: {
                             class: '!border-primary-main'
                         },
                     }" />
+                    
             </Form>
 
         </div>

@@ -1,25 +1,37 @@
 <script setup>
+import { ref, onMounted } from "vue";
 import { useRouter } from 'vue-router';
 import { useFormStore } from '@/store/businessStore.js';
 import { useI18n } from 'vue-i18n';
 import * as dataApi from '../../api/data.js';
+const { t, locale, setLocale } = useI18n();
+onMounted(()=>{
+  setLocale('th-TH')
+})
 
-const { t } = useI18n();
 const isloadingAxi = useState('isloadingAxi');  // สำหรับการโหลด
+
+const langs = [
+    { code: "th", label: "ภาษาไทย" },
+    { code: "en", label: "English" },
+    { code: "cn", label: "中文" },
+];
 
 const router = useRouter();
 const formStore = useFormStore(); // ใช้งาน Pinia Store
+
 const resServiceType = ref([]);
 const alertToast = ref({});
-const activeLangTab = ref('th');  // ใช้สำหรับจัดการแท็บของภาษา
+const activeLangTab = ref('th');      // Tab ภาษา
+const selectedId = ref('');           // ID ที่เลือก
 
 // ดึงข้อมูลประเภทการให้บริการจาก API
 const loadServiceType = async () => {
     try {
+        isloadingAxi.value = true
         const res = await dataApi.getServiceType();
         resServiceType.value = res.data.data;
     } catch (error) {
-        console.error(error);
         alertToast.value = {
             title: t('ล้มเหลว'),
             isError: true,
@@ -27,130 +39,90 @@ const loadServiceType = async () => {
             msg: error.response?.data?.message || "Error occurred",
             dataError: error
         };
+    } finally {
+        isloadingAxi.value = false
     }
 };
 
-// ฟังก์ชันเมื่อคลิกปุ่ม
-const handleServiceTypeClick = async (serviceTypeId, serviceTypeName) => {
-    // สร้าง Payload ที่จะใช้ส่งไปยัง API
-    const payload = {
-        service_type_name_i18n: {
-            th: serviceTypeName.th,
-            en: serviceTypeName.en,
-            cn: serviceTypeName.cn
-        },
-        status: true  // สามารถเปลี่ยนค่า status ได้ตามความต้องการ
-    };
-
-    // ส่งข้อมูลไปที่ API
-    try {
-        console.log("Saving service type:", payload);
-        // const response = await dataApi.saveServiceType(payload);
-        // formStore.setFormStart(serviceTypeId, serviceTypeName); // เก็บลง Pinia
-        // formStore.nextPage(); // เปลี่ยนไปหน้า widgetForm1
-    } catch (error) {
-        console.error(error);
-        alertToast.value = {
-            title: t('บันทึกล้มเหลว'),
-            isError: true,
-            color: 'error',
-            msg: error.response?.data?.message || "Error occurred",
-            dataError: error
-        };
-    }
+// เมื่อเลือก ServiceType
+const handleServiceTypeClick = async (serviceTypeId) => {
+    selectedId.value = serviceTypeId;  // กำหนด id ที่เลือกไว้ (highlight ทุกภาษา)
+    // เก็บลง Store / ยิง API ได้เลย เช่น
+    formStore.setFormStart(serviceTypeId)
+    formStore.nextPage();
+    // Optional: Toast แสดงการเลือก
+    // alertToast.value = { title: 'เลือกสำเร็จ', isError: false, color: 'success', msg: t('คุณเลือกแล้ว') }
 };
 
-onMounted(() => {
-    loadServiceType();
-});
+onMounted(loadServiceType);
 </script>
 
 <template>
     <div class="bg-zinc-100 min-h-screen">
         <LayoutsBaseHeader :title="t('ประเภทการให้บริการ')" showBack backTo="/vendor/my-business"></LayoutsBaseHeader>
 
-        <div class="">
-            <!-- <div class="text-center pt-10 mb-12">
-                <h1 class="font-bold text-2xl mb-4">{{ t('ประเภทการให้บริการ') }}</h1>
-                <p class="text-primary-main text-lg mb-8">{{ t('กรุณาเลือกประเภทการให้บริการของคุณ') }}</p>
-            </div> -->
-
-            <!-- ใช้ van-tabs สำหรับการเลือกภาษา -->
-            <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54">
-                <!-- Tab ภาษาไทย -->
+        <div>
+            <!-- <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54">
                 <van-tab title="ภาษาไทย" name="th" class="p-2 pt-10">
                     <div class="text-center">
-                        <Button :loading="isloadingAxi"
+                        <Button
                             v-for="(item, index) in resServiceType"
-                            :key="index"
+                            :key="item.id"
                             :label="item.service_type_name_i18n.th"
                             severity="primary"
                             rounded
                             variant="outlined"
                             class="w-full mb-4"
                             :pt="{
-                                label: {
-                                    class: 'text-primary-main'
-                                },
-                                root: {
-                                    class: '!border-primary-main'
-                                }
+                                label: { class: 'text-primary-main' },
+                                root:  { class: selectedId === item.id ? '!border-indigo-900 bg-blue-50' : '!border-primary-main' }
                             }"
+                            :loading="isloadingAxi"
                             @click="handleServiceTypeClick(item.id, item.service_type_name_i18n)" 
                         />
                     </div>
                 </van-tab>
-
-                <!-- Tab English -->
-                <van-tab title="English" name="en" class="p-2 pt-10">
+                
+            </van-tabs> -->
+            <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54">
+                <van-tab v-for="lang in langs" :title="lang.label" :name="lang.code" :key="lang.code" class="p-2">
+                    <!-- <h2 class="text-center font-bold text-xl mb-8 pt-2">
+                        {{ lang.code === 'th' ? 'เลือกประเภทการท่องเที่ยว' : (lang.code === 'en' ? 'Select Tourist
+                        Attraction Type' : '选择旅游景点类型') }}
+                    </h2>
+                    <div class="grid grid-cols-2 gap-3 my-6">
+                        <div v-for="item in resBusinessType" :key="item.id"
+                            class="flex flex-col items-center justify-center border-2 rounded-sm p-4 cursor-pointer"
+                            :class="{
+                                '!border-indigo-900 bg-blue-50': selectedItem === item.id,
+                                'border-gray-300': selectedItem !== item.id
+                            }" @click="selectedItem = item.id">
+                            <i :class="item.icon" class="text-2xl mb-2 text-primary-main"></i>
+                            <span class="text-sm text-center">
+                                {{ item.business_type_name_i18n_parsed?.[lang.code] || '-' }}
+                            </span>
+                        </div>
+                    </div> -->
                     <div class="text-center">
-                        <Button :loading="isloadingAxi"
+                        <Button
                             v-for="(item, index) in resServiceType"
-                            :key="index"
-                            :label="item.service_type_name_i18n.en"
+                            :key="item.id"
+                            :label="item.service_type_name_i18n[lang.code]"
                             severity="primary"
                             rounded
                             variant="outlined"
                             class="w-full mb-4"
                             :pt="{
-                                label: {
-                                    class: 'text-primary-main'
-                                },
-                                root: {
-                                    class: '!border-primary-main'
-                                }
+                                label: { class: 'text-primary-main' },
+                                root:  { class: selectedId === item.id ? '!border-indigo-900 bg-blue-50' : '!border-primary-main' }
                             }"
-                            @click="handleServiceTypeClick(item.id, item.service_type_name_i18n)" 
-                        />
-                    </div>
-                </van-tab>
-
-                <!-- Tab 中文 -->
-                <van-tab title="中文" name="cn" class="p-2 pt-10">
-                    <div class="text-center">
-                        <Button :loading="isloadingAxi"
-                            v-for="(item, index) in resServiceType"
-                            :key="index"
-                            :label="item.service_type_name_i18n.cn"
-                            severity="primary"
-                            rounded
-                            variant="outlined"
-                            class="w-full mb-4"
-                            :pt="{
-                                label: {
-                                    class: 'text-primary-main'
-                                },
-                                root: {
-                                    class: '!border-primary-main'
-                                }
-                            }"
-                            @click="handleServiceTypeClick(item.id, item.service_type_name_i18n)" 
+                            :loading="isloadingAxi"
+                            @click="handleServiceTypeClick(item.id)" 
                         />
                     </div>
                 </van-tab>
             </van-tabs>
         </div>
-
         <MyToast :data="alertToast" />
     </div>
 </template>

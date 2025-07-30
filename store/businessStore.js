@@ -2,14 +2,10 @@ import { defineStore } from 'pinia';
 
 export const useFormStore = defineStore('form', {
   state: () => ({
-    activePage: 1,
-    serviceTypeId: null,
-    serviceTypeName: '',
-    businessTypeId: null,
-    businessTypeName: '',
+    activePage: 5,
+    service_type_id: null,
+    business_type_id: null,
     business_model_id:null,
-    business_model_name:'',
-    is_corporation: null,
     business_name: '',
     business_person: '',
     business_address: '',
@@ -32,18 +28,14 @@ export const useFormStore = defineStore('form', {
     business_list:[]
   }),
   actions: {
-    setFormStart(serviceTypeId, serviceTypeName) {
-      this.serviceTypeId = serviceTypeId;
-      this.serviceTypeName = serviceTypeName;
+    setFormStart(service_type_id) {
+      this.service_type_id = service_type_id;
     },
-    setForm1(businessTypeId, businessTypeName) {
-      this.businessTypeId = businessTypeId;
-      this.businessTypeName = businessTypeName;
+    setForm1(business_type_id) {
+      this.business_type_id = business_type_id;
     },
-    setForm2(business_model_id,business_model_name,is_corporation){
+    setForm2(business_model_id){
       this.business_model_id=business_model_id;
-      this.business_model_name = business_model_name;
-      this.is_corporation = is_corporation
     },
     setForm3(business_name, business_person, business_address, business_contact, business_email, listFiles) {
       this.business_name = business_name;
