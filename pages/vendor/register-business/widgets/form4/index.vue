@@ -22,62 +22,51 @@ const stepsBar = ref([
 ]);
 
 
-// Language configuration
-const langs = [
-  { code: 'th', label: 'ภาษาไทย', locale: 'th-TH' },
-  { code: 'en', label: 'English', locale: 'en-US' },
-  { code: 'cn', label: '中文', locale: 'ch-Ch' }
-];
-
-const activeLangTab = ref(langs.findIndex(l => l.locale === locale.value) ?? 0);
-onMounted(()=>{
-  setLocale('th-TH')
-})
-// เมื่อเปลี่ยนแท็บ
-watch(activeLangTab, (newIdx) => {
-  setLocale(langs[newIdx].locale);
-});
-
-// เมื่อเปลี่ยน locale
-watch(locale, (newLocale) => {
-  const idx = langs.findIndex(l => l.locale === newLocale);
-  if (idx !== -1) activeLangTab.value = idx;
-});
 
 
 // Language configuration
 const langs = [
-  { code: 'th', label: 'ภาษาไทย', locale: 'th-TH' },
-  { code: 'en', label: 'English', locale: 'en-US' },
-  { code: 'cn', label: '中文', locale: 'ch-Ch' }
+    { code: 'th', label: 'ภาษาไทย', locale: 'th-TH' },
+    { code: 'en', label: 'English', locale: 'en-US' },
+    { code: 'cn', label: '中文', locale: 'ch-Ch' }
 ];
 
 const activeLangTab = ref(langs.findIndex(l => l.locale === locale.value) ?? 0);
-onMounted(()=>{
-  setLocale('th-TH')
+onMounted(() => {
+    setLocale('th-TH')
 })
 // เมื่อเปลี่ยนแท็บ
 watch(activeLangTab, (newIdx) => {
-  setLocale(langs[newIdx].locale);
+    setLocale(langs[newIdx].locale);
 });
 
 // เมื่อเปลี่ยน locale
 watch(locale, (newLocale) => {
-  const idx = langs.findIndex(l => l.locale === newLocale);
-  if (idx !== -1) activeLangTab.value = idx;
+    const idx = langs.findIndex(l => l.locale === newLocale);
+    if (idx !== -1) activeLangTab.value = idx;
 });
 
 
 // test update main
+// const days = [
+//     { label: t('จันทร์'), value: t('จันทร์') },
+//     { label: t('อังคาร'), value: t('อังคาร') },
+//     { label: t('พุธ'), value: t('พุธ') },
+//     { label: t('พฤหัสบดี'), value: t('พฤหัสบดี') },
+//     { label: t('ศุกร์'), value: t('ศุกร์') },
+//     { label: t('เสาร์'), value: t('เสาร์') },
+//     { label: t('อาทิตย์'), value: t('อาทิตย์') },
+// ];
+// ✅ Days mapping - แต่ละวันจะมี key เหมือนกันเพื่อใช้ sync
 const days = [
-    { label: t('จันทร์'), value: t('จันทร์') },
-    { label: t('อังคาร'), value: t('อังคาร') },
-    { label: t('พุธ'), value: t('พุธ') },
-    { label: t('พฤหัสบดี'), value: t('พฤหัสบดี') },
-    { label: t('ศุกร์'), value: t('ศุกร์') },
-    { label: t('เสาร์'), value: t('เสาร์') },
-    { label: t('อาทิตย์'), value: t('อาทิตย์') },
-];
+    { index: 0, label: t('จันทร์'), th: 'จันทร์', en: 'monday', cn: '周一' },
+    { index: 1, label: t('อังคาร'), th: 'อังคาร', en: 'tuesday', cn: '周二' },
+    { index: 2, label: t('พุธ'), th: 'พุธ', en: 'wednesday', cn: '周三' },
+    { index: 3, label: t('พฤหัสบดี'), th: 'พฤหัสบดี', en: 'thursday', cn: '周四' },
+    { index: 4, label: t('ศุกร์'), th: 'ศุกร์', en: 'friday', cn: '周五' },
+    { index: 5, label: t('เสาร์'), th: 'เสาร์', en: 'saturday', cn: '周六' },
+    { index: 6, label: t('อาทิตย์'), th: 'อาทิตย์', en: 'sunday', cn: '周日' }
+]
 
 const resSociaMedia = ref([])
 const loadSocialMedia = async () => {
@@ -230,6 +219,21 @@ const shop_days = ref({
     get cn() { return shopDaysCn.value },
     set cn(v) { shopDaysCn.value = v }
 });
+
+function onShopDayChange(triggerLang) {
+    // 1. รอ DOM/checkbox update ให้เสร็จ (ใช้ nextTick)
+    nextTick(() => {
+        const selectedIndexes = days
+            .map((day, idx) => shop_days.value[triggerLang].includes(day[triggerLang]) ? idx : -1)
+            .filter(i => i !== -1)
+        langs.forEach((lang) => {
+            if (lang.code === triggerLang) return
+
+            shop_days.value[lang.code] = selectedIndexes.map(i => days[i][lang.code])
+        })
+    })
+}
+
 
 const shop_details = ref({
     get th() { return shopDetailsTh.value },
@@ -549,298 +553,341 @@ onMounted(async () => {
             <Form @submit="handleNext">
                 <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54">
                     <van-tab v-for="(lang, idx) in langs" :key="lang.code" :title="lang.label" :name="idx">
-                <div class="card pt-5 mb-10">
-                    <h2 class="font-bold text-lg ">
-                        {{ t('ธุรกิจใจแหล่งท่องเที่ยว') }}
-                    </h2>
-                    <!-- <p class="text-primary-main mb-3">ร้านอาหาร</p> -->
-                    <!-- <van-uploader :after-read="afterRead" /> -->
-                    <div class="space-y-4 mb-5">
-                        <div>
-                            <p class="text-gray-500 text-sm">{{ t('อัพโหลดรูปภาพโปรไฟล์') }}</p>
-                            <div class="flex flex-wrap gap-2 mb-3 relative">
-                                <!-- Display the image preview if available -->
-                                <div class="relative" v-if="image_profile?.src">
-                                    <!-- <img :src="image_cover.src" alt="Preview"
+                        <div class="card pt-5 mb-10">
+                            <h2 class="font-bold text-lg ">
+                                {{ t('ธุรกิจใจแหล่งท่องเที่ยว') }}
+                            </h2>
+                            <!-- <p class="text-primary-main mb-3">ร้านอาหาร</p> -->
+                            <!-- <van-uploader :after-read="afterRead" /> -->
+                            <div class="space-y-4 mb-5">
+                                <div>
+                                    <p class="text-gray-500 text-sm">{{ t('อัพโหลดรูปภาพโปรไฟล์') }}</p>
+                                    <div class="flex flex-wrap gap-2 mb-3 relative">
+                                        <!-- Display the image preview if available -->
+                                        <div class="relative" v-if="image_profile?.src">
+                                            <!-- <img :src="image_cover.src" alt="Preview"
                                         class="object-cover w-12 h-12 rounded-md" /> -->
-                                    <Image :src="image_profile.src" alt="Image" width="50" class="object-cover "
-                                        :pt="{ image: { class: 'object-cover w-12 h-12 rounded-md ' } }" preview />
-                                    <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.5 text-white rounded-full cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 hover:bg-red-300"
-                                        @click="removeImageBgProfile"></i>
-                                </div>
-
-                                <!-- Upload Button -->
-                                <div class="flex" v-else>
-                                    <label
-                                        class="w-12 h-12 border-2 border-dotted border-blue-900 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-600"
-                                        @click="triggerFileInputProfile">
-                                        <i
-                                            class="pi pi-plus text-2xl text-gray-600 hover:scale-110 transition-transform"></i>
-                                    </label>
-                                    <!-- Hidden File Input -->
-                                    <input ref="fileInputBgProfile" id="upload-image" type="file" accept="image/*"
-                                        @change="onFileSelectBgProfile" class="hidden" />
-                                </div>
-
-
-                            </div>
-                            <p class="error-text" v-if="errors?.image_profile">{{ t('กรุณาเลือกอย่างน้อย') }} 1 {{
-                                t('ภาพ') }}
-                            </p>
-                        </div>
-
-
-                        <div>
-                            <p class="text-gray-500 text-sm">{{ t('อัพโหลดรูปภาพหน้าปก') }}</p>
-                            <div class="flex flex-wrap gap-2 mb-3 relative">
-                                <!-- Display the image preview if available -->
-                                <div class="relative" v-if="image_cover?.src">
-                                    <!-- <img :src="image_cover.src" alt="Preview"
-                                        class="object-cover w-12 h-12 rounded-md" /> -->
-                                    <Image :src="image_cover.src" alt="Image" width="50" class="object-cover "
-                                        :pt="{ image: { class: 'object-cover w-12 h-12 rounded-md ' } }" preview />
-                                    <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.5 text-white rounded-full cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 hover:bg-red-300"
-                                        @click="removeImageBgCover"></i>
-                                </div>
-
-                                <!-- Upload Button -->
-                                <div class="flex" v-else>
-                                    <label
-                                        class="w-12 h-12 border-2 border-dotted border-blue-900 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-600"
-                                        @click="triggerFileInputBgCover">
-                                        <i
-                                            class="pi pi-plus text-2xl text-gray-600 hover:scale-110 transition-transform"></i>
-                                    </label>
-                                    <!-- Hidden File Input -->
-                                    <input ref="fileInputBgCover" id="upload-image" type="file" accept="image/*"
-                                        @change="onFileSelectBgCover" class="hidden" />
-                                </div>
-
-
-                            </div>
-                            <p class="error-text" v-if="errors?.image_cover">{{ t('กรุณาเลือกอย่างน้อย') }} 1 {{
-                                t('ภาพ') }}</p>
-                        </div>
-
-                        <p class="text-gray-500 text-sm">{{ t('อัพโหลดรูปภาพ') }} ({{ t('ไม่เกิน') }} 3 {{ t('รูป') }})
-                        </p>
-                        <div class="flex flex-wrap gap-2 mb-3 relative">
-                            <div v-for="(image, index) in business_img" :key="index" class="relative">
-                                <!-- Image Display -->
-                                <Image :src="image.src" alt="Image" width="50" class="object-cover "
-                                    :pt="{ image: { class: 'object-cover w-12 h-12 rounded-md ' } }" preview />
-
-                                <!-- Delete Icon (Overlay on Top-Right) -->
-                                <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.5 text-white  rounded-full cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 hover:bg-red-300"
-                                    @click="removeImage(index)"></i>
-
-                            </div>
-                            <div class="flex">
-                                <label
-                                    class="w-12 h-12 border-2 border-dotted border-blue-900 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-600"
-                                    @click="triggerFileInput">
-                                    <i
-                                        class="pi pi-plus text-2xl text-gray-600 hover:scale-110 transition-transform"></i>
-                                </label>
-                                <FileUpload ref="fileInput" id="upload-image" mode="basic" accept="image/*"
-                                    @select="onFileSelect" customUpload :auto="true" class="!hidden" multiple />
-                            </div>
-                        </div>
-                        <p class="error-text" v-if="errors?.business_img">{{ t('กรุณาเลือกอย่างน้อย') }} 1 {{ 'ภาพ' }}
-                        </p>
-
-                        <div>
-                            <client-only>
-                                <label class="label-input block">{{ t('พิกัดสถานที่ท่องเที่ยวหรือธุรกิจ') }}</label>
-                                <AutoComplete v-model="textSearchMap" forceSelection optionLabel="name"
-                                    :placeholder="`${t('ค้นหาสถานที่ใกล้เคียง')}...`" :suggestions="resLocation"
-                                    @complete="search" @value-change="onLocationSearchSelect"
-                                    dropdownicon="fa-regular fa-trash-can" class="mb-2"
-                                    inputClass="custom-border w-full">
-
-                                    <template #option="slotProps" class="w-full">
-                                        <div class="flex flex-col p-2 border-b border-gray-200">
-                                            <span class="font-medium text-lg text-primary-main">{{
-                                                slotProps.option?.name }}</span>
-                                            <span class="text-sm text-gray-500">{{ slotProps.option?.address }}</span>
+                                            <Image :src="image_profile.src" alt="Image" width="50" class="object-cover "
+                                                :pt="{ image: { class: 'object-cover w-12 h-12 rounded-md ' } }"
+                                                preview />
+                                            <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.5 text-white rounded-full cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 hover:bg-red-300"
+                                                @click="removeImageBgProfile"></i>
                                         </div>
-                                    </template>
-                                </AutoComplete>
-                                <div class="h-[30rem] mb-2">
-                                    <div id="map" class="map-container" style="width: 40rem; height: 40rem;"></div>
+
+                                        <!-- Upload Button -->
+                                        <div class="flex" v-else>
+                                            <label
+                                                class="w-12 h-12 border-2 border-dotted border-blue-900 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-600"
+                                                @click="triggerFileInputProfile">
+                                                <i
+                                                    class="pi pi-plus text-2xl text-gray-600 hover:scale-110 transition-transform"></i>
+                                            </label>
+                                            <!-- Hidden File Input -->
+                                            <input ref="fileInputBgProfile" id="upload-image" type="file"
+                                                accept="image/*" @change="onFileSelectBgProfile" class="hidden" />
+                                        </div>
+
+
+                                    </div>
+                                    <p class="error-text" v-if="errors?.image_profile">{{ t('กรุณาเลือกอย่างน้อย') }} 1
+                                        {{
+                                            t('ภาพ') }}
+                                    </p>
                                 </div>
-                                <p class="error-text" v-if="errors?.longitude">{{
-                                    t('กรุณาปักหมุดสถานที่ท่องเที่ยวหรือธุรกิจ')
-                                    }}
+
+
+                                <div>
+                                    <p class="text-gray-500 text-sm">{{ t('อัพโหลดรูปภาพหน้าปก') }}</p>
+                                    <div class="flex flex-wrap gap-2 mb-3 relative">
+                                        <!-- Display the image preview if available -->
+                                        <div class="relative" v-if="image_cover?.src">
+                                            <!-- <img :src="image_cover.src" alt="Preview"
+                                        class="object-cover w-12 h-12 rounded-md" /> -->
+                                            <Image :src="image_cover.src" alt="Image" width="50" class="object-cover "
+                                                :pt="{ image: { class: 'object-cover w-12 h-12 rounded-md ' } }"
+                                                preview />
+                                            <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.5 text-white rounded-full cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 hover:bg-red-300"
+                                                @click="removeImageBgCover"></i>
+                                        </div>
+
+                                        <!-- Upload Button -->
+                                        <div class="flex" v-else>
+                                            <label
+                                                class="w-12 h-12 border-2 border-dotted border-blue-900 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-600"
+                                                @click="triggerFileInputBgCover">
+                                                <i
+                                                    class="pi pi-plus text-2xl text-gray-600 hover:scale-110 transition-transform"></i>
+                                            </label>
+                                            <!-- Hidden File Input -->
+                                            <input ref="fileInputBgCover" id="upload-image" type="file" accept="image/*"
+                                                @change="onFileSelectBgCover" class="hidden" />
+                                        </div>
+
+
+                                    </div>
+                                    <p class="error-text" v-if="errors?.image_cover">{{ t('กรุณาเลือกอย่างน้อย') }} 1 {{
+                                        t('ภาพ') }}</p>
+                                </div>
+
+                                <p class="text-gray-500 text-sm">{{ t('อัพโหลดรูปภาพ') }} ({{ t('ไม่เกิน') }} 3 {{
+                                    t('รูป') }})
                                 </p>
+                                <div class="flex flex-wrap gap-2 mb-3 relative">
+                                    <div v-for="(image, index) in business_img" :key="index" class="relative">
+                                        <!-- Image Display -->
+                                        <Image :src="image.src" alt="Image" width="50" class="object-cover "
+                                            :pt="{ image: { class: 'object-cover w-12 h-12 rounded-md ' } }" preview />
 
-                            </client-only>
+                                        <!-- Delete Icon (Overlay on Top-Right) -->
+                                        <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.5 text-white  rounded-full cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 hover:bg-red-300"
+                                            @click="removeImage(index)"></i>
 
-                            <Button icon="fa-solid fa-location-dot" size="small" outlined @click="addMarkerAtCenter"
-                                severity="primary" :label="t('ปักหมุดตำแหน่งธุรกิจหรือสถานที่ท่องเที่ยว')" />
-                        </div>
-
-
-                        <div>
-                            <label class="label-input">{{ t('ละติจูด') }}</label>
-                            <InputText v-model="latitude" placeholder="" readonly class="w-full custom-border" />
-                        </div>
-                        <div>
-                            <label class="label-input">{{ t('ลองจิจูด') }}</label>
-                            <InputText v-model="longitude" placeholder="" readonly class="w-full custom-border" />
-                        </div>
-                        <!-- ชื่อบริษัท -->
-                        <div>
-                            <label class="label-input">{{ t('ชื่อธุรกิจในแหล่งท่องเที่ยว') }}</label>
-                            <InputText v-model="shop_name[lang.code]" :placeholder="t('ชื่อธุรกิจในแหล่งท่องเที่ยว')"
-                                class="w-full custom-border" :invalid="getFieldError('shop_name')" />
-                            <p v-if="getFieldError('shop_name', lang.code)" class="error-text">
-                                {{ getFieldError('shop_name', lang.code) }}
-                            </p>
-
-                        </div>
-                        <!-- ชื่อบริษัท -->
-                        <div>
-                            <label class="label-input">{{ t('ที่อยู่ธุรกิจในแหล่งท่องเที่ยว') }}</label>
-                            <InputText v-model="shop_address[lang.code]" :placeholder="t('ที่อยู่ธุรกิจ')"
-                                :invalid="getFieldError(shop_address)" class="w-full custom-border" />
-                                <p v-if="getFieldError('shop_address', lang.code)" class="error-text">
-                                {{ getFieldError('shop_address', lang.code) }}
-                            </p>
-
-                        </div>
-                        <div>
-                            <label class="label-input">{{ t('วันที่ทำการ') }}</label>
-                            <!-- <InputText v-model="shop_days" placeholder="วันที่ทำการ" class="w-full custom-border"
-                                :invalid="errors?.shop_days ? true : false" /> -->
-                            <div class="mt-2">
-                                <div class="grid grid-cols-3 gap-x-6 gap-y-3 lg:w-fit w-full">
-                                    <div v-for="day in days" :key="day.value" class="flex items-center space-x-2">
-                                        <Checkbox v-model="shop_days" :inputId="day.value" :value="day.value"
-                                            size="small" :invalid="errors?.shop_days ? true : false" />
-                                        <label :for="day.value" class="text-gray-700 cursor-pointer">{{ day.label
-                                            }}</label>
+                                    </div>
+                                    <div class="flex">
+                                        <label
+                                            class="w-12 h-12 border-2 border-dotted border-blue-900 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-600"
+                                            @click="triggerFileInput">
+                                            <i
+                                                class="pi pi-plus text-2xl text-gray-600 hover:scale-110 transition-transform"></i>
+                                        </label>
+                                        <FileUpload ref="fileInput" id="upload-image" mode="basic" accept="image/*"
+                                            @select="onFileSelect" customUpload :auto="true" class="!hidden" multiple />
                                     </div>
                                 </div>
+                                <p class="error-text" v-if="errors?.business_img">{{ t('กรุณาเลือกอย่างน้อย') }} 1 {{
+                                    'ภาพ' }}
+                                </p>
+
+                                <div>
+                                    <client-only>
+                                        <label class="label-input block">{{ t('พิกัดสถานที่ท่องเที่ยวหรือธุรกิจ')
+                                            }}</label>
+                                        <AutoComplete v-model="textSearchMap" forceSelection optionLabel="name"
+                                            :placeholder="`${t('ค้นหาสถานที่ใกล้เคียง')}...`" :suggestions="resLocation"
+                                            @complete="search" @value-change="onLocationSearchSelect"
+                                            dropdownicon="fa-regular fa-trash-can" class="mb-2"
+                                            inputClass="custom-border w-full">
+
+                                            <template #option="slotProps" class="w-full">
+                                                <div class="flex flex-col p-2 border-b border-gray-200">
+                                                    <span class="font-medium text-lg text-primary-main">{{
+                                                        slotProps.option?.name }}</span>
+                                                    <span class="text-sm text-gray-500">{{ slotProps.option?.address
+                                                        }}</span>
+                                                </div>
+                                            </template>
+                                        </AutoComplete>
+                                        <div class="h-[30rem] mb-2">
+                                            <div id="map" class="map-container" style="width: 40rem; height: 40rem;">
+                                            </div>
+                                        </div>
+                                        <p class="error-text" v-if="errors?.longitude">{{
+                                            t('กรุณาปักหมุดสถานที่ท่องเที่ยวหรือธุรกิจ')
+                                            }}
+                                        </p>
+
+                                    </client-only>
+
+                                    <Button icon="fa-solid fa-location-dot" size="small" outlined
+                                        @click="addMarkerAtCenter" severity="primary"
+                                        :label="t('ปักหมุดตำแหน่งธุรกิจหรือสถานที่ท่องเที่ยว')" />
+                                </div>
+
+
+                                <div>
+                                    <label class="label-input">{{ t('ละติจูด') }}</label>
+                                    <InputText v-model="latitude" placeholder="" readonly
+                                        class="w-full custom-border" />
+                                </div>
+                                <div>
+                                    <label class="label-input">{{ t('ลองจิจูด') }}</label>
+                                    <InputText v-model="longitude" placeholder="" readonly
+                                        class="w-full custom-border" />
+                                </div>
+                                <!-- ชื่อบริษัท -->
+                                <div>
+                                    <label class="label-input">{{ t('ชื่อธุรกิจในแหล่งท่องเที่ยว') }}</label>
+                                    <InputText v-model="shop_name[lang.code]"
+                                        :placeholder="t('ชื่อธุรกิจในแหล่งท่องเที่ยว')" class="w-full custom-border"
+                                        :invalid="getFieldError('shop_name')" />
+                                    <p v-if="getFieldError('shop_name', lang.code)" class="error-text">
+                                        {{ getFieldError('shop_name', lang.code) }}
+                                    </p>
+
+                                </div>
+                                <!-- ชื่อบริษัท -->
+                                <div>
+                                    <label class="label-input">{{ t('ที่อยู่ธุรกิจในแหล่งท่องเที่ยว') }}</label>
+                                    <InputText v-model="shop_address[lang.code]" :placeholder="t('ที่อยู่ธุรกิจ')"
+                                        :invalid="getFieldError(shop_address)" class="w-full custom-border" />
+                                    <p v-if="getFieldError('shop_address', lang.code)" class="error-text">
+                                        {{ getFieldError('shop_address', lang.code) }}
+                                    </p>
+
+                                </div>
+                                <div>
+                                    <label class="label-input">{{ t('วันที่ทำการ') }}</label>
+                                    {{ shop_days[lang.code] }}
+                                    <!-- <div class="mt-2">
+                                        <div class="grid grid-cols-3 gap-x-6 gap-y-3 lg:w-fit w-full">
+                                            <div v-for="day in days" :key="day[lang.code]"
+                                                class="flex items-center space-x-2">
+                                                <Checkbox :inputId="day[lang.code]" :value="day[lang.code]"
+                                                    :binary="false"
+                                                    :modelValue="shop_days[lang.code].includes(day[lang.code])"
+                                                    @change="(e) => syncShopDays(e.checked, day)" />
+                                                <label :for="day[lang.code]" class="text-gray-700 cursor-pointer">{{
+                                                    day.label
+                                                    }}</label>
+                                                <label :for="day[lang.code]" class="text-gray-700 cursor-pointer">{{
+                                                    day.label
+                                                }}</label>
+                                            </div>
+                                        </div>
+                                    </div> -->
+                                    <pre>
+                                        {{ errors }}
+                                    </pre>
+                                    <div class="mt-2">
+                                        <div class="grid grid-cols-3 gap-x-6 gap-y-3 lg:w-fit w-full">
+                                            <div v-for="day in days" :key="day[lang.code]"
+                                                class="flex items-center space-x-2">
+                                                <Checkbox v-model="shop_days[lang.code]"
+                                                    :inputId="`${day[lang.code]}-${lang.code}`" :value="day[lang.code]"
+                                                    @change="onShopDayChange(lang.code)"
+                                                    :invalid="getFieldError('shop_days', lang.code) ? true : false" />
+                                                <label :for="`${day[lang.code]}-${lang.code}`"
+                                                    class="text-gray-700 cursor-pointer hover:text-blue-600 ml-2">
+                                                    {{ day[lang.code] }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p v-if="getFieldError('shop_days', lang.code)" class="error-text">
+                                        {{ getFieldError('shop_days', lang.code) }}
+                                    </p>
+
+                                </div>
+                                <div>
+                                    <label class="label-input block">{{ t('เวลาทำการ') }}</label>
+                                    <DatePicker id="datepicker-timeonly" v-model="shop_time_s" timeOnly
+                                        inputClass="custom-border" style="width: 6rem;"
+                                        :invalid="errors?.shop_time_s ? true : false"
+                                        :placeholder="t('ชั่วโมง:นาที')" />
+
+                                    <label class="label-input">{{ t('ถึง') }}</label>
+                                    <DatePicker id="datepicker-timeonly" v-model="shop_time_e" timeOnly
+                                        class="custom-border" inputClass="custom-border" style="width: 6rem;"
+                                        :invalid="errors?.shop_time_e ? true : false"
+                                        :placeholder="t('ชั่วโมง:นาที')" />
+
+                                    <p class="error-text" v-if="errors?.shop_time_s || errors?.shop_time_e">{{
+                                        t('กรุณาเลือกเวลาทำการ')
+                                        }}</p>
+
+                                </div>
+                                <!-- ติดต่อ -->
+                                <div>
+                                    <label class="label-input">{{ t('เบอร์ติดต่อ') }}</label>
+                                    <InputText v-model="shop_phone" v-keyfilter.int :placeholder="t('เบอร์โทรศัพท์')"
+                                        class="w-full custom-border" :invalid="errors?.shop_phone ? true : false" />
+                                    <p class="error-text" v-if="errors?.shop_phone">{{ errors?.shop_phone }}</p>
+                                </div>
+                                <!-- ติดต่อ -->
+                                <div>
+                                    <label class="label-input">{{ t('รายละเอียดธุรกิจในแหล่งท่องเที่ยว') }}</label>
+                                    <InputText v-model="shop_details" placeholder="" class="w-full custom-border"
+                                        :invalid="errors?.shop_details ? true : false" />
+                                    <p class="error-text" v-if="errors?.shop_details">{{ errors?.shop_details }}</p>
+
+                                </div>
+
                             </div>
-                            <p class="error-text" v-if="errors?.shop_days">{{ errors?.shop_days }}</p>
+                            <hr class="border-b-2 mb-3" />
+
+                            <h2 class="font-bold text-lg mb-3">
+                                {{ t('ธุรกิจใจแหล่งท่องเที่ยว') }}
+                            </h2>
+
+                            <Button :loading="isloadingAxi" type="button" :label="t('เพิ่มรายการโซเชียล')" @click="push1({
+                                social_name: undefined,
+                                social_link: undefined,
+                            })" />
+                            <div id="table-socia-media" v-if="fields1?.length > 0">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 8rem;">{{ t('ประเภทโซเชียล') }}</th>
+                                            <th>{{ t('ลิ้งค์') }}</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(field, index) in fields1" :key="field.key">
+                                            <!-- Column: Social Media Type -->
+                                            <td style="width: 8rem;" class="align-top ">
+                                                <div class="space-y-0">
+                                                    <Select v-model="field.value.social_name" :options="resSociaMedia"
+                                                        style="" optionLabel="social_media_name"
+                                                        optionValue="social_media_name"
+                                                        class="w-full h-full custom-border"
+                                                        :placeholder="`${t('ประเภทโซเชียล')}...`">
+                                                        <template #value="slotProps">
+                                                            <div class="flex items-center space-x-2">
+                                                                <i :class="getIcon(slotProps.value)"
+                                                                    class="text-lg"></i>
+                                                                <span>
+                                                                    {{ slotProps.value || `${t('ประเภทโซเชียล')}...` }}
+                                                                </span>
+                                                            </div>
+                                                        </template>
+                                                        <template #option="slotProps">
+                                                            <div class="flex items-center space-x-2">
+                                                                <i :class="slotProps.option.icon" class="text-lg"></i>
+                                                                <span>{{ slotProps.option.social_media_name }}</span>
+                                                            </div>
+                                                        </template>
+                                                    </Select>
+                                                    <p v-if="errors?.[`social_media[${index}].social_name`]"
+                                                        class="text-red-500 text-sm mt-1">
+                                                        {{ errors[`social_media[${index}].social_name`] }}
+                                                    </p>
+                                                </div>
+                                            </td>
+
+                                            <!-- Column: Social Link -->
+                                            <td class="align-top ">
+                                                <div class="space-y-0">
+                                                    <InputText v-model="field.value.social_link"
+                                                        class="w-full custom-border"
+                                                        :placeholder="`${t('ลิ้งโซเชียล')}...`" />
+                                                    <p v-if="errors?.[`social_media[${index}].social_link`]"
+                                                        class="text-red-500 text-sm">
+                                                        {{ errors[`social_media[${index}].social_link`] }}
+                                                    </p>
+                                                </div>
+                                            </td>
+
+                                            <!-- Column: Actions -->
+                                            <td class="align-top">
+                                                <Button :loading="isloadingAxi" icon="pi pi-times" severity="danger"
+                                                    size="small" @click="remove1(index)" rounded aria-label="Cancel" />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
 
                         </div>
-                        <div>
-                            <label class="label-input block">{{ t('เวลาทำการ') }}</label>
-                            <DatePicker id="datepicker-timeonly" v-model="shop_time_s" timeOnly
-                                inputClass="custom-border" style="width: 6rem;"
-                                :invalid="errors?.shop_time_s ? true : false" :placeholder="t('ชั่วโมง:นาที')" />
-
-                            <label class="label-input">{{ t('ถึง') }}</label>
-                            <DatePicker id="datepicker-timeonly" v-model="shop_time_e" timeOnly class="custom-border"
-                                inputClass="custom-border" style="width: 6rem;"
-                                :invalid="errors?.shop_time_e ? true : false" :placeholder="t('ชั่วโมง:นาที')" />
-
-                            <p class="error-text" v-if="errors?.shop_time_s || errors?.shop_time_e">{{
-                                t('กรุณาเลือกเวลาทำการ')
-                                }}</p>
-
-                        </div>
-                        <!-- ติดต่อ -->
-                        <div>
-                            <label class="label-input">{{ t('เบอร์ติดต่อ') }}</label>
-                            <InputText v-model="shop_phone" v-keyfilter.int :placeholder="t('เบอร์โทรศัพท์')"
-                                class="w-full custom-border" :invalid="errors?.shop_phone ? true : false" />
-                            <p class="error-text" v-if="errors?.shop_phone">{{ errors?.shop_phone }}</p>
-                        </div>
-                        <!-- ติดต่อ -->
-                        <div>
-                            <label class="label-input">{{ t('รายละเอียดธุรกิจในแหล่งท่องเที่ยว') }}</label>
-                            <InputText v-model="shop_details" placeholder="" class="w-full custom-border"
-                                :invalid="errors?.shop_details ? true : false" />
-                            <p class="error-text" v-if="errors?.shop_details">{{ errors?.shop_details }}</p>
-
-                        </div>
-
-                    </div>
-                    <hr class="border-b-2 mb-3" />
-
-                    <h2 class="font-bold text-lg mb-3">
-                        {{ t('ธุรกิจใจแหล่งท่องเที่ยว') }}
-                    </h2>
-
-                    <Button :loading="isloadingAxi" type="button" :label="t('เพิ่มรายการโซเชียล')" @click="push1({
-                        social_name: undefined,
-                        social_link: undefined,
-                    })" />
-                    <div id="table-socia-media" v-if="fields1?.length > 0">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th style="width: 8rem;">{{ t('ประเภทโซเชียล') }}</th>
-                                    <th>{{ t('ลิ้งค์') }}</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(field, index) in fields1" :key="field.key">
-                                    <!-- Column: Social Media Type -->
-                                    <td style="width: 8rem;" class="align-top ">
-                                        <div class="space-y-0">
-                                            <Select v-model="field.value.social_name" :options="resSociaMedia" style=""
-                                                optionLabel="social_media_name" optionValue="social_media_name"
-                                                class="w-full h-full custom-border"
-                                                :placeholder="`${t('ประเภทโซเชียล')}...`">
-                                                <template #value="slotProps">
-                                                    <div class="flex items-center space-x-2">
-                                                        <i :class="getIcon(slotProps.value)" class="text-lg"></i>
-                                                        <span>
-                                                            {{ slotProps.value || `${t('ประเภทโซเชียล')}...` }}
-                                                        </span>
-                                                    </div>
-                                                </template>
-                                                <template #option="slotProps">
-                                                    <div class="flex items-center space-x-2">
-                                                        <i :class="slotProps.option.icon" class="text-lg"></i>
-                                                        <span>{{ slotProps.option.social_media_name }}</span>
-                                                    </div>
-                                                </template>
-                                            </Select>
-                                            <p v-if="errors?.[`social_media[${index}].social_name`]"
-                                                class="text-red-500 text-sm mt-1">
-                                                {{ errors[`social_media[${index}].social_name`] }}
-                                            </p>
-                                        </div>
-                                    </td>
-
-                                    <!-- Column: Social Link -->
-                                    <td class="align-top ">
-                                        <div class="space-y-0">
-                                            <InputText v-model="field.value.social_link" class="w-full custom-border"
-                                                :placeholder="`${t('ลิ้งโซเชียล')}...`" />
-                                            <p v-if="errors?.[`social_media[${index}].social_link`]"
-                                                class="text-red-500 text-sm">
-                                                {{ errors[`social_media[${index}].social_link`] }}
-                                            </p>
-                                        </div>
-                                    </td>
-
-                                    <!-- Column: Actions -->
-                                    <td class="align-top">
-                                        <Button :loading="isloadingAxi" icon="pi pi-times" severity="danger"
-                                            size="small" @click="remove1(index)" rounded aria-label="Cancel" />
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                </div>
-            </van-tab>
-        </van-tabs>
+                    </van-tab>
+                </van-tabs>
                 <Button :loading="isloadingAxi" :label="t('ถัดไป')" severity="primary" type="submit" rounded
                     class="w-full" :pt="{
                         root: {
                             class: '!border-primary-main'
                         },
                     }" />
-                    
+
             </Form>
 
         </div>
