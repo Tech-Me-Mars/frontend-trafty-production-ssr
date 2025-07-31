@@ -31,14 +31,15 @@ const langs = [
     { code: 'cn', label: '中文', locale: 'ch-Ch' }
 ];
 
-const activeLangTab = ref(langs.findIndex(l => l.locale === locale.value) ?? 0);
+const activeLangTab = ref(0);
 onMounted(() => {
-    setLocale('th-TH')
+  setLocale('th-TH')
 })
-// เมื่อเปลี่ยนแท็บ
+
 watch(activeLangTab, (newIdx) => {
     setLocale(langs[newIdx].locale);
 });
+
 
 // เมื่อเปลี่ยน locale
 watch(locale, (newLocale) => {
@@ -396,19 +397,24 @@ const triggerFileInputProfile = () => {
 
 
 //  MAP SECTIONS 
+let map = null
 
-let map = null;
-// สร้างแผนที่
 const initMap = () => {
-    const mapContainer = document.getElementById('map')
-    if (!mapContainer || !window.longdo) return
+  const mapContainer = document.getElementById('map')
+  if (!mapContainer || !window.longdo) return
 
-    map.value = new window.longdo.Map({
-        placeholder: mapContainer,
-        zoom: 12,
-        location: { lat: 13.736717, lon: 100.523186 } // Bangkok
-    })
+  map = new window.longdo.Map({
+    placeholder: mapContainer,
+    zoom: 12,
+    location: { lat: 13.736717, lon: 100.523186 } // Bangkok
+  })
 }
+// เมื่อเปลี่ยน tab ให้ delay แล้ว refresh map
+watch(activeLangTab, (val) => {
+  setTimeout(() => {
+    if (map) map.resize()
+  }, 200) // รอให้ DOM render ก่อน
+})
 
 // ลบ Marker ทั้งหมด
 const clearMarkers = () => {
@@ -551,7 +557,8 @@ onMounted(async () => {
                     :class="item.active ? 'w-8 h-2 bg-blue-900' : 'w-8 h-2 bg-gray-200'"></div>
             </div>
             <Form @submit="handleNext">
-                <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54">
+                {{ activeLangTab }}
+                <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54" >
                     <van-tab v-for="(lang, idx) in langs" :key="lang.code" :title="lang.label" :name="idx">
                         <div class="card pt-5 mb-10">
                             <h2 class="font-bold text-lg ">
@@ -661,7 +668,7 @@ onMounted(async () => {
                                 <div>
                                     <client-only>
                                         <label class="label-input block">{{ t('พิกัดสถานที่ท่องเที่ยวหรือธุรกิจ')
-                                            }}</label>
+                                        }}</label>
                                         <AutoComplete v-model="textSearchMap" forceSelection optionLabel="name"
                                             :placeholder="`${t('ค้นหาสถานที่ใกล้เคียง')}...`" :suggestions="resLocation"
                                             @complete="search" @value-change="onLocationSearchSelect"
@@ -673,17 +680,16 @@ onMounted(async () => {
                                                     <span class="font-medium text-lg text-primary-main">{{
                                                         slotProps.option?.name }}</span>
                                                     <span class="text-sm text-gray-500">{{ slotProps.option?.address
-                                                        }}</span>
+                                                    }}</span>
                                                 </div>
                                             </template>
                                         </AutoComplete>
-                                        <div class="h-[30rem] mb-2">
-                                            <div id="map" class="map-container" style="width: 40rem; height: 40rem;">
-                                            </div>
-                                        </div>
+                                        <div v-show="activeLangTab === idx" class="h-[30rem] mb-2">
+          <div id="map" class="map-container" style="width: 100%; height: 100%;" />
+        </div>
                                         <p class="error-text" v-if="errors?.longitude">{{
                                             t('กรุณาปักหมุดสถานที่ท่องเที่ยวหรือธุรกิจ')
-                                            }}
+                                        }}
                                         </p>
 
                                     </client-only>
@@ -746,8 +752,8 @@ onMounted(async () => {
                                         </div>
                                     </div> -->
                                     <pre>
-                                        {{ errors }}
-                                    </pre>
+                                {{ errors }}
+                            </pre>
                                     <div class="mt-2">
                                         <div class="grid grid-cols-3 gap-x-6 gap-y-3 lg:w-fit w-full">
                                             <div v-for="day in days" :key="day[lang.code]"
@@ -783,7 +789,7 @@ onMounted(async () => {
 
                                     <p class="error-text" v-if="errors?.shop_time_s || errors?.shop_time_e">{{
                                         t('กรุณาเลือกเวลาทำการ')
-                                        }}</p>
+                                    }}</p>
 
                                 </div>
                                 <!-- ติดต่อ -->
@@ -794,11 +800,19 @@ onMounted(async () => {
                                     <p class="error-text" v-if="errors?.shop_phone">{{ errors?.shop_phone }}</p>
                                 </div>
                                 <!-- ติดต่อ -->
+                                <!-- <InputText v-model="shop_name[lang.code]"
+                                        :placeholder="t('ชื่อธุรกิจในแหล่งท่องเที่ยว')" class="w-full custom-border"
+                                        :invalid="getFieldError('shop_name')" />
+                                    <p v-if="getFieldError('shop_name', lang.code)" class="error-text">
+                                        {{ getFieldError('shop_name', lang.code) }}
+                                    </p> -->
+
                                 <div>
                                     <label class="label-input">{{ t('รายละเอียดธุรกิจในแหล่งท่องเที่ยว') }}</label>
-                                    <InputText v-model="shop_details" placeholder="" class="w-full custom-border"
-                                        :invalid="errors?.shop_details ? true : false" />
-                                    <p class="error-text" v-if="errors?.shop_details">{{ errors?.shop_details }}</p>
+                                    <InputText v-model="shop_details[lang.code]" placeholder=""
+                                        class="w-full custom-border" :invalid="getFieldError('shop_details')" />
+                                    <p class="error-text" v-if="getFieldError('shop_name', lang.code)">{{
+                                        getFieldError('shop_name', lang.code) }}</p>
 
                                 </div>
 
