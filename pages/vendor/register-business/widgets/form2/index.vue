@@ -76,7 +76,7 @@ const handleNext = handleSubmit(() => {
         <Form @submit="handleNext">
             <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54" class="">
                 <van-tab v-for="lang in langs" :title="lang.label" :name="lang.code" :key="lang.code" class="p-2">
-                    <h2 class="text-center font-bold text-xl mb-8 pt-2">
+                    <h2 class="text-center font-bold text-xl mb-4 pt-4">
                         {{ lang.code === 'th'
                             ? 'เลือกหน่วยงานของคุณ'
                             : lang.code === 'en'

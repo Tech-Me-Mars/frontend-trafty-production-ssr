@@ -103,7 +103,7 @@ onMounted(loadServiceType);
                             </span>
                         </div>
                     </div> -->
-                    <div class="text-center">
+                    <div class="text-center pt-[4rem]">
                         <Button
                             v-for="(item, index) in resServiceType"
                             :key="item.id"

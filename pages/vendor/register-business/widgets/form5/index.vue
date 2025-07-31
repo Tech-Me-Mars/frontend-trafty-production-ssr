@@ -297,8 +297,15 @@ const saveRegisterBusiness = async () => {
 </style>
 <template>
     <div class="bg-zinc-100 min-h-screen">
-        <van-nav-bar :title="t('รายการธุรกิจในแหล่งท่องเที่ยว')" left-arrow @click-left="formStore.prevPage()">
-        </van-nav-bar>
+        <!-- <van-nav-bar :title="t('รายการธุรกิจในแหล่งท่องเที่ยว')" left-arrow @click-left="formStore.prevPage()">
+        </van-nav-bar> -->
+        <LayoutsBaseHeader :title="t('รายการธุรกิจในแหล่งท่องเที่ยว')">
+            <template #left>
+                <ButtonIconBack @click="formStore.prevPage()" />
+            </template>
+        </LayoutsBaseHeader>
+
+
         <Form @submit="handleNext">
      
             <div class="p-4 ">

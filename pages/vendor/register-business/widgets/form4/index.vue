@@ -730,7 +730,7 @@ onMounted(async () => {
                                 </div>
                                 <div>
                                     <label class="label-input">{{ t('วันที่ทำการ') }}</label>
-                                    {{ shop_days[lang.code] }}
+                                    <!-- {{ shop_days[lang.code] }} -->
                                     <!-- <div class="mt-2">
                                         <div class="grid grid-cols-3 gap-x-6 gap-y-3 lg:w-fit w-full">
                                             <div v-for="day in days" :key="day[lang.code]"
@@ -748,9 +748,7 @@ onMounted(async () => {
                                             </div>
                                         </div>
                                     </div> -->
-                                    <pre>
-                                {{ errors }}
-                            </pre>
+                
                                     <div class="mt-2">
                                         <div class="grid grid-cols-3 gap-x-6 gap-y-3 lg:w-fit w-full">
                                             <div v-for="day in days" :key="day[lang.code]"
