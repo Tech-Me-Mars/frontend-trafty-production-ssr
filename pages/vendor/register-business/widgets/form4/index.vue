@@ -552,12 +552,9 @@ onMounted(async () => {
         </LayoutsBaseHeader>
 
         <div class="p-4 ">
-            <div class="flex space-x-5 items-center justify-center mb-8">
-                <div v-for="(item, index) in stepsBar" :key="index"
-                    :class="item.active ? 'w-8 h-2 bg-blue-900' : 'w-8 h-2 bg-gray-200'"></div>
-            </div>
+
             <Form @submit="handleNext">
-                {{ activeLangTab }}
+                <!-- {{ activeLangTab }} -->
                 <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54" >
                     <van-tab v-for="(lang, idx) in langs" :key="lang.code" :title="lang.label" :name="idx">
                         <div class="card pt-5 mb-10">
