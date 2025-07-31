@@ -51,8 +51,14 @@ const handleNext = handleSubmit((values) => {
 </style>
 <template>
     <div class="bg-zinc-100 min-h-screen">
-        <van-nav-bar :title="t('เพิ่มรายการ')" left-arrow @click-left="formStore.goToPage(6)">
-        </van-nav-bar>
+        <!-- <van-nav-bar :title="t('เพิ่มรายการ')" left-arrow @click-left="formStore.goToPage(6)">
+        </van-nav-bar> -->
+                <LayoutsBaseHeader :title="t('เพิ่มรายการ')">
+            <template #left>
+                <ButtonIconBack @click="formStore.goToPage(6)" />
+            </template>
+        </LayoutsBaseHeader>
+
         <div class="p-4 ">
 
             <Form @submit="handleNext">

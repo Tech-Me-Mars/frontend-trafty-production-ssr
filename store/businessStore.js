@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 
 export const useFormStore = defineStore('form', {
   state: () => ({
-    activePage: 6,
+    activePage: 7,
     service_type_id: null,
     business_type_id: null,
     business_model_id:null,
