@@ -130,7 +130,7 @@ const getFieldError = (fieldName, langCode = null) => {
 
 const handleNext = handleSubmit((values) => {
 
-  return console.log(values)
+  // return console.log(values)
   // formStore.setForm3(
   //   values.business_name,
   //   values.business_person,
@@ -141,34 +141,34 @@ const handleNext = handleSubmit((values) => {
   // );
   // formStore.nextPage();
   // Transform flat validation values back to nested structure for store
-  const transformedData = {
-    business_name: {
-      th: values['business_name.th'],
-      en: values['business_name.en'],
-      cn: values['business_name.cn']
-    },
-    business_person: {
-      th: values['business_person.th'],
-      en: values['business_person.en'],
-      cn: values['business_person.cn']
-    },
-    business_address: {
-      th: values['business_address.th'],
-      en: values['business_address.en'],
-      cn: values['business_address.cn']
-    },
-    business_contact: values.business_contact,
-    business_email: values.business_email,
-    listFiles: values.listFiles
-  };
+  // const transformedData = {
+  //   business_name: {
+  //     th: values['business_name.th'],
+  //     en: values['business_name.en'],
+  //     cn: values['business_name.cn']
+  //   },
+  //   business_person: {
+  //     th: values['business_person.th'],
+  //     en: values['business_person.en'],
+  //     cn: values['business_person.cn']
+  //   },
+  //   business_address: {
+  //     th: values['business_address.th'],
+  //     en: values['business_address.en'],
+  //     cn: values['business_address.cn']
+  //   },
+  //   business_contact: values.business_contact,
+  //   business_email: values.business_email,
+  //   listFiles: values.listFiles
+  // };
 
   formStore.setForm3(
-    transformedData.business_name,
-    transformedData.business_person,
-    transformedData.business_address,
-    transformedData.business_contact,
-    transformedData.business_email,
-    transformedData.listFiles
+    values.business_name,
+    values.business_person,
+    values.business_address,
+    values.business_contact,
+    values.business_email,
+    values.listFiles
   );
   formStore.nextPage();
 });

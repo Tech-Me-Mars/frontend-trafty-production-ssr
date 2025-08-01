@@ -33,7 +33,7 @@ const langs = [
 
 const activeLangTab = ref(0);
 onMounted(() => {
-  setLocale('th-TH')
+    setLocale('th-TH')
 })
 
 watch(activeLangTab, (newIdx) => {
@@ -396,25 +396,37 @@ const triggerFileInputProfile = () => {
 };
 
 
+const mapWrapperRefs = ref([]) // เก็บ container แต่ละ tab
 //  MAP SECTIONS 
 let map = null
 
 const initMap = () => {
-  const mapContainer = document.getElementById('map')
-  if (!mapContainer || !window.longdo) return
-
+  const mapDiv = document.getElementById('map')
+  if (!mapDiv || !window.longdo) return
   map = new window.longdo.Map({
-    placeholder: mapContainer,
+    placeholder: mapDiv,
     zoom: 12,
-    location: { lat: 13.736717, lon: 100.523186 } // Bangkok
+    location: { lat: 13.736717, lon: 100.523186 }
   })
 }
+// บันทึกตำแหน่ง wrapper ของแต่ละ tab
+const setMapWrapper = (el, idx) => {
+  mapWrapperRefs.value[idx] = el
+}
+// ย้าย #map ไปยัง tab ปัจจุบัน
+const moveMapToTab = async (idx) => {
+  await nextTick()
+  const mapDiv = document.getElementById('map')
+  const wrapper = mapWrapperRefs.value[idx]
+  if (mapDiv && wrapper) {
+    wrapper.appendChild(mapDiv)
+    mapDiv.style.display = 'block'
+    setTimeout(() => {
+      if (map) map.resize()
+    }, 100)
+  }
+}
 // เมื่อเปลี่ยน tab ให้ delay แล้ว refresh map
-watch(activeLangTab, (val) => {
-  setTimeout(() => {
-    if (map) map.resize()
-  }, 200) // รอให้ DOM render ก่อน
-})
 
 // ลบ Marker ทั้งหมด
 const clearMarkers = () => {
@@ -537,9 +549,12 @@ const search = async (event) => {
     }, 250)
 }
 // โหลดแผนที่เมื่อ DOM พร้อม
+
 onMounted(async () => {
-    await useLongdoLoader()
-    initMap()
+  await useLongdoLoader()
+  await nextTick()
+  initMap()
+  moveMapToTab(activeLangTab.value)
 })
 
 </script>
@@ -554,8 +569,10 @@ onMounted(async () => {
         <div class="p-4 ">
 
             <Form @submit="handleNext">
+                <!-- Map จริง ถูก render ทีเดียว -->
+  <div id="map" class="map-container" style="width: 100%; height: 100%; display: none;" />
                 <!-- {{ activeLangTab }} -->
-                <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54" >
+                <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54" @change="moveMapToTab">
                     <van-tab v-for="(lang, idx) in langs" :key="lang.code" :title="lang.label" :name="idx">
                         <div class="card pt-5 mb-10">
                             <h2 class="font-bold text-lg ">
@@ -665,7 +682,7 @@ onMounted(async () => {
                                 <div>
                                     <client-only>
                                         <label class="label-input block">{{ t('พิกัดสถานที่ท่องเที่ยวหรือธุรกิจ')
-                                        }}</label>
+                                            }}</label>
                                         <AutoComplete v-model="textSearchMap" forceSelection optionLabel="name"
                                             :placeholder="`${t('ค้นหาสถานที่ใกล้เคียง')}...`" :suggestions="resLocation"
                                             @complete="search" @value-change="onLocationSearchSelect"
@@ -677,16 +694,17 @@ onMounted(async () => {
                                                     <span class="font-medium text-lg text-primary-main">{{
                                                         slotProps.option?.name }}</span>
                                                     <span class="text-sm text-gray-500">{{ slotProps.option?.address
-                                                    }}</span>
+                                                        }}</span>
                                                 </div>
                                             </template>
                                         </AutoComplete>
-                                        <div v-show="activeLangTab === idx" class="h-[30rem] mb-2">
-          <div id="map" class="map-container" style="width: 100%; height: 100%;" />
-        </div>
+                                        
+                                        <div class="w-full h-[30rem] sm:h-[25rem] md:h-[28rem] lg:h-[32rem] xl:h-[36rem] 2xl:h-[40rem] mb-2" :ref="el => setMapWrapper(el, idx)">
+        <!-- ตำแหน่ง map จะถูกย้ายมาวางที่นี่ -->
+      </div>
                                         <p class="error-text" v-if="errors?.longitude">{{
                                             t('กรุณาปักหมุดสถานที่ท่องเที่ยวหรือธุรกิจ')
-                                        }}
+                                            }}
                                         </p>
 
                                     </client-only>
@@ -748,7 +766,7 @@ onMounted(async () => {
                                             </div>
                                         </div>
                                     </div> -->
-                
+
                                     <div class="mt-2">
                                         <div class="grid grid-cols-3 gap-x-6 gap-y-3 lg:w-fit w-full">
                                             <div v-for="day in days" :key="day[lang.code]"
@@ -784,7 +802,7 @@ onMounted(async () => {
 
                                     <p class="error-text" v-if="errors?.shop_time_s || errors?.shop_time_e">{{
                                         t('กรุณาเลือกเวลาทำการ')
-                                    }}</p>
+                                        }}</p>
 
                                 </div>
                                 <!-- ติดต่อ -->

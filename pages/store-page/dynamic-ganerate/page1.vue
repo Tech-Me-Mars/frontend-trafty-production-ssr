@@ -3,9 +3,18 @@
           <Dynamic :survey-data-map="surveyDataMap" @submit="handleFormSubmit" :default-values="mapDefaultValueData" 
           :model-change="model_change" />
         </template>
+        <!-- <div>
+          {{ surveyDataMap }}
+            dasd
+        </div> -->
 </template>
 <script setup>
-import * as dataApi from "./api/data.js";
+import * as dataApi from "./api/dataApi.js";
+// onMounted(async()=>{
+//     const res = await dataApi.getSurveyById()
+
+// })
+
 const surveyDataMap = ref()
 const model_change = ref([
 ])

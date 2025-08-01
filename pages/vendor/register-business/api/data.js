@@ -21,7 +21,7 @@ export function getBusinessModel() {
 }
 
 export function getSocialMedia() {
-  const url = `/api/v1/social-media`;
+  const url = `/api/v1/management/social_media`;
   return request("get", url, {}, true);
 }
 

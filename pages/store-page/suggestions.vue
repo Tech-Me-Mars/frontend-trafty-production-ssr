@@ -13,8 +13,8 @@
 
                 <!-- ภาพประกอบ -->
                 <div class="flex justify-center mb-[4rem]">
-                    <img src="/image/bg/send_message.png" alt="Send message"
-                        class="w-[150px] h-[150px] object-contain" />
+                    <!-- <img src="/image/bg/send_message.png" alt="Send message"
+                        class="w-[150px] h-[150px] object-contain" /> -->
                 </div>
 
                 <!-- คำอธิบาย -->
