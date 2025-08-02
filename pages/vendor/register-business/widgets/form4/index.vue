@@ -73,18 +73,26 @@ const resSociaMedia = ref([])
 const loadSocialMedia = async () => {
     try {
         const res = await dataApi.getSocialMedia();
-        resSociaMedia.value = res.data.data;
+        resSociaMedia.value = res.data.data.map(item => ({
+            social_media_name_th: item.social_media_name_i18n?.th,
+            social_media_name_en: item.social_media_name_i18n?.en,
+            social_media_name_cn: item.social_media_name_i18n?.cn,
+            ...item,
+        }));
         console.log(resSociaMedia.value)
     } catch (error) {
         console.error(error)
     }
 }
-const getIcon = (socialMediaName) => {
-    const found = resSociaMedia.value.find(
-        (item) => item.social_media_name == socialMediaName
-    );
-    return found ? found.icon : "";
-};
+const getSocialName = (id, code) => {
+    if (!id || !code) return ''
+    const found = resSociaMedia.value.find((x) => x.id === id)
+    return found ? found[`social_media_name_${code}`] : ''
+}
+const getIconClass = (id) => {
+    const found = resSociaMedia.value.find((x) => x.id === id)
+    return found ? found.icon : ''
+}
 onMounted(() => loadSocialMedia());
 const requireValue = t('กรุณาระบุข้อมูลให้ถูกต้อง');
 const requireText = t('ระบุข้อมูล');
@@ -94,33 +102,33 @@ const validationSchema = toTypedSchema(
         // รองรับหลายภาษา
         shop_name: zod.object({
             th: zod.string().min(1, t('กรุณากรอก')),
-            en: zod.string().min(1, t('please input shope name')),
+            en: zod.string().optional().or(zod.literal('')),
             cn: zod.string().optional().or(zod.literal('')),
         }),
         shop_address: zod.object({
-            th: zod.string().min(1, t('validation.required_th')),
-            en: zod.string().min(1, t('validation.required_en')),
+            th: zod.string().min(1, requireValue),
+            en: zod.string().optional().or(zod.literal('')),
             cn: zod.string().optional().or(zod.literal('')),
         }),
         shop_days: zod.object({
             th: zod.array(zod.string()).min(1, t('กรุณาเลือกวันที่ทำการ (TH)')),
-            en: zod.array(zod.string()).min(1, t('Please select working days (EN)')),
+            en: zod.array(zod.string()).optional().default([]),
             cn: zod.array(zod.string()).optional().default([]),
         }),
         shop_details: zod.object({
-            th: zod.string().min(1, t('validation.required_th')),
-            en: zod.string().min(1, t('validation.required_en')),
+            th: zod.string().min(1, requireValue),
+            en: zod.string().optional().or(zod.literal('')),
             cn: zod.string().optional().or(zod.literal('')),
         }),
 
         // ฟิลด์ภาษาเดียว
         shop_time_s: zod.date({
-            required_error: t('validation.required'),
-            invalid_type_error: t('validation.invalid_date'),
+            required_error: requireValue,
+            invalid_type_error: requireValue,
         }),
         shop_time_e: zod.date({
-            required_error: t('validation.required'),
-            invalid_type_error: t('validation.invalid_date'),
+            required_error: requireValue,
+            invalid_type_error: requireValue,
         }),
         shop_phone: zod.string().nonempty(t('กรุณาระบุเบอร์โทร')),
 
@@ -236,6 +244,7 @@ function onShopDayChange(triggerLang) {
 }
 
 
+
 const shop_details = ref({
     get th() { return shopDetailsTh.value },
     set th(v) { shopDetailsTh.value = v },
@@ -264,41 +273,50 @@ const { remove: remove1, push: push1, fields: fields1 } = useFieldArray("social_
 import { format } from 'date-fns';
 import { useFormStore } from "@/store/businessStore.js";
 const formStore = useFormStore(); // ใช้ Pinia Store
-const handleNext = handleSubmit(() => {
+const handleNext = handleSubmit((values) => {
+    try {
+        console.log('Form values:', values);
 
-    const time_start = format(shop_time_s.value, "HH:mm");
-    const time_end = format(shop_time_e.value, "HH:mm");
-    shop_time.value = `${time_start}-${time_end}`
-    const sortedShopDays = shop_days.value.sort((a, b) => {
-        const order = days.map((day) => day.value);
-        return order.indexOf(a) - order.indexOf(b);
-    });
+        const time_start = format(shop_time_s.value, "HH:mm");
+        const time_end = format(shop_time_e.value, "HH:mm");
+        const shop_time = `${time_start}-${time_end}`
+        const sortedShopDays = {};
+        ['th', 'en', 'cn'].forEach(lang => {
+            sortedShopDays[lang] = [...shop_days.value[lang]].sort(
+                (a, b) => days.map(day => day[lang]).indexOf(a) - days.map(day => day[lang]).indexOf(b)
+            )
+        })
 
-    const business_img_array = business_img.value.map((item) => item);
+        const business_img_array = business_img.value.map((item) => item);
 
-    const social_media_array = fields1.value.map((field) => ({
-        social_name: field.value.social_name || null,
-        social_link: field.value.social_link || null,
-    }));
+        const social_media_array = fields1.value.map((field) => ({
+            social_media_id: field.value.id || null,
+            // social_name: field.value.social_name || null,
+            social_media_link_i18n: field.value.social_link || null,
+        }));
+        // console.log('shop_details', shop_details.value)
 
-    // เก็บข้อมูลลง Pinia แทน LocalStorage
-    formStore.setForm4(
-        shop_name.value,
-        shop_address.value,
-        sortedShopDays,
-        shop_time.value,
-        shop_phone.value,
-        shop_details.value,
-        image_cover.value,
-        image_profile.value,
-        business_img_array,
-        social_media_array,
-        latitude.value,
-        longitude.value
-    );
+        // เก็บข้อมูลลง Pinia แทน LocalStorage
+        formStore.setForm4(
+            shop_name.value,
+            shop_address.value,
+            sortedShopDays,
+            shop_time,
+            shop_phone.value,
+            values.shop_details,
+            image_cover.value,
+            image_profile.value,
+            business_img_array,
+            social_media_array,
+            latitude.value,
+            longitude.value
+        );
 
-    // เปลี่ยนหน้าไป form5
-    formStore.nextPage();
+        // เปลี่ยนหน้าไป form5
+        formStore.nextPage();
+    } catch (error) {
+        console.error('Error handling form submission:', error);
+    }
 });
 const getFieldError = (fieldName, langCode = null) => {
     if (langCode) {
@@ -335,7 +353,8 @@ const removeImage = (index) => {
 };
 const fileInput = ref(null);
 const triggerFileInput = () => {
-    fileInput.value.choose();
+    // console.log('triggerFileInput',fileInput.value[0])
+    fileInput.value[0].choose();
 };
 
 // Reference to the hidden file input
@@ -392,6 +411,7 @@ const removeImageBgProfile = () => {
 
 // Trigger the hidden file input
 const triggerFileInputProfile = () => {
+    console.log('triggerFileInputProfile')
     fileInputBgProfile.value.click(); // Programmatically click the file input
 };
 
@@ -401,30 +421,30 @@ const mapWrapperRefs = ref([]) // เก็บ container แต่ละ tab
 let map = null
 
 const initMap = () => {
-  const mapDiv = document.getElementById('map')
-  if (!mapDiv || !window.longdo) return
-  map = new window.longdo.Map({
-    placeholder: mapDiv,
-    zoom: 12,
-    location: { lat: 13.736717, lon: 100.523186 }
-  })
+    const mapDiv = document.getElementById('map')
+    if (!mapDiv || !window.longdo) return
+    map = new window.longdo.Map({
+        placeholder: mapDiv,
+        zoom: 12,
+        location: { lat: 13.736717, lon: 100.523186 }
+    })
 }
 // บันทึกตำแหน่ง wrapper ของแต่ละ tab
 const setMapWrapper = (el, idx) => {
-  mapWrapperRefs.value[idx] = el
+    mapWrapperRefs.value[idx] = el
 }
 // ย้าย #map ไปยัง tab ปัจจุบัน
 const moveMapToTab = async (idx) => {
-  await nextTick()
-  const mapDiv = document.getElementById('map')
-  const wrapper = mapWrapperRefs.value[idx]
-  if (mapDiv && wrapper) {
-    wrapper.appendChild(mapDiv)
-    mapDiv.style.display = 'block'
-    setTimeout(() => {
-      if (map) map.resize()
-    }, 100)
-  }
+    await nextTick()
+    const mapDiv = document.getElementById('map')
+    const wrapper = mapWrapperRefs.value[idx]
+    if (mapDiv && wrapper) {
+        wrapper.appendChild(mapDiv)
+        mapDiv.style.display = 'block'
+        setTimeout(() => {
+            if (map) map.resize()
+        }, 100)
+    }
 }
 // เมื่อเปลี่ยน tab ให้ delay แล้ว refresh map
 
@@ -551,10 +571,10 @@ const search = async (event) => {
 // โหลดแผนที่เมื่อ DOM พร้อม
 
 onMounted(async () => {
-  await useLongdoLoader()
-  await nextTick()
-  initMap()
-  moveMapToTab(activeLangTab.value)
+    await useLongdoLoader()
+    await nextTick()
+    initMap()
+    moveMapToTab(activeLangTab.value)
 })
 
 </script>
@@ -567,12 +587,16 @@ onMounted(async () => {
         </LayoutsBaseHeader>
 
         <div class="p-4 ">
-
             <Form @submit="handleNext">
+                <!-- {{ errors }}
+                <pre>
+            {{ fields1 }}
+        </pre> -->
                 <!-- Map จริง ถูก render ทีเดียว -->
-  <div id="map" class="map-container" style="width: 100%; height: 100%; display: none;" />
+                <div id="map" class="map-container" style="width: 100%; height: 100%; display: none;" />
                 <!-- {{ activeLangTab }} -->
-                <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54" @change="moveMapToTab">
+                <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54"
+                    @change="moveMapToTab">
                     <van-tab v-for="(lang, idx) in langs" :key="lang.code" :title="lang.label" :name="idx">
                         <div class="card pt-5 mb-10">
                             <h2 class="font-bold text-lg ">
@@ -599,7 +623,7 @@ onMounted(async () => {
                                         <div class="flex" v-else>
                                             <label
                                                 class="w-12 h-12 border-2 border-dotted border-blue-900 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-600"
-                                                @click="triggerFileInputProfile">
+                                                for="upload-image">
                                                 <i
                                                     class="pi pi-plus text-2xl text-gray-600 hover:scale-110 transition-transform"></i>
                                             </label>
@@ -635,13 +659,13 @@ onMounted(async () => {
                                         <div class="flex" v-else>
                                             <label
                                                 class="w-12 h-12 border-2 border-dotted border-blue-900 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-600"
-                                                @click="triggerFileInputBgCover">
+                                                for="upload-image-bg-cover">
                                                 <i
                                                     class="pi pi-plus text-2xl text-gray-600 hover:scale-110 transition-transform"></i>
                                             </label>
                                             <!-- Hidden File Input -->
-                                            <input ref="fileInputBgCover" id="upload-image" type="file" accept="image/*"
-                                                @change="onFileSelectBgCover" class="hidden" />
+                                            <input ref="fileInputBgCover" id="upload-image-bg-cover" type="file"
+                                                accept="image/*" @change="onFileSelectBgCover" class="hidden" />
                                         </div>
 
 
@@ -671,8 +695,9 @@ onMounted(async () => {
                                             <i
                                                 class="pi pi-plus text-2xl text-gray-600 hover:scale-110 transition-transform"></i>
                                         </label>
-                                        <FileUpload ref="fileInput" id="upload-image" mode="basic" accept="image/*"
-                                            @select="onFileSelect" customUpload :auto="true" class="!hidden" multiple />
+                                        <FileUpload ref="fileInput" id="upload-image-store" inputId="upload-image-store"
+                                            mode="basic" accept="image/*" @select="onFileSelect" customUpload
+                                            :auto="true" class="!hidden" multiple />
                                     </div>
                                 </div>
                                 <p class="error-text" v-if="errors?.business_img">{{ t('กรุณาเลือกอย่างน้อย') }} 1 {{
@@ -698,10 +723,11 @@ onMounted(async () => {
                                                 </div>
                                             </template>
                                         </AutoComplete>
-                                        
-                                        <div class="w-full h-[30rem] sm:h-[25rem] md:h-[28rem] lg:h-[32rem] xl:h-[36rem] 2xl:h-[40rem] mb-2" :ref="el => setMapWrapper(el, idx)">
-        <!-- ตำแหน่ง map จะถูกย้ายมาวางที่นี่ -->
-      </div>
+
+                                        <div class="w-full h-[30rem] sm:h-[25rem] md:h-[28rem] lg:h-[32rem] xl:h-[36rem] 2xl:h-[40rem] mb-2"
+                                            :ref="el => setMapWrapper(el, idx)">
+                                            <!-- ตำแหน่ง map จะถูกย้ายมาวางที่นี่ -->
+                                        </div>
                                         <p class="error-text" v-if="errors?.longitude">{{
                                             t('กรุณาปักหมุดสถานที่ท่องเที่ยวหรือธุรกิจ')
                                             }}
@@ -812,20 +838,13 @@ onMounted(async () => {
                                         class="w-full custom-border" :invalid="errors?.shop_phone ? true : false" />
                                     <p class="error-text" v-if="errors?.shop_phone">{{ errors?.shop_phone }}</p>
                                 </div>
-                                <!-- ติดต่อ -->
-                                <!-- <InputText v-model="shop_name[lang.code]"
-                                        :placeholder="t('ชื่อธุรกิจในแหล่งท่องเที่ยว')" class="w-full custom-border"
-                                        :invalid="getFieldError('shop_name')" />
-                                    <p v-if="getFieldError('shop_name', lang.code)" class="error-text">
-                                        {{ getFieldError('shop_name', lang.code) }}
-                                    </p> -->
 
                                 <div>
                                     <label class="label-input">{{ t('รายละเอียดธุรกิจในแหล่งท่องเที่ยว') }}</label>
                                     <InputText v-model="shop_details[lang.code]" placeholder=""
                                         class="w-full custom-border" :invalid="getFieldError('shop_details')" />
-                                    <p class="error-text" v-if="getFieldError('shop_name', lang.code)">{{
-                                        getFieldError('shop_name', lang.code) }}</p>
+                                    <p class="error-text" v-if="getFieldError('shop_details', lang.code)">{{
+                                        getFieldError('shop_details', lang.code) }}</p>
 
                                 </div>
 
@@ -851,27 +870,35 @@ onMounted(async () => {
                                     </thead>
                                     <tbody>
                                         <tr v-for="(field, index) in fields1" :key="field.key">
-                                            <!-- Column: Social Media Type -->
+
                                             <td style="width: 8rem;" class="align-top ">
                                                 <div class="space-y-0">
+
+
                                                     <Select v-model="field.value.social_name" :options="resSociaMedia"
-                                                        style="" optionLabel="social_media_name"
-                                                        optionValue="social_media_name"
+                                                        style="" optionLabel="id" optionValue="id"
                                                         class="w-full h-full custom-border"
                                                         :placeholder="`${t('ประเภทโซเชียล')}...`">
                                                         <template #value="slotProps">
-                                                            <div class="flex items-center space-x-2">
-                                                                <i :class="getIcon(slotProps.value)"
-                                                                    class="text-lg"></i>
-                                                                <span>
-                                                                    {{ slotProps.value || `${t('ประเภทโซเชียล')}...` }}
-                                                                </span>
-                                                            </div>
+                                                            <span class="flex items-center space-x-2">
+                                                                <template v-if="slotProps.value">
+                                                                    <i :class="getIconClass(slotProps.value)"
+                                                                        class="text-lg"></i>
+                                                                    <span>
+                                                                        {{ getSocialName(slotProps.value, lang.code) }}
+                                                                    </span>
+                                                                </template>
+                                                                <template v-else>
+                                                                    {{ t('ประเภทโซเชียล') }}...
+                                                                </template>
+                                                            </span>
                                                         </template>
                                                         <template #option="slotProps">
                                                             <div class="flex items-center space-x-2">
                                                                 <i :class="slotProps.option.icon" class="text-lg"></i>
-                                                                <span>{{ slotProps.option.social_media_name }}</span>
+                                                                <span>{{
+                                                                    slotProps.option[`social_media_name_${lang.code}`]
+                                                                }}</span>
                                                             </div>
                                                         </template>
                                                     </Select>

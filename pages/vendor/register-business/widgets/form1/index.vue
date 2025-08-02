@@ -48,7 +48,7 @@ const loadBusinessType = async () => {
 
 const handleNext = handleSubmit(() => {
   // เก็บเฉพาะ selected id ตัวเดียว
-  formStore.setForm1({ business_type_id: selectedItem.value });
+  formStore.setForm1(selectedItem.value);
   formStore.nextPage();
 });
 

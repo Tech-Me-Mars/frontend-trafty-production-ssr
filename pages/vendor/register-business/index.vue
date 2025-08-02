@@ -1,5 +1,7 @@
 <template>
-
+<pre>
+  {{ formStore }}
+</pre>
 <div>
       <widgetFormStart v-if="formStore.activePage == 1" />
       <widgetForm1 v-if="formStore.activePage == 2" />
