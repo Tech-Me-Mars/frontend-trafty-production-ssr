@@ -203,12 +203,12 @@ const { value: shopDetailsEn } = useField('shop_details.en', undefined, { initia
 const { value: shopDetailsCn } = useField('shop_details.cn', undefined, { initialValue: '' });
 // ====== Computed for template binding ======
 const shop_name = ref({
-    get th() { return shopNameTh.value },
-    set th(v) { shopNameTh.value = v },
-    get en() { return shopNameEn.value },
-    set en(v) { shopNameEn.value = v },
-    get cn() { return shopNameCn.value },
-    set cn(v) { shopNameCn.value = v }
+  get th() { return shopNameTh.value },
+  set th(v) { shopNameTh.value = v },
+  get en() { return shopNameEn.value },
+  set en(v) { shopNameEn.value = v },
+  get cn() { return shopNameCn.value },
+  set cn(v) { shopNameCn.value = v }
 });
 
 const shop_address = ref({
@@ -275,6 +275,7 @@ import { useFormStore } from "@/store/businessStore.js";
 const formStore = useFormStore(); // ใช้ Pinia Store
 const handleNext = handleSubmit((values) => {
     try {
+        console.log('Form shop_name:', shop_name.value);
         console.log('Form values:', values);
 
         const time_start = format(shop_time_s.value, "HH:mm");
@@ -298,11 +299,11 @@ const handleNext = handleSubmit((values) => {
 
         // เก็บข้อมูลลง Pinia แทน LocalStorage
         formStore.setForm4(
-            shop_name.value,
-            shop_address.value,
+            values.shop_name,
+            values.shop_address,
             sortedShopDays,
             shop_time,
-            shop_phone.value,
+            values.shop_phone,
             values.shop_details,
             image_cover.value,
             image_profile.value,
@@ -319,10 +320,10 @@ const handleNext = handleSubmit((values) => {
     }
 });
 const getFieldError = (fieldName, langCode = null) => {
-    if (langCode) {
-        return errors.value[`${fieldName}.${langCode}`] || null;
-    }
-    return errors.value[fieldName] || null;
+  if (langCode) {
+    return errors.value[`${fieldName}.${langCode}`] || null;
+  }
+  return errors.value[fieldName] || null;
 };
 
 // function onFileSelect(event) {
@@ -753,13 +754,14 @@ onMounted(async () => {
                                 </div>
                                 <!-- ชื่อบริษัท -->
                                 <div>
+                              
                                     <label class="label-input">{{ t('ชื่อธุรกิจในแหล่งท่องเที่ยว') }}</label>
                                     <InputText v-model="shop_name[lang.code]"
                                         :placeholder="t('ชื่อธุรกิจในแหล่งท่องเที่ยว')" class="w-full custom-border"
                                         :invalid="getFieldError('shop_name')" />
                                     <p v-if="getFieldError('shop_name', lang.code)" class="error-text">
-                                        {{ getFieldError('shop_name', lang.code) }}
-                                    </p>
+  {{ getFieldError('shop_name', lang.code) }}
+</p>
 
                                 </div>
                                 <!-- ชื่อบริษัท -->
@@ -794,6 +796,7 @@ onMounted(async () => {
                                     </div> -->
 
                                     <div class="mt-2">
+                                     
                                         <div class="grid grid-cols-3 gap-x-6 gap-y-3 lg:w-fit w-full">
                                             <div v-for="day in days" :key="day[lang.code]"
                                                 class="flex items-center space-x-2">

@@ -47,7 +47,7 @@ const validationSchema = toTypedSchema(
             en: zod.string().optional().or(zod.literal('')),
             cn: zod.string().optional().or(zod.literal('')),
         }),
-        business_list_price: zod.string().nonempty(requireValue).default(""),
+        business_list_price: zod.number({ required_error: requireValue, invalid_type_error: requireValue, }),
 
     })
 );
@@ -114,41 +114,44 @@ const getFieldError = (fieldName, langCode = null) => {
                 <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54"
                     @change="moveMapToTab">
                     <van-tab v-for="(lang, idx) in langs" :key="lang.code" :title="lang.label" :name="idx">
-                <div class="card pt-5 mb-10">
-                    <!-- Title -->
-                    <h2 class="font-bold text-lg mb-3 ">{{ t('ธุรกิจในแหล่งท่องเที่ยว') }}</h2>
+                        <div class="card pt-5 mb-10">
+                            <!-- Title -->
+                            <h2 class="font-bold text-lg mb-3 ">{{ t('ธุรกิจในแหล่งท่องเที่ยว') }}</h2>
 
-                    <!-- <InputText v-model="shop_name[lang.code]"
+                            <!-- <InputText v-model="shop_name[lang.code]"
                                         :placeholder="t('ชื่อธุรกิจในแหล่งท่องเที่ยว')" class="w-full custom-border"
                                         :invalid="getFieldError('shop_name')" />
                                     <p v-if="getFieldError('shop_name', lang.code)" class="error-text">
                                         {{ getFieldError('shop_name', lang.code) }}
                                     </p> -->
 
-                    <!-- List of Businesses -->
-                    <div class="space-y-4">
-                        <div>
-                            <label class="label-input">{{ t('ชื่อรายการ') }}</label>
-                            <InputText v-model="business_list_name[lang.code]" :placeholder="t('ชื่อรายการ')"
-                                class="w-full custom-border" :invalid="getFieldError('business_list_name')" />
-                            <p v-if="getFieldError('business_list_name', lang.code)" class="error-text">
-                                {{ getFieldError('business_list_name', lang.code) }}
-                            </p>
+                            <!-- List of Businesses -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="label-input">{{ t('ชื่อรายการ') }}</label>
+                                    <InputText v-model="business_list_name[lang.code]" :placeholder="t('ชื่อรายการ')"
+                                        class="w-full custom-border" :invalid="getFieldError('business_list_name')" />
+                                    <p v-if="getFieldError('business_list_name', lang.code)" class="error-text">
+                                        {{ getFieldError('business_list_name', lang.code) }}
+                                    </p>
 
+                                </div>
+                                <div>
+                                    <label class="label-input">{{ t('ราคา') }}</label>
+                                    <!-- <InputText v-model="business_list_price" :placeholder="t('ราคา')"
+                                class="w-full custom-border" :invalid="errors?.business_list_price ? true : false" /> -->
+                                    <InputNumber v-model="business_list_price" :placeholder="t('ราคา')"
+                                       class="w-full custom-border" inputClass="custom-border" fluid :min="0" :invalid="errors?.business_list_price ? true : false"  />
+                                    <p class="error-text" v-if="errors?.business_list_price">{{
+                                        errors?.business_list_price }}
+                                    </p>
+
+                                </div>
+
+                            </div>
                         </div>
-                        <div>
-                            <label class="label-input">{{ t('ราคา') }}</label>
-                            <InputText v-model="business_list_price" :placeholder="t('ราคา')"
-                                class="w-full custom-border" :invalid="errors?.business_list_price ? true : false" />
-                            <p class="error-text" v-if="errors?.business_list_price">{{ errors?.business_list_price }}
-                            </p>
-
-                        </div>
-
-                    </div>
-                </div>
-                </van-tab>
-            </van-tabs>
+                    </van-tab>
+                </van-tabs>
                 <!-- <NuxtLink to="/vendor/register-business/form5"> -->
                 <Button :loading="isloadingAxi" :label="t('บันทึก')" severity="primary" type="submit" rounded
                     class="w-full" :pt="{

@@ -146,6 +146,7 @@ const clearLocalStorageKeys = () => {
 
 
 const saveRegisterBusiness = async () => {
+    
     const formData = new FormData();
     formData.append("service_type_id", parseInt(formStore.service_type_id));
     formData.append("business_type_id", formStore.business_type_id);
@@ -166,21 +167,7 @@ const saveRegisterBusiness = async () => {
     formData.append("shop_details_i18n", formStore.shop_details_i18n);
     formData.append("latitude_i18n", formStore.latitude_i18n);
     formData.append("longitude_i18n", formStore.longitude_i18n);
-    // if (formStore.shop_days) {
-    //     formData.append("shop_days", JSON.stringify(formStore.shop_days));
-    // } else {
-    //     formData.append("shop_days", []);
-
-    // }
-    // formData.append("shop_time", formStore.shop_time);
-    // formData.append("shop_phone", formStore.shop_phone);
-    // formData.append("shop_details", formStore.shop_details);
-
-    // formData.append("status", true);
-    // formData.append("star", 0);
-    // formData.append("visit_count", 0);
-    // formData.append("latitude", formStore.latitude);
-    // formData.append("longitude", formStore.longitude);
+    formData.append("business_open_date", formStore.business_open_date);
 
     console.log(formStore.image_cover)
     // Append single image files
@@ -195,7 +182,7 @@ const saveRegisterBusiness = async () => {
         formData.append("business_list", formStore.business_list);
     }
     if (formStore.business_social_media) {
-        formData.append("social_media", JSON.stringify(formStore.social_media));
+        formData.append("social_media", formStore.business_social_media);
     }
     if (formStore.business_img) {
         formStore.business_img.forEach((item) => {
