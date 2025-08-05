@@ -29,3 +29,19 @@ export function saveBusinessRegister(payload) {
   const url = `/api/v1/business/business-register`;
   return request("post", url, payload, true);
 }
+
+export function getProvinces() {
+  const url = `/api/v1/management/provinces`;
+  return request("get", url, {}, true);
+}
+
+export function getDistrictByProvinceId(id) {
+  const url = `/api/v1/management/district/get_by_provinces_id/${id}`;
+  return request("get", url, {}, true);
+}
+
+export function getSubDistrictByDistrictId(id) {
+  const url = `/api/v1/management/subdistrict/get_by_district_id/${id}`;
+  return request("get", url, {}, true);
+}
+

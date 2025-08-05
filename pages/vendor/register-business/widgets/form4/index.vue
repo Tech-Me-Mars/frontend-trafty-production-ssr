@@ -99,6 +99,10 @@ const requireText = t('ระบุข้อมูล');
 // *************  VARIDATOR
 const validationSchema = toTypedSchema(
     zod.object({
+        shop_province_id: zod.number({ required_error: t('กรุณาเลือกจังหวัด'), invalid_type_error: t('กรุณาเลือกจังหวัด'), }),
+        shop_district_id: zod.number({ required_error: t('กรุณาเลือกอำเภอ'), invalid_type_error: t('กรุณาเลือกอำเภอ'), }),
+        shop_subdistrict_id: zod.number({ required_error: t('กรุณาเลือกตำบล'), invalid_type_error: t('กรุณาเลือกตำบล'), }),
+
         // รองรับหลายภาษา
         shop_name: zod.object({
             th: zod.string().min(1, t('กรุณากรอก')),
@@ -120,6 +124,8 @@ const validationSchema = toTypedSchema(
             en: zod.string().optional().or(zod.literal('')),
             cn: zod.string().optional().or(zod.literal('')),
         }),
+        latitude: zod.number({ required_error: t('เลือกตำแหน่งแผนที่เพื่อระบุละติจูด'), invalid_type_error: t('เลือกตำแหน่งแผนที่เพื่อระบุละติจูด'), }),
+        longitude: zod.number({ required_error: t('เลือกตำแหน่งแผนที่เพื่อระบุลองจิจูด'), invalid_type_error: t('เลือกตำแหน่งแผนที่เพื่อระบุลองจิจูด'), }),
 
         // ฟิลด์ภาษาเดียว
         shop_time_s: zod.date({
@@ -203,12 +209,12 @@ const { value: shopDetailsEn } = useField('shop_details.en', undefined, { initia
 const { value: shopDetailsCn } = useField('shop_details.cn', undefined, { initialValue: '' });
 // ====== Computed for template binding ======
 const shop_name = ref({
-  get th() { return shopNameTh.value },
-  set th(v) { shopNameTh.value = v },
-  get en() { return shopNameEn.value },
-  set en(v) { shopNameEn.value = v },
-  get cn() { return shopNameCn.value },
-  set cn(v) { shopNameCn.value = v }
+    get th() { return shopNameTh.value },
+    set th(v) { shopNameTh.value = v },
+    get en() { return shopNameEn.value },
+    set en(v) { shopNameEn.value = v },
+    get cn() { return shopNameCn.value },
+    set cn(v) { shopNameCn.value = v }
 });
 
 const shop_address = ref({
@@ -262,6 +268,108 @@ const { value: shop_time_e } = useField('shop_time_e');
 const { value: latitude } = useField('latitude');
 const { value: longitude } = useField('longitude');
 const { value: business_img } = useField('business_img', null, { initialValue: [] });
+
+const { value: shop_province_id } = useField('shop_province_id');
+const { value: shop_district_id } = useField('shop_district_id');
+const { value: shop_subdistrict_id } = useField('shop_subdistrict_id');
+const provinces = ref([])
+const districts = ref([])
+const subdistricts = ref([])
+// โหลดจังหวัด อำเภอ ตำบล (ใช้ map เหมือนเดิม)
+
+const districtLabelField = computed(() => {
+    const lang = langs[activeLangTab.value]
+    if (lang.code === 'cn') {
+        const d = districts.value[0]
+        if (d && !d.district_name_cn) {
+            if (d.district_name_en) return 'district_name_en'
+            return 'district_name_th'
+        }
+        return 'district_name_cn'
+    }
+    return `district_name_${lang.code}`
+})
+
+const subdistrictLabelField = computed(() => {
+    const lang = langs[activeLangTab.value]
+    if (lang.code === 'cn') {
+        const s = subdistricts.value[0]
+        if (s && !s.subdistrict_name_cn) {
+            if (s.subdistrict_name_en) return 'subdistrict_name_en'
+            return 'subdistrict_name_th'
+        }
+        return 'subdistrict_name_cn'
+    }
+    return `subdistrict_name_${lang.code}`
+})
+
+const provinceLabelField = computed(() => {
+    const lang = langs[activeLangTab.value]
+    if (lang.code === 'cn') {
+        // ถ้า provinces ไม่มี Provinces_name_cn ให้ fallback ไป eng หรือไทย
+        const prov = provinces.value[0]
+        if (prov && !prov.Provinces_name_cn) {
+            if (prov.Provinces_name_en) return 'Provinces_name_en'
+            return 'Provinces_name_th'
+        }
+        return 'Provinces_name_cn'
+    }
+    // eng, th ใช้ตรงๆ
+    return `Provinces_name_${lang.code}`
+})
+
+// โหลดจังหวัด
+const loadProvinces = async () => {
+    try {
+        const res = await dataApi.getProvinces()
+        provinces.value = res.data.data
+    } catch (err) { console.log(err) }
+}
+
+// โหลดอำเภอ ตามจังหวัด
+const loadDistricts = async (provinceId) => {
+    if (!provinceId) return districts.value = []
+    try {
+        const res = await dataApi.getDistrictByProvinceId(provinceId)
+        districts.value = res.data.data.map((item) => ({
+            ...item,
+            district_name_th: item?.district_name_i18n?.th || "",
+            district_name_en: item?.district_name_i18n?.en || "",
+            district_name_cn: item?.district_name_i18n?.cn || "",
+        }))
+    } catch (err) { console.log(err) }
+}
+
+// โหลดตำบล ตามอำเภอ
+const loadSubdistricts = async (districtId) => {
+    if (!districtId) return subdistricts.value = []
+    try {
+        const res = await dataApi.getSubDistrictByDistrictId(districtId)
+        subdistricts.value = res.data.data.map((item) => ({
+            ...item,
+            subdistrict_name_th: item?.subdistrict_name_i18n?.th || "",
+            subdistrict_name_en: item?.subdistrict_name_i18n?.en || "",
+            subdistrict_name_th: item?.subdistrict_name_i18n?.th || ""
+
+        }))
+    } catch (err) { console.log(err) }
+}
+
+// watch เมื่อ select จังหวัดเปลี่ยน → โหลดอำเภอใหม่, reset ค่าด้านล่าง
+watch(shop_province_id, val => {
+    shop_district_id.value = null
+    shop_subdistrict_id.value = null
+    districts.value = []
+    subdistricts.value = []
+    if (val) loadDistricts(val)
+})
+
+// watch เมื่อ select อำเภอเปลี่ยน → โหลดตำบลใหม่, reset ค่าด้านล่าง
+watch(shop_district_id, val => {
+    shop_subdistrict_id.value = null
+    subdistricts.value = []
+    if (val) loadSubdistricts(val)
+})
 
 
 // const { push, fields, remove } = useFieldArray("social_media");
@@ -320,10 +428,10 @@ const handleNext = handleSubmit((values) => {
     }
 });
 const getFieldError = (fieldName, langCode = null) => {
-  if (langCode) {
-    return errors.value[`${fieldName}.${langCode}`] || null;
-  }
-  return errors.value[fieldName] || null;
+    if (langCode) {
+        return errors.value[`${fieldName}.${langCode}`] || null;
+    }
+    return errors.value[fieldName] || null;
 };
 
 // function onFileSelect(event) {
@@ -576,6 +684,7 @@ onMounted(async () => {
     await nextTick()
     initMap()
     moveMapToTab(activeLangTab.value)
+    loadProvinces()
 })
 
 </script>
@@ -708,7 +817,7 @@ onMounted(async () => {
                                 <div>
                                     <client-only>
                                         <label class="label-input block">{{ t('พิกัดสถานที่ท่องเที่ยวหรือธุรกิจ')
-                                            }}</label>
+                                        }}</label>
                                         <AutoComplete v-model="textSearchMap" forceSelection optionLabel="name"
                                             :placeholder="`${t('ค้นหาสถานที่ใกล้เคียง')}...`" :suggestions="resLocation"
                                             @complete="search" @value-change="onLocationSearchSelect"
@@ -720,7 +829,7 @@ onMounted(async () => {
                                                     <span class="font-medium text-lg text-primary-main">{{
                                                         slotProps.option?.name }}</span>
                                                     <span class="text-sm text-gray-500">{{ slotProps.option?.address
-                                                        }}</span>
+                                                    }}</span>
                                                 </div>
                                             </template>
                                         </AutoComplete>
@@ -731,7 +840,7 @@ onMounted(async () => {
                                         </div>
                                         <p class="error-text" v-if="errors?.longitude">{{
                                             t('กรุณาปักหมุดสถานที่ท่องเที่ยวหรือธุรกิจ')
-                                            }}
+                                        }}
                                         </p>
 
                                     </client-only>
@@ -742,7 +851,7 @@ onMounted(async () => {
                                 </div>
 
 
-                                <div>
+                                <!-- <div>
                                     <label class="label-input">{{ t('ละติจูด') }}</label>
                                     <InputText v-model="latitude" placeholder="" readonly
                                         class="w-full custom-border" />
@@ -751,17 +860,32 @@ onMounted(async () => {
                                     <label class="label-input">{{ t('ลองจิจูด') }}</label>
                                     <InputText v-model="longitude" placeholder="" readonly
                                         class="w-full custom-border" />
+                                </div> -->
+                                <div>
+                                    <label class="label-input">{{ t('ละติจูด') }}</label>
+                                    <InputText v-model="latitude" placeholder="" readonly 
+                                        class="w-full custom-border" :invalid="errors?.latitude ? true : false" />
+                                        <p class="error-text" v-if="errors?.latitude">{{
+                                            errors?.latitude }}</p>
                                 </div>
+                                <div>
+                                    <label class="label-input">{{ t('ลองจิจูด') }}</label>
+                                    <InputText v-model="longitude" placeholder="" readonly
+                                        class="w-full custom-border" :invalid="errors?.longitude ? true : false" />
+                                        <p class="error-text" v-if="errors?.longitude">{{
+                                            errors?.longitude }}</p>
+                                </div>
+
                                 <!-- ชื่อบริษัท -->
                                 <div>
-                              
+
                                     <label class="label-input">{{ t('ชื่อธุรกิจในแหล่งท่องเที่ยว') }}</label>
                                     <InputText v-model="shop_name[lang.code]"
                                         :placeholder="t('ชื่อธุรกิจในแหล่งท่องเที่ยว')" class="w-full custom-border"
                                         :invalid="getFieldError('shop_name')" />
                                     <p v-if="getFieldError('shop_name', lang.code)" class="error-text">
-  {{ getFieldError('shop_name', lang.code) }}
-</p>
+                                        {{ getFieldError('shop_name', lang.code) }}
+                                    </p>
 
                                 </div>
                                 <!-- ชื่อบริษัท -->
@@ -774,29 +898,50 @@ onMounted(async () => {
                                     </p>
 
                                 </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <!-- จังหวัด -->
+                                    <div>
+                                        <label class="label-input">{{ t('จังหวัด') }}</label>
+                                        <Dropdown v-model="shop_province_id" :options="provinces" optionValue="id"
+                                            :optionLabel="provinceLabelField" :placeholder="t('เลือกจังหวัด')"
+                                            class="w-full" :filter="true" :showClear="true"
+                                            :invalid="errors?.shop_province_id ? true : false" />
+                                        <p class="error-text" v-if="errors?.shop_province_id">{{
+                                            errors?.shop_province_id }}</p>
+
+                                    </div>
+                                    <!-- อำเภอ -->
+                                    <div>
+                                        <label class="label-input">{{ t('อำเภอ') }}</label>
+                                        <Dropdown v-model="shop_district_id" :options="districts" optionValue="id"
+                                            :optionLabel="districtLabelField" :placeholder="t('เลือกอำเภอ')"
+                                            class="w-full"  :filter="true"
+                                            :showClear="true" :invalid="errors?.shop_district_id ? true : false" />
+                                            <p class="error-text" v-if="errors?.shop_district_id">{{
+                                            errors?.shop_district_id }}</p>
+                                    </div>
+                                    <!-- ตำบล -->
+                                    <div>
+                                        <label class="label-input">{{ t('ตำบล') }}</label>
+                                        <Dropdown v-model="shop_subdistrict_id" :options="subdistricts" optionValue="id"
+                                            :optionLabel="subdistrictLabelField" :placeholder="t('เลือกตำบล')"
+                                            class="w-full"  :filter="true"
+                                            :showClear="true" :invalid="errors?.shop_subdistrict_id ? true : false" />
+                                            <p class="error-text" v-if="errors?.shop_subdistrict_id">{{
+                                            errors?.shop_subdistrict_id }}</p>
+                                    </div>
+                                </div>
+
+
+
                                 <div>
                                     <label class="label-input">{{ t('วันที่ทำการ') }}</label>
-                                    <!-- {{ shop_days[lang.code] }} -->
-                                    <!-- <div class="mt-2">
-                                        <div class="grid grid-cols-3 gap-x-6 gap-y-3 lg:w-fit w-full">
-                                            <div v-for="day in days" :key="day[lang.code]"
-                                                class="flex items-center space-x-2">
-                                                <Checkbox :inputId="day[lang.code]" :value="day[lang.code]"
-                                                    :binary="false"
-                                                    :modelValue="shop_days[lang.code].includes(day[lang.code])"
-                                                    @change="(e) => syncShopDays(e.checked, day)" />
-                                                <label :for="day[lang.code]" class="text-gray-700 cursor-pointer">{{
-                                                    day.label
-                                                    }}</label>
-                                                <label :for="day[lang.code]" class="text-gray-700 cursor-pointer">{{
-                                                    day.label
-                                                }}</label>
-                                            </div>
-                                        </div>
-                                    </div> -->
 
                                     <div class="mt-2">
-                                     
+                                        <!-- <pre>
+                                            {{ shop_days }}
+                                        </pre> -->
                                         <div class="grid grid-cols-3 gap-x-6 gap-y-3 lg:w-fit w-full">
                                             <div v-for="day in days" :key="day[lang.code]"
                                                 class="flex items-center space-x-2">
@@ -831,7 +976,7 @@ onMounted(async () => {
 
                                     <p class="error-text" v-if="errors?.shop_time_s || errors?.shop_time_e">{{
                                         t('กรุณาเลือกเวลาทำการ')
-                                        }}</p>
+                                    }}</p>
 
                                 </div>
                                 <!-- ติดต่อ -->
@@ -901,7 +1046,7 @@ onMounted(async () => {
                                                                 <i :class="slotProps.option.icon" class="text-lg"></i>
                                                                 <span>{{
                                                                     slotProps.option[`social_media_name_${lang.code}`]
-                                                                }}</span>
+                                                                    }}</span>
                                                             </div>
                                                         </template>
                                                     </Select>
