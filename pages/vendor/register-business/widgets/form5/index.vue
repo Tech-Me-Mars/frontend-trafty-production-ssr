@@ -10,12 +10,32 @@ import { useFormStore } from "@/store/businessStore.js";
 const formStore = useFormStore(); // ใช้ Pinia Store
 const route = useRoute();
 const router = useRouter();
-const alertToast = ref({});
+
 import { useConfirm } from "primevue/useconfirm";
 import { useFieldArray, useForm, Form, useField } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as zod from "zod";
 import * as dataApi from "../../api/data.js";
+
+
+const notification = reactive({
+    visible: false,
+    state: 'success',
+    title: '',
+    detail: '',
+    timeout: 0,
+    redirectUrl: null,
+    autoClose: true
+})
+
+// Methods
+const showNotification = (config) => {
+    Object.assign(notification, {
+        visible: true,
+        ...config
+    })
+}
+
 
 // Language configuration
 const langs = [
@@ -73,13 +93,7 @@ const requireText = t('ระบุข้อมูล');
 // *************  VARIDATOR
 const validationSchema = toTypedSchema(
     zod.object({
-        // business_list_name: zod.string().nonempty(requireValue).default(""),
-        // business_list_price: zod.string().nonempty(requireValue).default(""),
-        // business_list: zod.custom((value) => {
-        //     if (value != null && (Array.isArray(value) ? value.length > 0 : true)) {
-        //         return value;
-        //     }
-        // }),
+
     })
 );
 const { handleSubmit, handleReset, errors } = useForm({
@@ -89,11 +103,6 @@ const { value: business_list } = useField('business_list', null, {
     initialValue: formStore.business_list // Set the initial value from the store
 });
 
-
-// const loadBusinessList = () => {
-//     const storedBusinessList = JSON.parse(localStorage.getItem("business_list") || "[]");
-//     business_list.value = storedBusinessList; // อัปเดตค่าใน useField
-// };
 
 // โหลดข้อมูลเมื่อหน้าโหลด
 onMounted(() => {
@@ -114,39 +123,9 @@ const handleNext = handleSubmit(async (values) => {
     });
 });
 
-const clearLocalStorageKeys = () => {
-    const keysToRemove = [
-        "service_type_id",
-        "service_type_name",
-        "business_model_id",
-        "business_model_name",
-        "business_type_id",
-        "business_type_name",
-        "business_name",
-        "business_person",
-        "business_address",
-        "business_contact",
-        "business_email",
-        "shop_name",
-        "shop_address",
-        "shop_days",
-        "shop_time",
-        "shop_phone",
-        "shop_details",
-        "image_cover",
-        "image_profile",
-        "business_img",
-        "business_list",
-        "social_media",
-        "business_documents_img"
-    ];
-
-    keysToRemove.forEach((key) => localStorage.removeItem(key));
-};
-
 
 const saveRegisterBusiness = async () => {
-    
+
     const formData = new FormData();
     formData.append("service_type_id", parseInt(formStore.service_type_id));
     formData.append("business_type_id", formStore.business_type_id);
@@ -154,20 +133,31 @@ const saveRegisterBusiness = async () => {
     formData.append("business_name_i18n", formStore.business_name_i18n);
     formData.append("business_person_i18n", formStore.business_person_i18n);
     formData.append("business_address_i18n", formStore.business_address_i18n);
+    formData.append("business_province_id", formStore.business_province_id);
+    formData.append("business_district_id", formStore.business_district_id);
+    formData.append("business_subdistrict_id", formStore.business_subdistrict_id);
+    
     formData.append("business_contact_i18n", formStore.business_contact_i18n);
     formData.append("business_email_i18n", formStore.business_email_i18n);
     formData.append("shop_name_i18n", formStore.shop_name_i18n);
     formData.append("shop_address_i18n", formStore.shop_address_i18n);
-    formData.append("business_contact_i18n", formStore.business_contact_i18n);
-    formData.append("business_email_i18n", formStore.business_email_i18n);
-    formData.append("shop_name_i18n", formStore.shop_name_i18n);
-    formData.append("shop_address_i18n", formStore.shop_address_i18n);
+    formData.append("shop_province_id", formStore.shop_province_id);
+    formData.append("shop_district_id", formStore.shop_district_id);
+    formData.append("shop_subdistrict_id", formStore.shop_subdistrict_id);
+
     formData.append("shop_time_i18n", formStore.shop_time_i18n);
     formData.append("shop_phone_i18n", formStore.shop_phone_i18n);
     formData.append("shop_details_i18n", formStore.shop_details_i18n);
     formData.append("latitude_i18n", formStore.latitude_i18n);
     formData.append("longitude_i18n", formStore.longitude_i18n);
-    formData.append("business_open_date", formStore.business_open_date);
+    const businessOpenDateI18n = { ...formStore.business_open_date };
+
+    // วนลูปแต่ละ key แล้ว stringify array
+    Object.keys(businessOpenDateI18n).forEach(lang => {
+        businessOpenDateI18n[lang] = JSON.stringify(businessOpenDateI18n[lang]);
+    });
+    // จากนั้น append ลง FormData ได้เลย
+    formData.append("business_open_date", JSON.stringify(businessOpenDateI18n));
 
     console.log(formStore.image_cover)
     // Append single image files
@@ -178,9 +168,9 @@ const saveRegisterBusiness = async () => {
     if (formStore.image_profile) {
         formData.append("image_profile", formStore.image_profile.file);
     }
-    if (formStore.business_list) {
-        formData.append("business_list", formStore.business_list);
-    }
+    // if (business_list.value) {
+    formData.append("business_list", business_list.value || []);
+    // }
     if (formStore.business_social_media) {
         formData.append("social_media", formStore.business_social_media);
     }
@@ -202,29 +192,48 @@ const saveRegisterBusiness = async () => {
 
     try {
         const res = await dataApi.saveBusinessRegister(formData);
-        alertToast.value = {
-            title: t('สำเร็จ'),
-            color: 'info',
-            isError: false,
-            msg: res.data.message,
-        };
+        
+        showNotification({
+            state: res.data.dialog?.state,
+            title: res.data.dialog?.title,
+            detail: res.data.dialog?.detail,
+            timeout: res.data.dialog?.timeout || 3000,
+            redirectUrl: `/vendor/manage-business/home/${res.data.data.id}`,
+            autoClose: true
+        })
+        formStore.$reset();
+
+        // alertToast.value = {
+        //     title: t('สำเร็จ'),
+        //     color: 'info',
+        //     isError: false,
+        //     msg: res.data.message,
+        // };
 
         // รีเซ็ตค่าทั้งหมดใน Pinia หลังจากบันทึกสำเร็จ
-        // formStore.$reset();
-        router.replace({ query: { ...route.query, bussiness_id: res.data.data.id } });
-        formStore.goToPage(7);
+
+        // router.replace({ query: { ...route.query, bussiness_id: res.data.data.id } });
+        // formStore.goToPage(7);
 
 
         // นำทางไปยังหน้าสำเร็จ
         // router.push(`/vendor/register-business/finish?bussiness_id=${res.data.data.id}`);
     } catch (error) {
-        alertToast.value = {
-            title: t('ล้มเหลว'),
-            isError: true,
-            color: "error",
-            msg: error.response?.data?.message || "Error occurred",
-            dataError: error,
-        };
+        showNotification({
+            state: 'warning',
+            title: 'คำเตือน',
+            detail: 'บันทึกข้อมูลไม่สำเร็จ กรุณาตรวจสอบข้อมูลและลองใหม่อีกครั้ง',
+            timeout: 0,
+            redirectUrl: null,
+            autoClose: false // ไม่นับถอยหลัง ต้องกดปุ่มปิด
+        })
+        // alertToast.value = {
+        //     title: t('ล้มเหลว'),
+        //     isError: true,
+        //     color: "error",
+        //     msg: error.response?.data?.message || "Error occurred",
+        //     dataError: error,
+        // };
         console.error(error);
     }
 };
@@ -266,8 +275,8 @@ const saveRegisterBusiness = async () => {
                                     class="flex justify-between items-start p-3 border rounded-md shadow-sm">
                                     <div>
                                         <p class="font-semibold text-gray-700 mb-2">
-  {{ item.business_list_name[lang.code] }}
-</p>
+                                            {{ item.business_list_name[lang.code] }}
+                                        </p>
                                         <p class="text-gray-500 text-sm">฿ {{ item.business_list_price }}</p>
                                     </div>
                                     <!-- Delete Button -->
@@ -299,7 +308,7 @@ const saveRegisterBusiness = async () => {
             </van-tabs>
 
         </Form>
-        <MyToast :data="alertToast" />
+
         <ConfirmDialog></ConfirmDialog>
         <ConfirmDialog group="headless">
             <template #container="{ message, acceptCallback, rejectCallback }">
@@ -316,5 +325,9 @@ const saveRegisterBusiness = async () => {
                 </div>
             </template>
         </ConfirmDialog>
+        <NotificationPopup v-model:visible="notification.visible" :state="notification.state"
+            :title="notification.title" :detail="notification.detail" :timeout="notification.timeout"
+            :redirect-url="notification.redirectUrl" :auto-close="notification.autoClose"
+            @close="onNotificationClose" />
     </div>
 </template>

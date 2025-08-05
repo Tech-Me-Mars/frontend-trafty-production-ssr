@@ -409,6 +409,9 @@ const handleNext = handleSubmit((values) => {
         formStore.setForm4(
             values.shop_name,
             values.shop_address,
+            values.shop_province_id,
+            values.shop_district_id,
+            values.shop_subdistrict_id,
             sortedShopDays,
             shop_time,
             values.shop_phone,
@@ -863,17 +866,17 @@ onMounted(async () => {
                                 </div> -->
                                 <div>
                                     <label class="label-input">{{ t('ละติจูด') }}</label>
-                                    <InputText v-model="latitude" placeholder="" readonly 
-                                        class="w-full custom-border" :invalid="errors?.latitude ? true : false" />
-                                        <p class="error-text" v-if="errors?.latitude">{{
-                                            errors?.latitude }}</p>
+                                    <InputText v-model="latitude" placeholder="" readonly class="w-full custom-border"
+                                        :invalid="errors?.latitude ? true : false" />
+                                    <p class="error-text" v-if="errors?.latitude">{{
+                                        errors?.latitude }}</p>
                                 </div>
                                 <div>
                                     <label class="label-input">{{ t('ลองจิจูด') }}</label>
-                                    <InputText v-model="longitude" placeholder="" readonly
-                                        class="w-full custom-border" :invalid="errors?.longitude ? true : false" />
-                                        <p class="error-text" v-if="errors?.longitude">{{
-                                            errors?.longitude }}</p>
+                                    <InputText v-model="longitude" placeholder="" readonly class="w-full custom-border"
+                                        :invalid="errors?.longitude ? true : false" />
+                                    <p class="error-text" v-if="errors?.longitude">{{
+                                        errors?.longitude }}</p>
                                 </div>
 
                                 <!-- ชื่อบริษัท -->
@@ -899,39 +902,39 @@ onMounted(async () => {
 
                                 </div>
 
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                    <!-- จังหวัด -->
-                                    <div>
-                                        <label class="label-input">{{ t('จังหวัด') }}</label>
-                                        <Dropdown v-model="shop_province_id" :options="provinces" optionValue="id"
-                                            :optionLabel="provinceLabelField" :placeholder="t('เลือกจังหวัด')"
-                                            class="w-full" :filter="true" :showClear="true"
-                                            :invalid="errors?.shop_province_id ? true : false" />
-                                        <p class="error-text" v-if="errors?.shop_province_id">{{
-                                            errors?.shop_province_id }}</p>
 
-                                    </div>
-                                    <!-- อำเภอ -->
-                                    <div>
-                                        <label class="label-input">{{ t('อำเภอ') }}</label>
-                                        <Dropdown v-model="shop_district_id" :options="districts" optionValue="id"
-                                            :optionLabel="districtLabelField" :placeholder="t('เลือกอำเภอ')"
-                                            class="w-full"  :filter="true"
-                                            :showClear="true" :invalid="errors?.shop_district_id ? true : false" />
-                                            <p class="error-text" v-if="errors?.shop_district_id">{{
-                                            errors?.shop_district_id }}</p>
-                                    </div>
-                                    <!-- ตำบล -->
-                                    <div>
-                                        <label class="label-input">{{ t('ตำบล') }}</label>
-                                        <Dropdown v-model="shop_subdistrict_id" :options="subdistricts" optionValue="id"
-                                            :optionLabel="subdistrictLabelField" :placeholder="t('เลือกตำบล')"
-                                            class="w-full"  :filter="true"
-                                            :showClear="true" :invalid="errors?.shop_subdistrict_id ? true : false" />
-                                            <p class="error-text" v-if="errors?.shop_subdistrict_id">{{
-                                            errors?.shop_subdistrict_id }}</p>
-                                    </div>
+                                <!-- จังหวัด -->
+                                <div>
+                                    <label class="label-input">{{ t('จังหวัด') }}</label>
+                                    <Dropdown v-model="shop_province_id" :options="provinces" optionValue="id"
+                                        :optionLabel="provinceLabelField" :placeholder="t('เลือกจังหวัด')"
+                                        class="w-full h-full custom-border" :filter="true" :showClear="true"
+                                        :invalid="errors?.shop_province_id ? true : false" />
+                                    <p class="error-text" v-if="errors?.shop_province_id">{{
+                                        errors?.shop_province_id }}</p>
+
                                 </div>
+                                <!-- อำเภอ -->
+                                <div>
+                                    <label class="label-input">{{ t('อำเภอ') }}</label>
+                                    <Dropdown v-model="shop_district_id" :options="districts" optionValue="id"
+                                        :optionLabel="districtLabelField" :placeholder="t('เลือกอำเภอ')"
+                                        class="w-full h-full custom-border" :filter="true" :showClear="true"
+                                        :invalid="errors?.shop_district_id ? true : false" />
+                                    <p class="error-text" v-if="errors?.shop_district_id">{{
+                                        errors?.shop_district_id }}</p>
+                                </div>
+                                <!-- ตำบล -->
+                                <div>
+                                    <label class="label-input">{{ t('ตำบล') }}</label>
+                                    <Dropdown v-model="shop_subdistrict_id" :options="subdistricts" optionValue="id"
+                                        :optionLabel="subdistrictLabelField" :placeholder="t('เลือกตำบล')"
+                                        class="w-full h-full custom-border" :filter="true" :showClear="true"
+                                        :invalid="errors?.shop_subdistrict_id ? true : false" />
+                                    <p class="error-text" v-if="errors?.shop_subdistrict_id">{{
+                                        errors?.shop_subdistrict_id }}</p>
+                                </div>
+
 
 
 

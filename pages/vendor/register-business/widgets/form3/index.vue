@@ -6,6 +6,7 @@ import { useForm, useField, Form } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import * as zod from 'zod';
 import { useFormStore } from '@/store/businessStore.js';
+import * as dataApi from "../../api/data.js";
 
 const { t, locale, setLocale } = useI18n();
 const router = useRouter();
@@ -21,8 +22,10 @@ const langs = [
 ];
 
 const activeLangTab = ref(langs.findIndex(l => l.locale === locale.value) ?? 0);
-onMounted(()=>{
+onMounted(() => {
   setLocale('th-TH')
+  loadProvinces()
+
 })
 // เมื่อเปลี่ยนแท็บ
 watch(activeLangTab, (newIdx) => {
@@ -49,6 +52,10 @@ const requireValue = t('กรุณาระบุข้อมูลให้�
 // Validation schema - Mixed i18n and single fields
 const validationSchema = toTypedSchema(
   zod.object({
+    shop_province_id: zod.number({ required_error: t('กรุณาเลือกจังหวัด'), invalid_type_error: t('กรุณาเลือกจังหวัด'), }),
+    shop_district_id: zod.number({ required_error: t('กรุณาเลือกอำเภอ'), invalid_type_error: t('กรุณาเลือกอำเภอ'), }),
+    shop_subdistrict_id: zod.number({ required_error: t('กรุณาเลือกตำบล'), invalid_type_error: t('กรุณาเลือกตำบล'), }),
+
     business_name: zod.object({
       th: zod.string().nonempty(requireValue),
       en: zod.string().default(''), // ✅ มีค่า default
@@ -91,6 +98,108 @@ const { value: businessAddressCn } = useField('business_address.cn', undefined, 
 const { value: business_contact } = useField('business_contact', undefined, { initialValue: '' });
 const { value: business_email } = useField('business_email', undefined, { initialValue: '' });
 const { value: listFiles } = useField('listFiles', undefined, { initialValue: [] });
+
+const { value: shop_province_id } = useField('shop_province_id');
+const { value: shop_district_id } = useField('shop_district_id');
+const { value: shop_subdistrict_id } = useField('shop_subdistrict_id');
+const provinces = ref([])
+const districts = ref([])
+const subdistricts = ref([])
+// โหลดจังหวัด อำเภอ ตำบล (ใช้ map เหมือนเดิม)
+
+const districtLabelField = computed(() => {
+  const lang = langs[activeLangTab.value]
+  if (lang.code === 'cn') {
+    const d = districts.value[0]
+    if (d && !d.district_name_cn) {
+      if (d.district_name_en) return 'district_name_en'
+      return 'district_name_th'
+    }
+    return 'district_name_cn'
+  }
+  return `district_name_${lang.code}`
+})
+
+const subdistrictLabelField = computed(() => {
+  const lang = langs[activeLangTab.value]
+  if (lang.code === 'cn') {
+    const s = subdistricts.value[0]
+    if (s && !s.subdistrict_name_cn) {
+      if (s.subdistrict_name_en) return 'subdistrict_name_en'
+      return 'subdistrict_name_th'
+    }
+    return 'subdistrict_name_cn'
+  }
+  return `subdistrict_name_${lang.code}`
+})
+
+const provinceLabelField = computed(() => {
+  const lang = langs[activeLangTab.value]
+  if (lang.code === 'cn') {
+    // ถ้า provinces ไม่มี Provinces_name_cn ให้ fallback ไป eng หรือไทย
+    const prov = provinces.value[0]
+    if (prov && !prov.Provinces_name_cn) {
+      if (prov.Provinces_name_en) return 'Provinces_name_en'
+      return 'Provinces_name_th'
+    }
+    return 'Provinces_name_cn'
+  }
+  // eng, th ใช้ตรงๆ
+  return `Provinces_name_${lang.code}`
+})
+
+// โหลดจังหวัด
+const loadProvinces = async () => {
+  try {
+    const res = await dataApi.getProvinces()
+    provinces.value = res.data.data
+  } catch (err) { console.log(err) }
+}
+
+// โหลดอำเภอ ตามจังหวัด
+const loadDistricts = async (provinceId) => {
+  if (!provinceId) return districts.value = []
+  try {
+    const res = await dataApi.getDistrictByProvinceId(provinceId)
+    districts.value = res.data.data.map((item) => ({
+      ...item,
+      district_name_th: item?.district_name_i18n?.th || "",
+      district_name_en: item?.district_name_i18n?.en || "",
+      district_name_cn: item?.district_name_i18n?.cn || "",
+    }))
+  } catch (err) { console.log(err) }
+}
+
+// โหลดตำบล ตามอำเภอ
+const loadSubdistricts = async (districtId) => {
+  if (!districtId) return subdistricts.value = []
+  try {
+    const res = await dataApi.getSubDistrictByDistrictId(districtId)
+    subdistricts.value = res.data.data.map((item) => ({
+      ...item,
+      subdistrict_name_th: item?.subdistrict_name_i18n?.th || "",
+      subdistrict_name_en: item?.subdistrict_name_i18n?.en || "",
+      subdistrict_name_th: item?.subdistrict_name_i18n?.th || ""
+
+    }))
+  } catch (err) { console.log(err) }
+}
+
+// watch เมื่อ select จังหวัดเปลี่ยน → โหลดอำเภอใหม่, reset ค่าด้านล่าง
+watch(shop_province_id, val => {
+  shop_district_id.value = null
+  shop_subdistrict_id.value = null
+  districts.value = []
+  subdistricts.value = []
+  if (val) loadDistricts(val)
+})
+
+// watch เมื่อ select อำเภอเปลี่ยน → โหลดตำบลใหม่, reset ค่าด้านล่าง
+watch(shop_district_id, val => {
+  shop_subdistrict_id.value = null
+  subdistricts.value = []
+  if (val) loadSubdistricts(val)
+})
 
 // Computed objects for easier template access
 const business_name = ref({
@@ -166,6 +275,11 @@ const handleNext = handleSubmit((values) => {
     values.business_name,
     values.business_person,
     values.business_address,
+    values.shop_province_id,
+    values.shop_district_id,
+    values.shop_subdistrict_id,
+
+
     values.business_contact,
     values.business_email,
     values.listFiles
@@ -228,6 +342,37 @@ const removeFile = (index) => {
                   </p>
                 </div>
 
+                <!-- จังหวัด -->
+                <div>
+                  <label class="label-input">{{ t('จังหวัด') }}</label>
+                  <Dropdown v-model="shop_province_id" :options="provinces" optionValue="id"
+                    :optionLabel="provinceLabelField" :placeholder="t('เลือกจังหวัด')"
+                    class="w-full h-full custom-border" :filter="true" :showClear="true"
+                    :invalid="errors?.shop_province_id ? true : false" />
+                  <p class="error-text" v-if="errors?.shop_province_id">{{
+                    errors?.shop_province_id }}</p>
+
+                </div>
+                <!-- อำเภอ -->
+                <div>
+                  <label class="label-input">{{ t('อำเภอ') }}</label>
+                  <Dropdown v-model="shop_district_id" :options="districts" optionValue="id"
+                    :optionLabel="districtLabelField" :placeholder="t('เลือกอำเภอ')" class="w-full h-full custom-border"
+                    :filter="true" :showClear="true" :invalid="errors?.shop_district_id ? true : false" />
+                  <p class="error-text" v-if="errors?.shop_district_id">{{
+                    errors?.shop_district_id }}</p>
+                </div>
+                <!-- ตำบล -->
+                <div>
+                  <label class="label-input">{{ t('ตำบล') }}</label>
+                  <Dropdown v-model="shop_subdistrict_id" :options="subdistricts" optionValue="id"
+                    :optionLabel="subdistrictLabelField" :placeholder="t('เลือกตำบล')"
+                    class="w-full h-full custom-border" :filter="true" :showClear="true"
+                    :invalid="errors?.shop_subdistrict_id ? true : false" />
+                  <p class="error-text" v-if="errors?.shop_subdistrict_id">{{
+                    errors?.shop_subdistrict_id }}</p>
+                </div>
+
                 <!-- Address - Multi-language -->
                 <div>
                   <label class="label-input">
@@ -247,8 +392,7 @@ const removeFile = (index) => {
                     {{ t('ติดต่อ') }}
                   </label>
                   <InputText v-model="business_contact" class="w-full custom-border"
-                    :class="{ 'p-invalid': getFieldError('business_contact') }"
-                    :placeholder="t('เบอร์โทรศัพท์')" />
+                    :class="{ 'p-invalid': getFieldError('business_contact') }" :placeholder="t('เบอร์โทรศัพท์')" />
                   <p v-if="getFieldError('business_contact') && activeLangTab === idx" class="error-text">
                     {{ getFieldError('business_contact') }}
                   </p>
@@ -260,8 +404,7 @@ const removeFile = (index) => {
                     {{ t('อีเมล') }}
                   </label>
                   <InputText v-model="business_email" class="w-full custom-border"
-                    :class="{ 'p-invalid': getFieldError('business_email') }"
-                    :placeholder="t('อีเมล')" />
+                    :class="{ 'p-invalid': getFieldError('business_email') }" :placeholder="t('อีเมล')" />
                   <p v-if="getFieldError('business_email') && activeLangTab === idx" class="error-text">
                     {{ getFieldError('business_email') }}
                   </p>
@@ -273,8 +416,7 @@ const removeFile = (index) => {
                     {{ t('เอกสารรับรอง') }}
                   </label>
                   <FileUpload mode="basic" @select="onFileSelect" customUpload rounded auto
-                    :chooseLabel="t('เพิ่มไฟล์')"
-                    chooseIcon="pi pi-upload" :multiple="true" class="upload-button" />
+                    :chooseLabel="t('เพิ่มไฟล์')" chooseIcon="pi pi-upload" :multiple="true" class="upload-button" />
 
                   <ul class="mt-4 space-y-2" v-if="listFiles && listFiles.length > 0">
                     <li v-for="(file, index) in listFiles" :key="index"
