@@ -1,4 +1,5 @@
 import { request } from "@/service/AxiosService.js";
+import { useDecryptedCookie } from '@/composables/useEncryptedCookie';
 
 export function getServiceType() {
   const url = `/api/v1/management/service_type`;
@@ -25,10 +26,12 @@ export function getSocialMedia() {
   return request("get", url, {}, true);
 }
 
-export function saveBusinessRegister(payload) {
-  const url = `/api/v1/business/business-register`;
-  return request("post", url, payload, true);
+export async function saveBusinessRegister(payload) {
+  const modulepath = await getModulePathByRoleId()
+  const url = `/api/v1/${modulepath}/business`
+  return request("post", url, payload, true)
 }
+
 
 export function getProvinces() {
   const url = `/api/v1/management/provinces`;

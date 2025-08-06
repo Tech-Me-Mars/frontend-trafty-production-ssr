@@ -140,6 +140,7 @@ const validationSchema = toTypedSchema(
 
         social_media: zod.array(
             zod.object({
+                // social_media_id
                 social_name: zod.string().nonempty(t('กรุณาระบุชื่อโซเชียล')),
                 social_link: zod
                     .string()
@@ -181,6 +182,7 @@ const { handleSubmit, handleReset, errors } = useForm({
     initialValues: {
         social_media: [
             {
+                social_media_id:"",
                 social_name: "",
                 social_link: ""
 
@@ -690,6 +692,16 @@ onMounted(async () => {
     loadProvinces()
 })
 
+const onSelectChange = (field, selectedId) => {
+    console.log('change',)
+  const selected = resSociaMedia.value.find(item => item.id === selectedId);
+  if (selected) {
+    field.value.social_media_id = selected.id;
+  } else {
+    field.value.social_media_id = "";
+  }
+};
+
 </script>
 <template>
     <div class="bg-zinc-100 min-h-screen">
@@ -1007,9 +1019,11 @@ onMounted(async () => {
                             </h2>
 
                             <Button :loading="isloadingAxi" type="button" :label="t('เพิ่มรายการโซเชียล')" @click="push1({
+                                social_media_id:undefined,
                                 social_name: undefined,
                                 social_link: undefined,
                             })" />
+                            {{ fields1 }}
                             <div id="table-socia-media" v-if="fields1?.length > 0">
                                 <table>
                                     <thead>
@@ -1029,7 +1043,9 @@ onMounted(async () => {
                                                     <Select v-model="field.value.social_name" :options="resSociaMedia"
                                                         style="" optionLabel="id" optionValue="id"
                                                         class="w-full h-full custom-border"
-                                                        :placeholder="`${t('ประเภทโซเชียล')}...`">
+                                                        :placeholder="`${t('ประเภทโซเชียล')}...`"
+                                                        @change="onSelectChange(field, $event)"
+                                                        >
                                                         <template #value="slotProps">
                                                             <span class="flex items-center space-x-2">
                                                                 <template v-if="slotProps.value">

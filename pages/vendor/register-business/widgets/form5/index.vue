@@ -78,7 +78,7 @@ const removeItem = (index) => {
         },
         accept: () => {
             business_list.value.splice(index, 1);
-            localStorage.setItem("business_list", JSON.stringify(business_list.value));
+            // localStorage.setItem("business_list", JSON.stringify(business_list.value));
         },
         reject: () => {
             // toast.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
@@ -127,29 +127,29 @@ const handleNext = handleSubmit(async (values) => {
 const saveRegisterBusiness = async () => {
 
     const formData = new FormData();
-    formData.append("service_type_id", parseInt(formStore.service_type_id));
+    formData.append("service_type_id", (formStore.service_type_id));
     formData.append("business_type_id", formStore.business_type_id);
-    formData.append("business_model_id", parseInt(formStore.business_model_id));
-    formData.append("business_name_i18n", formStore.business_name_i18n);
-    formData.append("business_person_i18n", formStore.business_person_i18n);
-    formData.append("business_address_i18n", formStore.business_address_i18n);
+    formData.append("business_model_id", (formStore.business_model_id));
+    formData.append("business_name_i18n", JSON.stringify(formStore.business_name_i18n));
+    formData.append("business_person_i18n", JSON.stringify(formStore.business_person_i18n));
+    formData.append("business_address_i18n", JSON.stringify(formStore.business_address_i18n));
     formData.append("business_province_id", formStore.business_province_id);
     formData.append("business_district_id", formStore.business_district_id);
     formData.append("business_subdistrict_id", formStore.business_subdistrict_id);
     
-    formData.append("business_contact_i18n", formStore.business_contact_i18n);
-    formData.append("business_email_i18n", formStore.business_email_i18n);
-    formData.append("shop_name_i18n", formStore.shop_name_i18n);
-    formData.append("shop_address_i18n", formStore.shop_address_i18n);
+    formData.append("business_contact", JSON.stringify(formStore.business_contact_i18n));
+    formData.append("business_email", formStore.business_email_i18n);
+    formData.append("shop_name_i18n", JSON.stringify(formStore.shop_name_i18n));
+    formData.append("shop_address_i18n", JSON.stringify(formStore.shop_address_i18n));
     formData.append("shop_province_id", formStore.shop_province_id);
     formData.append("shop_district_id", formStore.shop_district_id);
     formData.append("shop_subdistrict_id", formStore.shop_subdistrict_id);
 
-    formData.append("shop_time_i18n", formStore.shop_time_i18n);
-    formData.append("shop_phone_i18n", formStore.shop_phone_i18n);
-    formData.append("shop_details_i18n", formStore.shop_details_i18n);
-    formData.append("latitude_i18n", formStore.latitude_i18n);
-    formData.append("longitude_i18n", formStore.longitude_i18n);
+    formData.append("shop_time", formStore.shop_time_i18n);
+    formData.append("shop_phone", formStore.shop_phone_i18n);
+    formData.append("shop_details_i18n", JSON.stringify(formStore.shop_details_i18n));
+    formData.append("latitude", formStore.latitude_i18n);
+    formData.append("longitude", formStore.longitude_i18n);
     const businessOpenDateI18n = { ...formStore.business_open_date };
 
     // วนลูปแต่ละ key แล้ว stringify array
@@ -157,7 +157,7 @@ const saveRegisterBusiness = async () => {
         businessOpenDateI18n[lang] = JSON.stringify(businessOpenDateI18n[lang]);
     });
     // จากนั้น append ลง FormData ได้เลย
-    formData.append("business_open_date", JSON.stringify(businessOpenDateI18n));
+    formData.append("business_open_date_i18n", JSON.stringify(businessOpenDateI18n));
 
     console.log(formStore.image_cover)
     // Append single image files
@@ -169,10 +169,10 @@ const saveRegisterBusiness = async () => {
         formData.append("image_profile", formStore.image_profile.file);
     }
     // if (business_list.value) {
-    formData.append("business_list", business_list.value || []);
+    formData.append("business_list", JSON.stringify(business_list.value) || []);
     // }
     if (formStore.business_social_media) {
-        formData.append("social_media", formStore.business_social_media);
+        formData.append("business_social_media", JSON.stringify(formStore.business_social_media));
     }
     if (formStore.business_img) {
         formStore.business_img.forEach((item) => {
@@ -186,6 +186,7 @@ const saveRegisterBusiness = async () => {
             formData.append("business_documents", item.file);
         });
     }
+    formData.append("Status", String(true)); // หรือ formStore.status ถ้ามี
 
 
     console.log('formData', formData);
