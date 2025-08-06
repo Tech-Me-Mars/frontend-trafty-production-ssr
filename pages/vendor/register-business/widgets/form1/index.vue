@@ -94,9 +94,9 @@ const selectedBusinessName = computed(() => {
       </van-tabs>
 
       <div class="mx-auto w-full max-w-md pb-10">
-        <div v-if="selectedItem" class="text-center text-primary-dark text-lg mt-2">
+        <!-- <div v-if="selectedItem" class="text-center text-primary-dark text-lg mt-2">
           {{ t('คุณเลือก') }}: <span class="font-bold">{{ selectedBusinessName }}</span>
-        </div>
+        </div> -->
         <p v-if="errors.selectedItem" class="text-red-500 text-center mt-2 text-sm">
           {{ errors.selectedItem }}
         </p>

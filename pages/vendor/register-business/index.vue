@@ -1,7 +1,4 @@
 <template>
-<pre>
-  {{ formStore }}
-</pre>
 <div>
       <widgetFormStart v-if="formStore.activePage == 1" />
       <widgetForm1 v-if="formStore.activePage == 2" />
@@ -29,5 +26,16 @@
 
   
   const formStore = useFormStore();
+  
+onMounted(() => {
+  window.addEventListener('beforeunload', resetStoreOnUnload)
+})
+onUnmounted(() => {
+  window.removeEventListener('beforeunload', resetStoreOnUnload)
+})
+
+function resetStoreOnUnload() {
+  formStore.$reset()
+}
   </script>
   

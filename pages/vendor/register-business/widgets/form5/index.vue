@@ -202,7 +202,7 @@ const saveRegisterBusiness = async () => {
             redirectUrl: `/vendor/manage-business/home/${res.data.data.id}`,
             autoClose: true
         })
-        formStore.$reset();
+        // formStore.$reset();
 
         // alertToast.value = {
         //     title: t('สำเร็จ'),

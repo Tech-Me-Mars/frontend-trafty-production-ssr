@@ -140,9 +140,8 @@ const validationSchema = toTypedSchema(
 
         social_media: zod.array(
             zod.object({
-                // social_media_id
-                social_name: zod.string().nonempty(t('กรุณาระบุชื่อโซเชียล')),
-                social_link: zod
+                social_media_id: zod.string().nonempty(t('เลือกประเภทโซเชียล')),
+                social_media_link: zod
                     .string()
                     .url(t('กรุณาระบุลิงก์ที่ถูกต้อง'))
                     .nonempty(t('กรุณาระบุข้อมูลลิงก์')),
@@ -183,8 +182,7 @@ const { handleSubmit, handleReset, errors } = useForm({
         social_media: [
             {
                 social_media_id:"",
-                social_name: "",
-                social_link: ""
+                social_media_link : ""
 
             },
         ],
@@ -401,9 +399,8 @@ const handleNext = handleSubmit((values) => {
         const business_img_array = business_img.value.map((item) => item);
 
         const social_media_array = fields1.value.map((field) => ({
-            social_media_id: field.value.id || null,
-            // social_name: field.value.social_name || null,
-            social_media_link_i18n: field.value.social_link || null,
+            social_media_id: field.value.social_media_id || null,
+            social_media_link: field.value.social_media_link  || null,
         }));
         // console.log('shop_details', shop_details.value)
 
@@ -692,14 +689,14 @@ onMounted(async () => {
     loadProvinces()
 })
 
-const onSelectChange = (field, selectedId) => {
-    console.log('change',)
-  const selected = resSociaMedia.value.find(item => item.id === selectedId);
-  if (selected) {
-    field.value.social_media_id = selected.id;
-  } else {
-    field.value.social_media_id = "";
-  }
+const onSelectChange = (e) => {
+    console.log('change',e)
+//   const selected = resSociaMedia.value.find(item => item.id === selectedId);
+//   if (selected) {
+//     field.value.social_media_id = selected.id;
+//   } else {
+//     field.value.social_media_id = "";
+//   }
 };
 
 </script>
@@ -1019,11 +1016,11 @@ const onSelectChange = (field, selectedId) => {
                             </h2>
 
                             <Button :loading="isloadingAxi" type="button" :label="t('เพิ่มรายการโซเชียล')" @click="push1({
-                                social_media_id:undefined,
-                                social_name: undefined,
-                                social_link: undefined,
+  
+                                social_media_id: undefined,
+                                social_media_link : undefined,
                             })" />
-                            {{ fields1 }}
+
                             <div id="table-socia-media" v-if="fields1?.length > 0">
                                 <table>
                                     <thead>
@@ -1040,11 +1037,11 @@ const onSelectChange = (field, selectedId) => {
                                                 <div class="space-y-0">
 
 
-                                                    <Select v-model="field.value.social_name" :options="resSociaMedia"
+                                                    <Select v-model="field.value.social_media_id" :options="resSociaMedia"
                                                         style="" optionLabel="id" optionValue="id"
                                                         class="w-full h-full custom-border"
                                                         :placeholder="`${t('ประเภทโซเชียล')}...`"
-                                                        @change="onSelectChange(field, $event)"
+                                                        @change="((e)=>{onSelectChange(e)})"
                                                         >
                                                         <template #value="slotProps">
                                                             <span class="flex items-center space-x-2">
@@ -1069,9 +1066,9 @@ const onSelectChange = (field, selectedId) => {
                                                             </div>
                                                         </template>
                                                     </Select>
-                                                    <p v-if="errors?.[`social_media[${index}].social_name`]"
+                                                    <p v-if="errors?.[`social_media[${index}].social_media_id`]"
                                                         class="text-red-500 text-sm mt-1">
-                                                        {{ errors[`social_media[${index}].social_name`] }}
+                                                        {{ errors[`social_media[${index}].social_media_id`] }}
                                                     </p>
                                                 </div>
                                             </td>
@@ -1079,12 +1076,12 @@ const onSelectChange = (field, selectedId) => {
                                             <!-- Column: Social Link -->
                                             <td class="align-top ">
                                                 <div class="space-y-0">
-                                                    <InputText v-model="field.value.social_link"
+                                                    <InputText v-model="field.value.social_media_link "
                                                         class="w-full custom-border"
                                                         :placeholder="`${t('ลิ้งโซเชียล')}...`" />
-                                                    <p v-if="errors?.[`social_media[${index}].social_link`]"
+                                                    <p v-if="errors?.[`social_media[${index}].social_media_link `]"
                                                         class="text-red-500 text-sm">
-                                                        {{ errors[`social_media[${index}].social_link`] }}
+                                                        {{ errors[`social_media[${index}].social_media_link `] }}
                                                     </p>
                                                 </div>
                                             </td>
