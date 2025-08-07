@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n';
 import * as dataApi from '../../api/data.js';
 const { t, locale, setLocale } = useI18n();
 onMounted(()=>{
-  setLocale('th-TH')
+  setLocale('th')
 })
 
 const isloadingAxi = useState('isloadingAxi');  // สำหรับการโหลด

@@ -56,28 +56,28 @@ export default defineNuxtConfig({
     strategy: 'no_prefix',
     locales: [
       {
-        code: "th-TH",
-        iso: "th-TH",
+        code: "th",
+        iso: "th",
         name: "ไทย",
         file: "th-TH.json",
         flag: '/image/flag/flag-thailand.png'
       },
       {
-        code: "en-US",
-        iso: "en-US",
+        code: "en",
+        iso: "en",
         name: "English(US)",
         file: "en-US.json",
         flag: '/image/flag/flag-us.png'
       },
       {
-        code: "ch-Ch",
-        iso: "ch-Ch",
+        code: "cn",
+        iso: "cn",
         name: "Chinese(CH)",
         file: "ch-Ch.json",
         flag: '/image/flag/flag-china.png'
       },
     ],
-    defaultLocale: "th-TH",
+    defaultLocale: "th",
   },
   googleFonts: {
     families: {

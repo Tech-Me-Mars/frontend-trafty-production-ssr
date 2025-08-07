@@ -70,9 +70,9 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { useI18n } from 'vue-i18n'
 const { t, locale, setLocale } = useI18n();
 const langs = [
-  { code: 'th', label: 'ไทย', locale: 'th-TH' },
-  { code: 'en', label: 'English', locale: 'en-US' },
-  { code: 'cn', label: '中文', locale: 'ch-Ch' }
+  { code: 'th', label: 'ไทย', locale: 'th' },
+  { code: 'en', label: 'English', locale: 'en' },
+  { code: 'cn', label: '中文', locale: 'cn' }
 ];
 const activeTab = ref(langs.findIndex(l => l.locale === locale.value) ?? 0);
 // เมื่อเปลี่ยนแท็บ

@@ -16,14 +16,14 @@ const alertToast = ref({});
 
 // Language configuration
 const langs = [
-  { code: 'th', label: 'ภาษาไทย', locale: 'th-TH' },
-  { code: 'en', label: 'English', locale: 'en-US' },
-  { code: 'cn', label: '中文', locale: 'ch-Ch' }
+  { code: 'th', label: 'ภาษาไทย', locale: 'th' },
+  { code: 'en', label: 'English', locale: 'en' },
+  { code: 'cn', label: '中文', locale: 'cn' }
 ];
 
 const activeLangTab = ref(langs.findIndex(l => l.locale === locale.value) ?? 0);
 onMounted(() => {
-  setLocale('th-TH')
+  setLocale('th')
   loadProvinces()
 
 })

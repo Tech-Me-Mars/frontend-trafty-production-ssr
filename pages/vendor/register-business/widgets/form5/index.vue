@@ -39,14 +39,14 @@ const showNotification = (config) => {
 
 // Language configuration
 const langs = [
-    { code: 'th', label: 'ภาษาไทย', locale: 'th-TH' },
-    { code: 'en', label: 'English', locale: 'en-US' },
-    { code: 'cn', label: '中文', locale: 'ch-Ch' }
+    { code: 'th', label: 'ภาษาไทย', locale: 'th' },
+    { code: 'en', label: 'English', locale: 'en' },
+    { code: 'cn', label: '中文', locale: 'cn' }
 ];
 
 const activeLangTab = ref(0);
 onMounted(() => {
-    setLocale('th-TH')
+    setLocale('th')
 })
 
 watch(activeLangTab, (newIdx) => {

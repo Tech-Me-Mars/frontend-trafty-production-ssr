@@ -12,7 +12,7 @@ import * as zod from "zod";
 
 const { t, locale, setLocale } = useI18n();
 onMounted(()=>{
-  setLocale('th-TH')
+  setLocale('th')
 })
 
 const isloadingAxi = useState("isloadingAxi");

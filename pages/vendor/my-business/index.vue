@@ -73,9 +73,9 @@ definePageMeta({
 import { useI18n } from 'vue-i18n';
 const { t, locale, setLocale } = useI18n();
 const langs = [
-    { code: 'th', locale: 'th-TH' },
-    { code: 'en', locale: 'en-US' },
-    { code: 'cn', locale: 'ch-Ch' }
+    { code: 'th', locale: 'th' },
+    { code: 'en', locale: 'en' },
+    { code: 'cn', locale: 'cn' }
 ];
 const lang = computed(() => {
     const found = langs.find(l => l.locale === locale.value);
