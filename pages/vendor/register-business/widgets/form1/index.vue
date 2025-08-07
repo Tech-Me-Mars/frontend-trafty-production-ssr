@@ -23,7 +23,7 @@ const resBusinessType = ref([]);
 const formStore = useFormStore();
 
 const schema = zod.object({
-  selectedItem: zod.string().min(1, t('กรุณาเลือกหมวดหมู่')),
+  selectedItem: zod.string().nonempty(t('กรุณาเลือกหมวดหมู่')),
 });
 const { handleSubmit, errors } = useForm({ validationSchema: toTypedSchema(schema) });
 const { value: selectedItem } = useField('selectedItem');

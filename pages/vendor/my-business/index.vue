@@ -1,15 +1,8 @@
 <template>
     <div class="bg-zinc-100 min-h-screen">
-        <!-- <van-nav-bar :title="t('ธุรกิจของฉัน')" left-arrow @click-left="navigateTo('/')">
-        </van-nav-bar> -->
-        <LayoutsBaseHeader :title="t('ธุรกิจของฉัน')" :showBack="true"
-        backTo="/"></LayoutsBaseHeader>
+        <LayoutsBaseHeader :title="t('ธุรกิจของฉัน')" :showBack="true" backTo="/"></LayoutsBaseHeader>
         <div class="flex justify-between flex-wrap gap-2 bg-white px-4 py-3">
             <h1 class="text-xl font-semibold">{{ t('ธุรกิจของฉัน') }} ({{ resBusiness.length }})</h1>
-            <!-- <Select v-model="status_select" disabled :options="statusOptions" optionLabel="name" optionValue="id"
-                class="w-[10rem]">
-
-            </Select> -->
             <Button :loading="isloadingAxi" :label="t('เพิ่มธุรกิจ')" severity="primary" type="button" rounded
                 class="w-auto" outlined :pt="{
                     root: {
@@ -27,22 +20,15 @@
                     <!-- ชื่อธุรกิจ -->
                     <div class="flex justify-between items-start">
                         <div class="flex-1">
-                            <h2 class="text-lg font-semibold text-gray-800 flex-1">{{ item?.shop_name }} <span
-                                    v-if="item?.notification_status == 1"><i class="fa-solid fa-circle-exclamation"
+                            <h2 class="text-lg font-semibold text-gray-800 flex-1">{{ item?.shop_name_i18n[lang] }}
+                                <span v-if="item?.notification_status == 1"><i class="fa-solid fa-circle-exclamation"
                                         style="color: red;"></i></span></h2>
 
                         </div>
-                        <!-- <div v-if="item?.status == true"
-                            class="text-white bg-green-700 rounded-full px-2 py-2 text-xs">{{ t('อนุมัติแล้ว') }}</div>
 
-                        <div v-else class="text-white bg-yellow-500 rounded-full px-2 py-2 text-xs">{{ t('รอตรวจสอบ') }}</div> -->
-                        <div class="text-white rounded-full px-2 py-2 px-4 text-xs" :class="{
-                            'bg-yellow-500': item?.survey_status_id === 0 || item?.survey_status_id === 3,
-                            'bg-red-600': item?.survey_status_id === 4,
-                            'bg-blue-500': item?.survey_status_id === 5,
-                            'bg-[#1db900]': item?.survey_status_id === 2,
-                        }">
-                            {{ getStatusText(item?.survey_status_id) }}
+                        <div v-if="item?.survey_status" class="text-white rounded-full px-2 py-2 text-xs"
+                            :style="{ backgroundColor: item.survey_status?.bg_color }">
+                            {{ item.survey_status.survey_success_note?.[lang] || '-' }}
                         </div>
                     </div>
                     <!-- ที่อยู่ธุรกิจ -->
@@ -85,7 +71,16 @@ definePageMeta({
     middleware: ["auth"],
 });
 import { useI18n } from 'vue-i18n';
-const { t } = useI18n();
+const { t, locale, setLocale } = useI18n();
+const langs = [
+    { code: 'th', locale: 'th-TH' },
+    { code: 'en', locale: 'en-US' },
+    { code: 'cn', locale: 'ch-Ch' }
+];
+const lang = computed(() => {
+    const found = langs.find(l => l.locale === locale.value);
+    return found ? found.code : 'th'; // fallback เป็น 'th'
+});
 const isloadingAxi = useState("isloadingAxi");
 const router = useRouter();
 const route = useRoute();
@@ -111,18 +106,18 @@ const statusOptions = ref([
 ])
 
 const getStatusText = (status) => {
-  switch (status) {
-    case 0:
-    case 3:
-      return t('รอตรวจสอบ');
-    case 4:
-      return t('มีใบเตือน');
-    case 5:
-      return t('ตอบกลับใบเตือนแล้ว');
-    case 2:
-      return t('อนุมัติแล้ว');
-    default:
-      return t('ไม่ทราบสถานะ');
-  }
+    switch (status) {
+        case 0:
+        case 3:
+            return t('รอตรวจสอบ');
+        case 4:
+            return t('มีใบเตือน');
+        case 5:
+            return t('ตอบกลับใบเตือนแล้ว');
+        case 2:
+            return t('อนุมัติแล้ว');
+        default:
+            return t('ไม่ทราบสถานะ');
+    }
 };
 </script>
