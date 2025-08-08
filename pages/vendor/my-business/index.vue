@@ -20,7 +20,7 @@
                     <!-- ชื่อธุรกิจ -->
                     <div class="flex justify-between items-start">
                         <div class="flex-1">
-                            <h2 class="text-lg font-semibold text-gray-800 flex-1">{{ item?.shop_name_i18n[lang] }}
+                            <h2 class="text-lg font-semibold text-gray-800 flex-1"><span>{{ getI18n(item?.shop_name_i18n, lang) }}</span>
                                 <span v-if="item?.notification_status == 1"><i class="fa-solid fa-circle-exclamation"
                                         style="color: red;"></i></span></h2>
 
@@ -28,7 +28,8 @@
 
                         <div v-if="item?.survey_status" class="text-white rounded-full px-2 py-2 text-xs"
                             :style="{ backgroundColor: item.survey_status?.bg_color }">
-                            {{ item.survey_status.survey_success_note?.[lang] || '-' }}
+                            {{ getI18n(item.survey_status.survey_success_note, lang) || '-' }}
+
                         </div>
                     </div>
                     <!-- ที่อยู่ธุรกิจ -->

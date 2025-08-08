@@ -136,7 +136,7 @@ const saveRegisterBusiness = async () => {
     formData.append("business_province_id", formStore.business_province_id);
     formData.append("business_district_id", formStore.business_district_id);
     formData.append("business_subdistrict_id", formStore.business_subdistrict_id);
-    
+
     formData.append("business_contact", JSON.stringify(formStore.business_contact_i18n));
     formData.append("business_email", formStore.business_email_i18n);
     formData.append("shop_name_i18n", JSON.stringify(formStore.shop_name_i18n));
@@ -175,15 +175,15 @@ const saveRegisterBusiness = async () => {
         formData.append("business_social_media", JSON.stringify(formStore.business_social_media));
     }
     if (formStore.business_img) {
-        formStore.business_img.forEach((item) => {
-            formData.append("business_images", item.file);
+        formStore.business_img.forEach((item, idx) => {
+            formData.append("business_img", item.file, item.file.name || `image_${idx}.jpg`);
         });
     }
 
-    // Append multiple business documents
+    // business_documents
     if (formStore.listFiles) {
-        formStore.listFiles.forEach((item) => {
-            formData.append("business_documents", item.file);
+        formStore.listFiles.forEach((item, idx) => {
+            formData.append("business_documents_img", item.file, item.file.name || `file_${idx}.pdf`);
         });
     }
     formData.append("Status", String(true)); // หรือ formStore.status ถ้ามี
@@ -193,7 +193,7 @@ const saveRegisterBusiness = async () => {
 
     try {
         const res = await dataApi.saveBusinessRegister(formData);
-        
+
         showNotification({
             state: res.data.dialog?.state,
             title: res.data.dialog?.title,
@@ -276,7 +276,7 @@ const saveRegisterBusiness = async () => {
                                     class="flex justify-between items-start p-3 border rounded-md shadow-sm">
                                     <div>
                                         <p class="font-semibold text-gray-700 mb-2">
-                                            {{ item.business_list_name[lang.code] }}
+                                            {{ item.business_list_name_i18n[lang.code] }}
                                         </p>
                                         <p class="text-gray-500 text-sm">฿ {{ item.business_list_price }}</p>
                                     </div>

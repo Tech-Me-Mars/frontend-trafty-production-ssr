@@ -1,33 +1,45 @@
 import { request } from "@/service/AxiosService.js";
 
-export function geySurveyBuId(id) {
-  const url = `/api/v1/survey/get-survey/${id}`;
+// export async function getSurveyAuditByBusinessId(id) {
+//   const modulepath = await getModulePathByRoleId()
+//   const url = `/api/v1/${modulepath}/survey_audit/get-survey-audit-by-business-id/${id}`;
+//   return request("get", url, {}, true);
+// }
+
+
+export async function getBusiness(id) {
+  const modulepath = await getModulePathByRoleId()
+  const url = `/api/v1/${modulepath}/business/${id}`;
+
   return request("get", url, {}, true);
 }
 
 
-export function getNotify(id) {
-  const url = `/api/v1/notications/notifications-by-business-id/${id}`;
-  return request("get", url, {}, true);
-}
-
-export function getComments(id) {
-  const url = `/api/v1/business-comment/get-by-business-id/${id}`;
-  return request("get", url, {}, true);
-}
-
-export function getCheckIsSurvey(id) {
-  const url = `/api/v1/business/check-survey-audit/${id}`;
-  return request("get", url, {}, true);
-}
-
-export function getbusinessAll(id) {
-  const url = `/api/v1/business-list/get-business-all/${id}`;
+export async function getBusinessList(id) {
+  const modulepath = await getModulePathByRoleId()
+  const url = `/api/v1/${modulepath}/business_list/${id}`;
   return request("get", url, {}, true);
 }
 
 
-export function deletebusinessItem(id) {
-  const url = `/api/v1/business-list/delect-business-list/${id}`;
+
+export async function deleteBusinessId(id) {
+  const modulepath = await getModulePathByRoleId()
+  const url = `/api/v1/${modulepath}/business_list/${id}`;
   return request("delete", url, {}, true);
 }
+
+
+export async function updateBusiness(id) {
+  const modulepath = await getModulePathByRoleId()
+  const url = `/api/v1/${modulepath}/business_list/${id}`;
+  return request("put", url, {}, true);
+}
+
+
+export async function updateBusinessStatus(id) {
+  const modulepath = await getModulePathByRoleId()
+  const url = `/api/v1/${modulepath}/business_list/update-status/${id}`;
+  return request("put", url, {}, true);
+}
+

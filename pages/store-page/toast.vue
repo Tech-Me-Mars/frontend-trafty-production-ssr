@@ -48,7 +48,7 @@ import axios from 'axios'
 //   import NotificationPopup from './NotificationPopup.vue'
 
 // Reactive data
-const loading = ref(false)
+const loading = ref(true)
 const startLoading = () => {
   loading.value = true
   setTimeout(() => {

@@ -42,12 +42,12 @@ const requireText = t('ระบุข้อมูล');
 // *************  VARIDATOR
 const validationSchema = toTypedSchema(
     zod.object({
-        business_list_name: zod.object({
+        business_list_name_i18n: zod.object({
             th: zod.string().min(1, t('กรุณากรอก')),
             en: zod.string().optional().or(zod.literal('')),
             cn: zod.string().optional().or(zod.literal('')),
         }),
-        business_list_price: zod.number({ required_error: requireValue, invalid_type_error: requireValue, }),
+        business_list_price: zod.string().nonempty(t('กรุณาระบุข้อมูลราคา')),
 
     })
 );
@@ -56,16 +56,16 @@ const { handleSubmit, handleReset, errors } = useForm({
     validationSchema,
 });
 
-// const { value: business_list_name } = useField('business_list_name')
-const { value: business_list_name_th } = useField('business_list_name.th', undefined, { initialValue: '' });
-const { value: business_list_name_en } = useField('business_list_name.en', undefined, { initialValue: '' });
-const { value: business_list_name_cn } = useField('business_list_name.cn', undefined, { initialValue: '' });
+
+const { value: business_list_name_th } = useField('business_list_name_i18n.th', undefined, { initialValue: '' });
+const { value: business_list_name_en } = useField('business_list_name_i18n.en', undefined, { initialValue: '' });
+const { value: business_list_name_cn } = useField('business_list_name_i18n.cn', undefined, { initialValue: '' });
 
 
 const { value: business_list_price } = useField('business_list_price')
 
 
-const business_list_name = ref({
+const business_list_name_i18n = ref({
     get th() { return business_list_name_th.value },
     set th(v) { business_list_name_th.value = v },
     get en() { return business_list_name_en.value },
@@ -129,10 +129,10 @@ const getFieldError = (fieldName, langCode = null) => {
                             <div class="space-y-4">
                                 <div>
                                     <label class="label-input">{{ t('ชื่อรายการ') }}</label>
-                                    <InputText v-model="business_list_name[lang.code]" :placeholder="t('ชื่อรายการ')"
-                                        class="w-full custom-border" :invalid="getFieldError('business_list_name')" />
-                                    <p v-if="getFieldError('business_list_name', lang.code)" class="error-text">
-                                        {{ getFieldError('business_list_name', lang.code) }}
+                                    <InputText v-model="business_list_name_i18n[lang.code]" :placeholder="t('ชื่อรายการ')"
+                                        class="w-full custom-border" :invalid="getFieldError('business_list_name_i18n')" />
+                                    <p v-if="getFieldError('business_list_name_i18n', lang.code)" class="error-text">
+                                        {{ getFieldError('business_list_name_i18n', lang.code) }}
                                     </p>
 
                                 </div>
@@ -140,8 +140,8 @@ const getFieldError = (fieldName, langCode = null) => {
                                     <label class="label-input">{{ t('ราคา') }}</label>
                                     <!-- <InputText v-model="business_list_price" :placeholder="t('ราคา')"
                                 class="w-full custom-border" :invalid="errors?.business_list_price ? true : false" /> -->
-                                    <InputNumber v-model="business_list_price" :placeholder="t('ราคา')"
-                                       class="w-full custom-border" inputClass="custom-border" fluid :min="0" :invalid="errors?.business_list_price ? true : false"  />
+                                    <InputText v-model="business_list_price" :placeholder="t('ราคา')"
+                                       class="w-full custom-border" inputClass="custom-border" :invalid="errors?.business_list_price ? true : false"  />
                                     <p class="error-text" v-if="errors?.business_list_price">{{
                                         errors?.business_list_price }}
                                     </p>
