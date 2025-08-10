@@ -126,7 +126,7 @@
                         <div class="flex  gap-3">
 
                             <Button :loading="isloadingAxi" :label="t('ไม่แสดง')" severity="primary" variant="outlined"
-                                class="w-full" @click="showConfirmHide" :pt="{
+                                class="w-full" @click="showConfirmHide(item)" :pt="{
                                     label: { class: 'text-primary-main' },
                                     root: { class: '!border-primary-main' },
                                 }" />
@@ -301,27 +301,24 @@ const deleteItems = async (id) => {
 // **************************************************************** HIDE **********************************************************************
 // **************************************************************** HIDE **********************************************************************
 // **************************************************************** HIDE **********************************************************************
-const showConfirmHide = () => {
-    confirm1.require({
-        message: t('ยืนยันการซ่อนรายการนี้ไม่ให้แสดงใช่ไหม?'),
-        header: t('ยืนยัน'),
-        icon: 'pi pi-exclamation-triangle',
-        rejectProps: {
-            label: t('ยกเลิก'),
-            severity: 'secondary',
-            outlined: true,
-        },
-        acceptProps: {
-            label: t('ตกลง'),
-        },
-        accept: async () => {
-            await hideBusiness()
-        },
-    })
+const hidingId = ref(null)
+const showConfirmHide = (item) => {
+  confirm1.require({
+    message: t('ยืนยันการซ่อนรายการนี้ไม่ให้แสดงใช่ไหม?'),
+    header: t('ยืนยัน'),
+    icon: 'pi pi-exclamation-triangle',
+    rejectProps: { label: t('ยกเลิก'), severity: 'secondary', outlined: true },
+    acceptProps: { label: t('ตกลง') },
+    accept: async () => {
+      hidingId.value = item.id
+      await hideBusiness(item)
+      hidingId.value = null
+    }
+  })
 }
-const hideBusiness = async () => {
+const hideBusiness = async (item) => {
     const payload = {
-        id: route.params.id,   // ตามที่ต้องการ
+        id: item.id,
         status: false,
     }
     try {
