@@ -100,8 +100,6 @@ const getFieldError = (fieldName, langCode = null) => {
 </style>
 <template>
     <div class="bg-zinc-100 min-h-screen">
-        <!-- <van-nav-bar :title="t('เพิ่มรายการ')" left-arrow @click-left="formStore.goToPage(6)">
-        </van-nav-bar> -->
         <LayoutsBaseHeader :title="t('เพิ่มรายการ')">
             <template #left>
                 <ButtonIconBack @click="formStore.goToPage(6)" />
@@ -109,21 +107,12 @@ const getFieldError = (fieldName, langCode = null) => {
         </LayoutsBaseHeader>
 
         <div class="p-4 ">
-            {{ errors }}
             <Form @submit="handleNext">
                 <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54"
                     @change="moveMapToTab">
                     <van-tab v-for="(lang, idx) in langs" :key="lang.code" :title="lang.label" :name="idx">
                         <div class="card pt-5 mb-10">
-                            <!-- Title -->
                             <h2 class="font-bold text-lg mb-3 ">{{ t('ธุรกิจในแหล่งท่องเที่ยว') }}</h2>
-
-                            <!-- <InputText v-model="shop_name[lang.code]"
-                                        :placeholder="t('ชื่อธุรกิจในแหล่งท่องเที่ยว')" class="w-full custom-border"
-                                        :invalid="getFieldError('shop_name')" />
-                                    <p v-if="getFieldError('shop_name', lang.code)" class="error-text">
-                                        {{ getFieldError('shop_name', lang.code) }}
-                                    </p> -->
 
                             <!-- List of Businesses -->
                             <div class="space-y-4">
@@ -138,8 +127,6 @@ const getFieldError = (fieldName, langCode = null) => {
                                 </div>
                                 <div>
                                     <label class="label-input">{{ t('ราคา') }}</label>
-                                    <!-- <InputText v-model="business_list_price" :placeholder="t('ราคา')"
-                                class="w-full custom-border" :invalid="errors?.business_list_price ? true : false" /> -->
                                     <InputText v-model="business_list_price" :placeholder="t('ราคา')"
                                        class="w-full custom-border" inputClass="custom-border" :invalid="errors?.business_list_price ? true : false"  />
                                     <p class="error-text" v-if="errors?.business_list_price">{{
@@ -152,7 +139,7 @@ const getFieldError = (fieldName, langCode = null) => {
                         </div>
                     </van-tab>
                 </van-tabs>
-                <!-- <NuxtLink to="/vendor/register-business/form5"> -->
+           
                 <Button :loading="isloadingAxi" :label="t('บันทึก')" severity="primary" type="submit" rounded
                     class="w-full" :pt="{
                         root: {
@@ -161,7 +148,7 @@ const getFieldError = (fieldName, langCode = null) => {
                     }" />
 
             </Form>
-            <!-- </NuxtLink> -->
+  
         </div>
 
     </div>

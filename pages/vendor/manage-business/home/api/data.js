@@ -30,16 +30,16 @@ export async function deleteBusinessId(id) {
 }
 
 
-export async function updateBusiness(id) {
+export async function updateBusiness(id,payload) {
   const modulepath = await getModulePathByRoleId()
   const url = `/api/v1/${modulepath}/business_list/${id}`;
-  return request("put", url, {}, true);
+  return request("put", url, payload, true);
 }
 
 
-export async function updateBusinessStatus(id) {
+export async function updateBusinessStatus(id,payload) {
   const modulepath = await getModulePathByRoleId()
   const url = `/api/v1/${modulepath}/business_list/update-status/${id}`;
-  return request("put", url, {}, true);
+  return request("put", url, payload, true);
 }
 
