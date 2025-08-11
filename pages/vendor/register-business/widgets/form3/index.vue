@@ -136,23 +136,26 @@ const subdistrictLabelField = computed(() => {
 const provinceLabelField = computed(() => {
   const lang = langs[activeLangTab.value]
   if (lang.code === 'cn') {
-    // ถ้า provinces ไม่มี Provinces_name_cn ให้ fallback ไป eng หรือไทย
-    const prov = provinces.value[0]
-    if (prov && !prov.Provinces_name_cn) {
-      if (prov.Provinces_name_en) return 'Provinces_name_en'
-      return 'Provinces_name_th'
+    const s = provinces.value[0]
+    if (s && !s.provinces_name_cn) {
+      if (s.provinces_name_en) return 'provinces_name_en'
+      return 'provinces_name_th'
     }
-    return 'Provinces_name_cn'
+    return 'provinces_name_cn'
   }
-  // eng, th ใช้ตรงๆ
-  return `Provinces_name_${lang.code}`
+  return `provinces_name_${lang.code}`
 })
 
 // โหลดจังหวัด
 const loadProvinces = async () => {
   try {
     const res = await dataApi.getProvinces()
-    provinces.value = res.data.data
+    provinces.value = res.data.data.map((item) => ({
+      ...item,
+      provinces_name_th: item?.provinces_name_i18n?.th || "",
+      provinces_name_en: item?.provinces_name_i18n?.en || "",
+      provinces_name_cn: item?.provinces_name_i18n?.cn || "",
+    }))
   } catch (err) { console.log(err) }
 }
 

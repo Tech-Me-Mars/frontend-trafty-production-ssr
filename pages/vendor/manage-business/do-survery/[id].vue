@@ -1,0 +1,108 @@
+<template>
+    <div class="min-h-screen bg-zinc-50">
+
+        <LayoutsBaseHeader :title="t('ธุรกิจในแหล่งท่องเที่ยว')" showBack></LayoutsBaseHeader>
+
+        <template v-if="surveyDataMap">
+          <Dynamic :survey-data-map="surveyDataMap" @submit="handleFormSubmit" :default-values="mapDefaultValueData" 
+          :model-change="model_change" />
+        </template>
+
+                <NotifyMessage v-model:show="toast.show" :type="toast.type" :title="toast.title" :message="toast.message"
+            :life="toast.life" />
+            </div>
+</template>
+<script setup>
+definePageMeta({
+    middleware: ["auth"],
+});
+// import ที่ใช้ทุกหน้า
+import { useForm, useField, Form} from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import * as zod from 'zod'
+import * as dataApi from "./api/dataApi.js";
+import { useI18n } from 'vue-i18n';
+const { t, locale, setLocale } = useI18n()
+const isloadingAxi = useState('isloadingAxi')
+const route = useRoute()
+const router = useRouter()
+const toast = ref({
+    show: false,
+    type: null,
+    title: null,
+    message: null,
+    life: null,
+})
+// จบการ import ที่ใช้ทุกหน้า
+const surveyDataMap = ref()
+const model_change = ref([
+])
+const mapDefaultValueData = ref({})
+const loadData = async () => {
+  try {
+    const res = await dataApi.getSurveyById(route.params.id)
+    const arr = res.data.data.question_groups || []
+
+    // flatten questions - เอา choices ของ group มาไว้ระดับเดียวกัน
+    const flattenQuestions = (questions = []) => {
+      const out = []
+      for (const q of questions) {
+        if (q.question_type === "group" && Array.isArray(q.choices) && q.choices.length > 0) {
+          // ดึง info group ออกมา (ไม่เอา choices)
+          const { choices, ...groupInfo } = q
+          out.push(groupInfo)
+          // แตก choices ทุกอันตามหลัง
+          out.push(...q.choices)
+        } else {
+          out.push(q)
+        }
+      }
+      return out
+    }
+
+    // เปลี่ยน array group เป็น object โดยใช้ group_name เป็น key
+    // และเปลี่ยน questions เป็น _question (flatten แล้ว)
+    const flatObject = arr.reduce((acc, cur) => {
+      acc[cur.group_name] = {
+        ...cur,
+        _question: flattenQuestions(cur.questions)
+      }
+      delete acc[cur.group_name].questions // ลบ field questions เดิมออก (ถ้าไม่ต้องการ)
+      return acc
+    }, {})
+
+    // ผลลัพธ์ flatObject ตามที่ต้องการ
+    console.log('flatObject', flatObject)
+    surveyDataMap.value = flatObject
+  } catch (error) {
+            toast.value = {
+            show: true,
+            type: 'danger',
+            title: t('ผิดพลาด'),
+            message: error?.response?.data?.message || t('เกิดข้อผิดพลาด'),
+            life: null
+        }
+    console.error(error)
+  }
+}
+
+onMounted(()=>{
+    loadData();
+})
+// 
+
+const handleFormSubmit =async (allFormsData) => {
+  try {
+    console.log('ส่งทั้งหมด:', allFormsData)
+    const mergedData = Object.values(allFormsData).reduce((acc, curr) => {
+    return { ...acc, ...curr }
+  }, {})
+  console.log('mergedData:', mergedData)
+
+
+  } catch (error) {
+    console.error('Error saving survey data:', error)
+    
+  }
+}
+</script>

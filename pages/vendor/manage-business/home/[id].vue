@@ -73,7 +73,7 @@
                 </div>
 
                 <div class="max-w-xl mx-auto">
-                    <NuxtLink :to="`/vendor/manage-business/survay/form1/${route.params.id}`"
+                    <NuxtLink :to="`/vendor/manage-business/do-survery/${route.params.id}`"
                         v-if="resBusinessAll?.SurveyAuditCount == 0">
                         <Button :loading="isloadingAxi" :label="t('เริ่มประเมินมาตรฐานความปลอดภัย')" severity="primary"
                             size="" rounded class="w-full" variant="outlined" :pt="{

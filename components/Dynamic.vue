@@ -110,7 +110,7 @@ td.radio-table-cell {
                 <!-- Input text -->
                 <div v-if="question.question_type === 'input_text' && question.question_other != 2" class="mb-4">
                   <label v-if="question.field_name_display" class="block text-sm font-medium text-gray-700 mb-2">
-                    {{ JSON.parse(question.field_name_display).th }}:
+                    {{ JSON.parse(question.field_name_display)?.[locale] }}:
                   </label>
                   <InputText v-model="formValuesMap[formKey][question.field_name]" :readonly="question.readonly === 1"
                     :required="question.required === 1" :class="[
@@ -118,7 +118,7 @@ td.radio-table-cell {
                       question.required === 1 && !formValuesMap[formKey][question.field_name] ? 'p-invalid' : ''
                     ]" @input="handleInputChange(formKey, question.field_name)" />
                   <small v-if="question.field_name_display_end" class="text-gray-500 mt-1 block">
-                    {{ question.field_name_display_end }}
+                    {{ question.field_name_display_end?.[locale] }}
                   </small>
                 </div>
 
@@ -126,7 +126,7 @@ td.radio-table-cell {
                 <!-- Input number -->
                 <div v-else-if="question.question_type === 'input_text_number'" class="mb-4">
                   <label v-if="question.field_name_display" class="block text-sm font-medium text-gray-700 mb-2">
-                    {{ JSON.parse(question.field_name_display).th }}:
+                    {{ JSON.parse(question.field_name_display)?.[locale] }}:
                   </label>
                   <InputNumber v-model="formValuesMap[formKey][question.field_name]" :readonly="question.readonly === 1"
                     :required="question.required === 1" :class="[
@@ -134,14 +134,14 @@ td.radio-table-cell {
                       question.required === 1 && !formValuesMap[formKey][question.field_name] ? 'p-invalid' : ''
                     ]" />
                   <small v-if="question.field_name_display_end" class="text-gray-500 mt-1 block">
-                    {{ question.field_name_display_end }}
+                    {{ question.field_name_display_end?.[locale] }}
                   </small>
                 </div>
 
                 <!-- Date -->
                 <div v-else-if="question.question_type === 'date'" class="mb-4">
                   <label v-if="question.field_name_display" class="block text-sm font-medium text-gray-700 mb-2">
-                    {{ JSON.parse(question.field_name_display).th }}:
+                    {{ JSON.parse(question.field_name_display)?.[locale] }}:
                   </label>
                   <!-- <Calendar
                     v-model="formValuesMap[formKey][question.field_name]"
@@ -158,14 +158,14 @@ td.radio-table-cell {
                       question.required === 1 && !formValuesMap[formKey][question.field_name] ? 'p-invalid' : ''
                     ]" />
                   <small v-if="question.field_name_display_end" class="text-gray-500 mt-1 block">
-                    {{ question.field_name_display_end }}
+                    {{ question.field_name_display_end?.[locale] }}
                   </small>
                 </div>
 
                 <!-- Time -->
                 <div v-else-if="question.question_type === 'time'" class="mb-4">
                   <label v-if="question.field_name_display" class="block text-sm font-medium text-gray-700 mb-2">
-                    {{ JSON.parse(question.field_name_display).th }}:
+                    {{ JSON.parse(question.field_name_display)?.[locale] }}:
                   </label>
                   <Calendar v-model="formValuesMap[formKey][question.field_name]" :required="question.required === 1"
                     timeOnly :class="[
@@ -173,7 +173,7 @@ td.radio-table-cell {
                       question.required === 1 && !formValuesMap[formKey][question.field_name] ? 'p-invalid' : ''
                     ]" />
                   <small v-if="question.field_name_display_end" class="text-gray-500 mt-1 block">
-                    {{ question.field_name_display_end }}
+                    {{ question.field_name_display_end?.[locale] }}
                   </small>
                 </div>
 
@@ -181,7 +181,7 @@ td.radio-table-cell {
                 <!-- Textarea -->
                 <div v-else-if="question.question_type === 'textarea'" class="mb-4">
                   <label v-if="question.field_name_display" class="block text-sm font-medium text-gray-700 mb-2">
-                    {{ JSON.parse(question.field_name_display).th }}:
+                    {{ JSON.parse(question.field_name_display)?.[locale] }}:
                   </label>
                   <Textarea v-model="formValuesMap[formKey][question.field_name]" :readonly="question.readonly === 1"
                     :required="question.required === 1" :autoResize="true" rows="3" :class="[
@@ -189,7 +189,7 @@ td.radio-table-cell {
                       question.required === 1 && !formValuesMap[formKey][question.field_name] ? 'p-invalid' : ''
                     ]" />
                   <small v-if="question.field_name_display_end" class="text-gray-500 mt-1 block">
-                    {{ question.field_name_display_end }}
+                    {{ question.field_name_display_end?.[locale] }}
                   </small>
                 </div>
 
@@ -206,7 +206,7 @@ td.radio-table-cell {
                     'font-weight': question['font_weight'] || 'normal',
                     'text-decoration': question['text_decoration'] || 'none'
                   }">
-                    {{ JSON.parse(question.field_name_display).th }}
+                    {{ JSON.parse(question.field_name_display)?.[locale] }}
                   </div>
                   <!-- <div v-if="question.field_name_display_end" class="text-lg font-medium text-gray-800">
                     {{ question.field_name_display_end }}
@@ -224,7 +224,7 @@ td.radio-table-cell {
                         :inputId="`${formKey}_${question.field_name}`" binary :trueValue="question.checked_value"
                         :falseValue="question.unchecked_value" @change="handleCheckboxChange(formKey, question)" />
                       <label :for="`${formKey}_${question.field_name}`" class="text-sm text-gray-700 cursor-pointer">
-                        {{ JSON.parse(question.field_name_display).th }}
+                        {{ JSON.parse(question.field_name_display)?.[locale] }}
                       </label>
                     </div>
 
@@ -233,7 +233,7 @@ td.radio-table-cell {
                       <div v-for="childQuestion in findChildQuestions(formData._question, question)"
                         :key="childQuestion.id">
                         <InputText v-model="formValuesMap[formKey][childQuestion.field_name]"
-                          :placeholder="JSON.parse(childQuestion.field_name_display).th || 'ระบุ'"
+                          :placeholder="JSON.parse(childQuestion.field_name_display)?.[locale] || 'ระบุ'"
                           :disabled="formValuesMap[formKey][question.field_name] !== question.checked_value"
                           class="w-52" size="small" />
                       </div>
@@ -247,7 +247,7 @@ td.radio-table-cell {
                   class="">
 
                   <label v-if="question.field_name_display" class="block text-sm font-medium text-gray-700 mb-3">
-                    {{ JSON.parse(question.field_name_display).th }}
+                    {{ JSON.parse(question.field_name_display)?.[locale] }}
                   </label>
 
 
@@ -258,11 +258,11 @@ td.radio-table-cell {
                           :inputId="`${formKey}_${question.field_name}_${option.value}`" :value="option.value" />
                         <label :for="`${formKey}_${question.field_name}_${option.value}`"
                           class="text-sm text-gray-700 cursor-pointer" v-if="typeof (option.text) == 'object'">
-                          {{ option.text.th }}
+                          {{ option.text?.[locale] }}
                         </label>
                         <label :for="`${formKey}_${question.field_name}_${option.value}`"
                           class="text-sm text-gray-700 cursor-pointer" v-else>
-                          {{ JSON.parse(option.text).th }}
+                          {{ JSON.parse(option.text)?.[locale] }}
                         </label>
 
 
@@ -270,7 +270,7 @@ td.radio-table-cell {
                           <div v-for="childQuestion in findChildQuestionsRadio(formData._question, question)"
                             :key="childQuestion.id">
                             <InputText v-model="formValuesMap[formKey][childQuestion.field_name]"
-                              :placeholder="parse(childQuestion.field_name_display).th || 'ระบุ'"
+                              :placeholder="parse(childQuestion.field_name_display)?.[locale] || 'ระบุ'"
                               :disabled="formValuesMap[formKey][question.field_name] !== option.value" class="w-44"
                               size="small" />
                           </div>
@@ -287,11 +287,11 @@ td.radio-table-cell {
                           :inputId="`${formKey}_${question.field_name}_${option.value}`" :value="option.value" />
                         <label :for="`${formKey}_${question.field_name}_${option.value}`"
                           class="text-sm text-gray-700 cursor-pointer" v-if="typeof (option.text) == 'object'">
-                          {{ option.text.th }}
+                          {{ option.text?.[locale] }}
                         </label>
                         <label :for="`${formKey}_${question.field_name}_${option.value}`"
                           class="text-sm text-gray-700 cursor-pointer" v-else>
-                          {{ JSON.parse(option.text).th }}
+                          {{ JSON.parse(option.text)?.[locale] }}
                         </label>
 
 
@@ -300,7 +300,7 @@ td.radio-table-cell {
                             <template v-for="childQuestion in findChildQuestionsRadio(formData._question, question)"
                               :key="childQuestion.id">
                               <InputText v-model="formValuesMap[formKey][childQuestion.field_name]"
-                                :placeholder="parse(childQuestion.field_name_display).th || 'ระบุ'"
+                                :placeholder="parse(childQuestion.field_name_display)?.[locale] || 'ระบุ'"
                                 :disabled="formValuesMap[formKey][question.field_name] !== option.value" class="w-40"
                                 size="small" />
                             </template>
@@ -331,7 +331,7 @@ td.radio-table-cell {
                       question.required === 1 && !formValuesMap[formKey][question.field_name] ? 'p-invalid' : ''
                     ]" />
                   <small v-if="question.field_name_display_end" class="text-gray-500 mt-1 block">
-                    {{ question.field_name_display_end }}
+                    {{ question.field_name_display_end?.[locale] }}
                   </small>
                 </div>
 
@@ -348,8 +348,16 @@ td.radio-table-cell {
 
           </template>
         </div>
+
+        <div v-if="role_id == 3" class="flex items-center justify-between gap-5 md:gap-0 md:justify-start">
+          <span class="text-sm font-medium text-gray-700 mb-2">สถานะการแสดงผล</span>
+          <van-switch v-model="status_show" size="24" active-color="#20bc04" />
+        </div>
+
       </div>
     </template>
+
+
 
     <div class="flex items-center justify-end gap-2 py-4">
       <Button :loading="isloadingAxi" type="submit" label="บันทึกข้อมูลทั้งหมด"
@@ -357,15 +365,27 @@ td.radio-table-cell {
         severity="primary" size="large" icon="pi pi-save" iconPos="left" />
     </div>
   </form>
+
+  <NotifyMessage v-model:show="toast.show" :type="toast.type" :title="toast.title" :message="toast.message"
+    :life="toast.life" />
 </template>
 
 <script setup>
+import { useDecryptedCookie } from '~/composables/useEncryptedCookie'
 import { ref, watch, onMounted } from 'vue'
 // import { uploadFileToExternalAPI } from '@/service/UploadExternalService'
 // import * as api from '@/service/api/template.js'
+const toast = ref({
+  show: false,
+  type: null,
+  title: null,
+  message: null,
+  life: null,
+})
 
+const { t, locale, setLocale } = useI18n()
 
-const isloadingAxi = useState('isloadingAxi', () => true)
+const isloadingAxi = useState('isloadingAxi')
 
 const props = defineProps({
   surveyDataMap: {
@@ -378,7 +398,16 @@ const props = defineProps({
     default: () => []
   }
 })
+const role_id = ref(null)
+const loadCheckRole = async () => {
+  const resRole = useDecryptedCookie('role_id')
+  role_id.value = resRole
 
+}
+onMounted(async () => {
+  await loadCheckRole()
+})
+const status_show = ref(false)
 const emit = defineEmits(['submit'])
 const formRef = ref(null)
 
@@ -1019,16 +1048,22 @@ const submitAllForms = async () => {
 
     // ส่งข้อมูล
     // const payload = getSubmitPayload(props.surveyDataMap, formValuesMap.value, "form1_03");
-    const payload = getSubmitPayload(props.surveyDataMap, formValuesMap.value);
-    console.log('Final form values before submit:', payload);
+    // const payload = getSubmitPayload(props.surveyDataMap, formValuesMap.value);
+    const base = getSubmitPayload(props.surveyDataMap, formValuesMap.value)
+    const payload = {
+      ...base,
+      status_show: status_show.value, // แนบคีย์เพิ่มเข้าไป
+    }
     emit('submit', payload);
-
-    // console.log('Final form values before submit:', formValuesMap.value)
-    // emit('submit', formValuesMap.value)
-
   } catch (error) {
     console.error('Error submitting form:', error)
-    alert(error.message)
+    toast.value = {
+      show: true,
+      type: 'danger',
+      title: t('ผิดพลาด'),
+      message: error.message || t('เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองอีกครั้ง'),
+      life: null
+    }
 
     // Force scroll to first error
     if (Object.keys(signatureErrors.value).length > 0) {
@@ -1209,7 +1244,7 @@ import { v4 as uuidv4 } from 'uuid';
 const onInsertTemplate = ref(false);
 const confirmTemplate = async () => {
   try {
-    // alert('selectedQuestionId',selectedQuestionId.value)
+
     console.log('selectedQuestionId confirmTemplate', selectedQuestionId.value)
 
     const res = await apiTemplate.getSurveyPreviewTemplate(selectedTemplateId.value);
