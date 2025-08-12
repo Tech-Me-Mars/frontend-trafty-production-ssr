@@ -42,8 +42,10 @@ export async function request(method, url, data, auth = true) {
     if (error.response?.status === 401) {
       console.warn("Token ไม่ถูกต้อง | หมดอายุ | ไม่มี Token");
       useClearEncryptedCookie("token") // 🔐 ลบ token จาก cookie
-      // await navigateTo("/auth/login");
+      await navigateTo("/auth/login");
     } else if (error.response?.status === 403) {
+      // await navigateTo("/auth/login");
+
       // await navigateTo("/Unauthorized");
     } else if (error.response?.status === 422) {
       console.log("Validation Error");

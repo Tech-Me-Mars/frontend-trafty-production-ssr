@@ -1,23 +1,26 @@
 <template>
-    <div class="min-h-screen bg-zinc-50">
+  <div class="min-h-screen bg-zinc-50">
 
-        <LayoutsBaseHeader :title="t('ธุรกิจในแหล่งท่องเที่ยว')" showBack></LayoutsBaseHeader>
+    <LayoutsBaseHeader :title="t('ธุรกิจในแหล่งท่องเที่ยว')" showBack></LayoutsBaseHeader>
 
-        <template v-if="surveyDataMap">
-          <Dynamic :survey-data-map="surveyDataMap" @submit="handleFormSubmit" :default-values="mapDefaultValueData" 
-          :model-change="model_change" />
-        </template>
+    <template v-if="surveyDataMap">
+      <Dynamic :survey-data-map="surveyDataMap" @submit="handleFormSubmit" :default-values="mapDefaultValueData"
+        :model-change="model_change" />
+    </template>
 
-                <NotifyMessage v-model:show="toast.show" :type="toast.type" :title="toast.title" :message="toast.message"
-            :life="toast.life" />
-            </div>
+    <NotifyMessage v-model:show="toast.show" :type="toast.type" :title="toast.title" :message="toast.message"
+      :life="toast.life" />
+    <NotificationPopup v-model:visible="notification.visible" :state="notification.state" :title="notification.title"
+      :detail="notification.detail" :timeout="notification.timeout" :redirect-url="notification.redirectUrl"
+      :auto-close="notification.autoClose" @close="onNotificationClose" />
+  </div>
 </template>
 <script setup>
 definePageMeta({
-    middleware: ["auth"],
+  middleware: ["auth"],
 });
 // import ที่ใช้ทุกหน้า
-import { useForm, useField, Form} from 'vee-validate'
+import { useForm, useField, Form } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as zod from 'zod'
 import * as dataApi from "./api/dataApi.js";
@@ -27,13 +30,32 @@ const isloadingAxi = useState('isloadingAxi')
 const route = useRoute()
 const router = useRouter()
 const toast = ref({
-    show: false,
-    type: null,
-    title: null,
-    message: null,
-    life: null,
+  show: false,
+  type: null,
+  title: null,
+  message: null,
+  life: null,
 })
 // จบการ import ที่ใช้ทุกหน้า
+const notification = reactive({
+  visible: false,
+  state: 'success',
+  title: '',
+  detail: '',
+  timeout: 0,
+  redirectUrl: null,
+  autoClose: true
+})
+// Methods
+const showNotification = (config) => {
+  Object.assign(notification, {
+    visible: true,
+    ...config
+  })
+}
+
+
+
 const surveyDataMap = ref()
 const model_change = ref([
 ])
@@ -75,34 +97,59 @@ const loadData = async () => {
     console.log('flatObject', flatObject)
     surveyDataMap.value = flatObject
   } catch (error) {
-            toast.value = {
-            show: true,
-            type: 'danger',
-            title: t('ผิดพลาด'),
-            message: error?.response?.data?.message || t('เกิดข้อผิดพลาด'),
-            life: null
-        }
+    toast.value = {
+      show: true,
+      type: 'danger',
+      title: t('ผิดพลาด'),
+      message: error?.response?.data?.message || t('เกิดข้อผิดพลาด'),
+      life: null
+    }
     console.error(error)
   }
 }
 
-onMounted(()=>{
-    loadData();
+onMounted(() => {
+  loadData();
 })
 // 
 
-const handleFormSubmit =async (allFormsData) => {
+const handleFormSubmit = async (allFormsData) => {
   try {
     console.log('ส่งทั้งหมด:', allFormsData)
     const mergedData = Object.values(allFormsData).reduce((acc, curr) => {
-    return { ...acc, ...curr }
-  }, {})
-  console.log('mergedData:', mergedData)
+      return { ...acc, ...curr }
+    }, {})
+    const res = await dataApi.saveSurvey(mergedData)
+    // console.log('mergedData:', mergedData)
+    showNotification({
+      state: res.data.dialog?.state,
+      title: res.data.dialog?.title,
+      detail: res.data.dialog?.detail,
+      timeout: res.data.dialog?.timeout || 3000,
+      redirectUrl: `/vendor/manage-business/home/${route.params.id}`,
+      autoClose: true
+    })
 
 
   } catch (error) {
-    console.error('Error saving survey data:', error)
+        toast.value = {
+      show: true,
+      type: 'danger',
+      title: error.response?.data?.title || t('คำเตือน'),
+      message: error.response?.data?.detail || t('เกิดข้อผิดพลาด'),
+      life: null
+    }
     
+    // showNotification({
+    //   state: 'warning',
+    //   title: error.response?.data?.title || t('คำเตือน'),
+    //   detail: error.response?.data?.detail || t('เกิดข้อผิดพลาด'),
+    //   timeout: 0,
+    //   redirectUrl:  res.data.dialog?.timeout || null,
+    //   autoClose: false // ไม่นับถอยหลัง ต้องกดปุ่มปิด
+    // })
+    console.error('Error saving survey data:', error)
+
   }
 }
 </script>

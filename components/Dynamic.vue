@@ -91,7 +91,7 @@ td.radio-table-cell {
 </style>
 <template>
   <!-- <pre>{{ surveyDataMap }}</pre> -->
-  <form @submit.prevent="submitAllForms" class="space-y-4">
+  <form ref="formRef" @submit.prevent="submitAllForms" class="space-y-4">
     <template v-for="(formData, formKey) in surveyDataMap" :key="formKey">
       <!-- {{ formData }} -->
       <div class="bg-white rounded-lg shadow p-4 mb-4">
@@ -349,8 +349,17 @@ td.radio-table-cell {
           </template>
         </div>
 
+
+        <div v-if="role_id == 3 || role_id == 1" class="">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            {{ t('รอบการออกตรวจซ้ำ') }}
+          </label>
+          <Dropdown v-model="inspection_round" :options="roundMonthOptions" :placeholder="t('ระบุรอบการออกตรวจซ้ำ')"
+            optionLabel="text" optionValue="id" class="w-full" />
+        </div>
+
         <div v-if="role_id == 3" class="flex items-center justify-between gap-5 md:gap-0 md:justify-start">
-          <span class="text-sm font-medium text-gray-700 mb-2">สถานะการแสดงผล</span>
+          <span class="text-sm font-medium text-gray-700 mb-2">{{ t('สถานะการแสดงผล') }}</span>
           <van-switch v-model="status_show" size="24" active-color="#20bc04" />
         </div>
 
@@ -368,6 +377,9 @@ td.radio-table-cell {
 
   <NotifyMessage v-model:show="toast.show" :type="toast.type" :title="toast.title" :message="toast.message"
     :life="toast.life" />
+  <NotificationPopup v-model:visible="notification.visible" :state="notification.state" :title="notification.title"
+    :detail="notification.detail" :timeout="notification.timeout" :redirect-url="notification.redirectUrl"
+    :auto-close="notification.autoClose" @close="onNotificationClose" />
 </template>
 
 <script setup>
@@ -382,6 +394,23 @@ const toast = ref({
   message: null,
   life: null,
 })
+
+const notification = reactive({
+  visible: false,
+  state: 'success',
+  title: '',
+  detail: '',
+  timeout: 0,
+  redirectUrl: null,
+  autoClose: true
+})
+// Methods
+const showNotification = (config) => {
+  Object.assign(notification, {
+    visible: true,
+    ...config
+  })
+}
 
 const { t, locale, setLocale } = useI18n()
 
@@ -398,18 +427,123 @@ const props = defineProps({
     default: () => []
   }
 })
+
 const role_id = ref(null)
 const loadCheckRole = async () => {
-  const resRole = useDecryptedCookie('role_id')
+  const resRole = await useDecryptedCookie('role_id')
   role_id.value = resRole
 
 }
 onMounted(async () => {
   await loadCheckRole()
 })
+
+const inspection_round = ref(12)
+const roundMonthOptions = ref([
+  { id: 1, text: ' 1 เดือน' },
+  { id: 2, text: '2 เดือน' },
+  { id: 3, text: '3 เดือน' },
+  { id: 4, text: '4 เดือน' },
+  { id: 5, text: '5 เดือน' },
+  { id: 6, text: '6 เดือน' },
+  { id: 7, text: '7 เดือน' },
+  { id: 8, text: '8 เดือน' },
+  { id: 9, text: '9 เดือน' },
+  { id: 10, text: '10 เดือน' },
+  { id: 11, text: '11 เดือน' },
+  { id: 12, text: '12 เดือน' }
+])
 const status_show = ref(false)
 const emit = defineEmits(['submit'])
 const formRef = ref(null)
+const errors = reactive({})
+const clearErrors = () => {
+  Object.keys(errors).forEach((g) => delete errors[g])
+}
+const setError = (groupKey, fieldName, msg) => {
+  if (!errors[groupKey]) errors[groupKey] = {}
+  errors[groupKey][fieldName] = msg
+}
+const getError = (groupKey, fieldName) => {
+  return (errors[groupKey] && errors[groupKey][fieldName]) || ''
+}
+const isEmpty = (val, type) => {
+  // อนุญาต 0 และ false ผ่าน (ไม่ถือว่าเป็นค่าว่าง)
+  if (val === 0 || val === false) return false
+  if (val === null || val === undefined) return true
+
+  if (Array.isArray(val)) return val.length === 0
+
+  if (typeof val === 'object') {
+    if (type === 'files' && (val && typeof val.length === 'number')) {
+      return val.length === 0
+    }
+    return Object.keys(val).length === 0
+  }
+
+  if (typeof val === 'string') return val.trim() === ''
+
+  return false
+}
+const isFlagTrue = (v) => v === true || v === 1 || v === '1'
+const validateRequired = () => {
+  clearErrors()
+  let firstInvalidKey = null
+
+  for (const [groupKey, groupValue] of Object.entries(props.surveyDataMap)) {
+    const questions = (groupValue && groupValue._question) || []
+    for (const q of questions) {
+      if (!q) continue
+      if (q.question_type === 'table') continue
+      if (isFlagTrue(q.readonly)) continue        // เดิม: q.readonly == 1
+      if (!isFlagTrue(q.required)) continue       // เดิม: q.required != 1
+
+      const fieldName = q.field_name
+      const v = formValuesMap.value &&
+        formValuesMap.value[groupKey] &&
+        formValuesMap.value[groupKey][fieldName]
+
+      let empty = false
+      switch (q.question_type) {
+        case 'input_text':
+        case 'textarea':
+        case 'number':
+        case 'date':
+        case 'datetime':
+        case 'time':
+        case 'select':
+        case 'radio':
+          empty = isEmpty(v)
+          break
+        case 'checkbox':
+          empty = isEmpty(v) || !Array.isArray(v) || v.length === 0
+          break
+        case 'files':
+          empty = isEmpty(v, 'files')
+          break
+        default:
+          empty = isEmpty(v)
+      }
+
+      if (empty) {
+        let label = q.field_name
+        try {
+          const obj = JSON.parse(q.field_name_display || '{}')
+          label = obj?.[locale] || q.field_name
+        } catch (e) {}
+        setError(groupKey, fieldName, `กรุณากรอก ${label}`)
+        if (!firstInvalidKey) firstInvalidKey = `${groupKey}:${fieldName}`
+      }
+    }
+  }
+
+  if (firstInvalidKey) {
+    const el = document.querySelector(`[data-field-key="${firstInvalidKey}"]`)
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    return false
+  }
+  return true
+}
 
 // สร้าง Object สำหรับเก็บค่าจากฟอร์ม
 const formValuesMap = ref({})
@@ -1004,55 +1138,47 @@ function getSubmitPayload(surveyDataMap, formValuesMap) {
 }
 
 // ส่งข้อมูลฟอร์ม
+import * as dataApiBusiness from "@/service/business.js";
+const route = useRoute()
 const submitAllForms = async () => {
   try {
-    isloadingAxi.value = true
-
-    console.log('Starting form submission...')
-    console.log('Current form values:', formValuesMap.value)
-    console.log('Survey data map:', props.surveyDataMap)
-
     // ตรวจสอบฟอร์มทั่วไป
-    const { valid } = await formRef.value.validate()
-    console.log('Form validation result:', valid)
-
+    const valid = validateRequired()
     if (!valid) {
       throw new Error('มีข้อผิดพลาดในการกรอกฟอร์ม กรุณาตรวจสอบอีกครั้ง')
     }
-
-    // ตรวจสอบและอัปโหลดลายเซ็น
-    console.log('Validating signatures...')
     await validateAndUploadSignatures()
-    console.log('Signatures validated and uploaded successfully')
-
-    // Loop through each group in surveyDataMap (e.g., "test_test", "test_test_2")
+    // for (const [groupKey, groupValue] of Object.entries(props.surveyDataMap)) {
+    //   const questions = (groupValue && groupValue._question) || []
+    //   for (const q of questions) {
+    //     if (q.question_type === 'files') {
+    //       await uploadFiles(groupKey, q.field_name)
+    //     }
+    //   }
+    // }
     for (const [groupKey, groupValue] of Object.entries(props.surveyDataMap)) {
-      console.log(`Processing group: ${groupKey}`);
-
-      // Check if the group has questions
       if (groupValue._question && groupValue._question.length > 0) {
-        // Loop through each question in the current group
         for (const question of groupValue._question) {
           const fieldName = question.field_name;
           const questionType = question.question_type;
-
-          // Check if the question type is 'files' and upload the files
           if (questionType === 'files') {
             console.log(`Uploading files for field: ${fieldName}...`);
-            await uploadFiles(groupKey, fieldName); // Upload files for the current field in the group
-            // console.log(`Files for field ${fieldName} uploaded successfully`);
+            await uploadFiles(groupKey, fieldName);
           }
         }
       }
     }
-
+    const resBusiness = await dataApiBusiness.dataApiBusiness(route.params.id)
     // ส่งข้อมูล
-    // const payload = getSubmitPayload(props.surveyDataMap, formValuesMap.value, "form1_03");
-    // const payload = getSubmitPayload(props.surveyDataMap, formValuesMap.value);
     const base = getSubmitPayload(props.surveyDataMap, formValuesMap.value)
     const payload = {
       ...base,
-      status_show: status_show.value, // แนบคีย์เพิ่มเข้าไป
+        survey_id: resBusiness.data.data?.survey_status_id,
+  business_id: resBusiness.data.data?.id,
+      status_show: status_show.value,
+      inspection_round: (role_id.value == 1 || role_id.value == 3)
+        ? inspection_round.value
+        : 0
     }
     emit('submit', payload);
   } catch (error) {
