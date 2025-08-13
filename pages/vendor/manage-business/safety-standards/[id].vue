@@ -12,7 +12,7 @@
 
             <!-- Progress Circle -->
             <div class="bg-white rounded-lg p-2  border-2 border-gray-100 -mt-[6.5rem]  max-w-[22rem] mx-auto">
-                <h3 class="text-lg font-medium mb-2">ประเภทรับอาหาร</h3>
+                <!-- <h3 class="text-lg font-medium mb-2">ประเภทรับอาหาร</h3> -->
 
                 <div class="flex justify-center">
                     <!-- Gauge Component -->
@@ -27,12 +27,12 @@
                             <!-- Gauge Progress -->
                             <circle cx="18" cy="18" r="16" fill="none"
                                 class="stroke-current text-[#fccc0c] dark:text-[#fccc0c]" stroke-width="2"
-                                stroke-dasharray="37.5 100" stroke-linecap="round"></circle>
+                                :stroke-dasharray="`${progressComputed} 100`" stroke-linecap="round"></circle>
                         </svg>
 
                         <!-- Value Text -->
                         <div class="absolute top-9 start-1/2 transform -translate-x-1/2 text-center">
-                            <span class="text-2xl font-bold text-[#000000] dark:text-[#000000]">87%</span>
+                            <span class="text-2xl font-bold text-[#000000] dark:text-[#000000]">{{progress}}%</span>
                             <!-- <span class="text-sm text-[#000000] dark:text-[#000000] block">Score</span> -->
                         </div>
                     </div>
@@ -87,7 +87,6 @@ import { toTypedSchema } from '@vee-validate/zod'
 import * as zod from 'zod'
 import * as dataApi from "./api/dataApi.js";
 import { useI18n } from 'vue-i18n';
-import { SharedNoData } from '#components';
 const { t, locale, setLocale } = useI18n()
 const isloadingAxi = useState('isloadingAxi')
 const route = useRoute()
@@ -119,21 +118,22 @@ const showNotification = (config) => {
 
 const active = ref(0)
 const progress = ref(0)
-const targetProgress = 100
-// Animate progress on mount
-onMounted(() => {
-    setTimeout(() => {
-        progress.value = targetProgress
-    }, 300)
+// ถ้ามากกว่า 1 ให้หาร 2, ถ้าไม่ใช่ก็คืนค่าเดิม
+const progressComputed = computed(() => {
+  const n = Number(progress.value) || 0
+  return n > 1 ? n / 2 : n
 })
+
+
 
 
 const resPass = ref([])
 const loadSurveyPass = async () => {
     try {
         const res = await dataApi.getSurveyAuditPass(route.params.id);
-        console.log(res.data.data)
-        resPass.value = res.data.data;
+        resPass.value = res.data.data.groups;
+        progress.value = res.data.data.score_percent;
+
     } catch (error) {
         toast.value = {
             show: true,
@@ -150,7 +150,8 @@ const resFail = ref([])
 const loadSurveyFail = async () => {
     try {
         const res = await dataApi.getSurveyAuditFail(route.params.id);
-        resFail.value = res.data.data;
+        resFail.value = res.data.data.groups;
+        progress.value = res.data.data.score_percent;
     } catch (error) {
         toast.value = {
             show: true,
