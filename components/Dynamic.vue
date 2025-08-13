@@ -197,7 +197,7 @@ td.radio-table-cell {
 
                 <!-- Label -->
                 <div v-else-if="question.question_type === 'label'" :class="[
-                  'p-2 mb-2',
+                  '',
                   question.text_align === 'center' ? 'text-center' : '',
                   question.text_align === 'right' ? 'text-right' : 'text-left'
                 ]">
@@ -246,9 +246,9 @@ td.radio-table-cell {
                 <div v-else-if="question.question_type === 'radio' || question.question_type === 'radio-other'"
                   class="">
 
-                  <label v-if="question.field_name_display" class="block text-sm font-medium text-gray-700 mb-3">
+                  <!-- <label v-if="question.field_name_display" class="block text-sm font-medium text-gray-700 mb-3">
                     {{ JSON.parse(question.field_name_display)?.[locale] }}
-                  </label>
+                  </label> -->
 
 
                   <div v-if="question.direction === 'horizental'" class="flex flex-wrap items-center gap-4">
@@ -1168,12 +1168,12 @@ const submitAllForms = async () => {
         }
       }
     }
-    const resBusiness = await dataApiBusiness.dataApiBusiness(route.params.id)
+    const resBusiness = await dataApiBusiness.getBusiness(route.params.id)
     // ส่งข้อมูล
     const base = getSubmitPayload(props.surveyDataMap, formValuesMap.value)
     const payload = {
       ...base,
-        survey_id: resBusiness.data.data?.survey_status_id,
+        survey_id: resBusiness.data.data?.template_survey_id,
   business_id: resBusiness.data.data?.id,
       status_show: status_show.value,
       inspection_round: (role_id.value == 1 || role_id.value == 3)

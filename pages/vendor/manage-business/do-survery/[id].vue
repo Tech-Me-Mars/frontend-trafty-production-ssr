@@ -16,10 +16,11 @@
   </div>
 </template>
 <script setup>
+
+// basic ที่ใช้ทุกหน้า
 definePageMeta({
   middleware: ["auth"],
 });
-// import ที่ใช้ทุกหน้า
 import { useForm, useField, Form } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as zod from 'zod'
@@ -36,7 +37,6 @@ const toast = ref({
   message: null,
   life: null,
 })
-// จบการ import ที่ใช้ทุกหน้า
 const notification = reactive({
   visible: false,
   state: 'success',
@@ -53,6 +53,8 @@ const showNotification = (config) => {
     ...config
   })
 }
+// จบการ basic ที่ใช้ทุกหน้า
+
 
 
 
@@ -113,12 +115,32 @@ onMounted(() => {
 })
 // 
 
+// ช่วยเช็กว่าเป็น plain object (ไม่ใช่ Array/Date/File ฯลฯ)
+const isPlainObject = (o) =>
+  Object.prototype.toString.call(o) === '[object Object]'
+
+// แตกเฉพาะ object ที่อยู่ระดับแรกเท่านั้น
+// ถ้าอยากเลือกเฉพาะบางคีย์ ให้ส่ง includeKeys เป็น array (เช่น ['hotel'])
+const flattenLevel1 = (obj, includeKeys = null) => {
+  const out = {}
+  for (const [k, v] of Object.entries(obj)) {
+    const shouldFlatten = isPlainObject(v) && (!includeKeys || includeKeys.includes(k))
+    if (shouldFlatten) {
+      // ดึงแค่คีย์ชั้นในของ v มาวางบนชั้นบน (ชั้นถัดไปยังคงเป็น object เดิม)
+      for (const [ik, iv] of Object.entries(v)) {
+        out[ik] = iv
+      }
+    } else {
+      out[k] = v
+    }
+  }
+  return out
+}
 const handleFormSubmit = async (allFormsData) => {
   try {
     console.log('ส่งทั้งหมด:', allFormsData)
-    const mergedData = Object.values(allFormsData).reduce((acc, curr) => {
-      return { ...acc, ...curr }
-    }, {})
+    const mergedData = flattenLevel1(allFormsData)
+    console.log('after merg', mergedData)
     const res = await dataApi.saveSurvey(mergedData)
     // console.log('mergedData:', mergedData)
     showNotification({
@@ -132,14 +154,14 @@ const handleFormSubmit = async (allFormsData) => {
 
 
   } catch (error) {
-        toast.value = {
+    toast.value = {
       show: true,
       type: 'danger',
       title: error.response?.data?.title || t('คำเตือน'),
       message: error.response?.data?.detail || t('เกิดข้อผิดพลาด'),
       life: null
     }
-    
+
     // showNotification({
     //   state: 'warning',
     //   title: error.response?.data?.title || t('คำเตือน'),

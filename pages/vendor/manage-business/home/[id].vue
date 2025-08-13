@@ -35,7 +35,7 @@
                     <h2 class="text-lg font-bold">{{ getI18n(resBusinessAll?.shop_name_i18n, locale) }}</h2>
                     <p class="text-sm text-gray-500">{{
                         getI18n(resBusinessAll?.business_type?.business_type_name_i18n, locale)
-                    }}</p>
+                        }}</p>
 
 
                     <span v-if="resBusinessAll?.survey_status?.survey_success_note"
@@ -59,18 +59,24 @@
             <!-- Progress Section -->
             <div class="w-full card">
                 <h2 class="text-lg font-bold mb-5">{{ t('ข้อมูลธุรกิจในแหล่งท่องเที่ยว') }}</h2>
-                <div class="flex items-center gap-4 cursor-pointer mb-5" v-if="resBusinessAll?.score_percent">
-                    <!-- Knob Component -->
-                    <van-circle v-model:current-rate="currentRate" :rate="rate" :speed="100" :stroke-width="60"
-                        color="#202c54" layer-color="#ebedf0" size="60px" :text="textRate" />
+                <NuxtLink v-if="resBusinessAll?.score_percent != null"
+                    :to="`/vendor/manage-business/safety-standards/${route.params.id}`">
+                    <div class="flex items-center gap-4 cursor-pointer mb-5">
+                        <!-- Knob Component -->
+                        <van-circle v-model:current-rate="currentRate" :rate="rate" :speed="100" :stroke-width="60"
+                            color="#202c54" layer-color="#ebedf0" size="60px" :text="textRate" />
 
-                    <!-- Description -->
-                    <div class="flex w-full justify-between">
-                        <p class="">{{ t('มาตรฐานความปลอดภัย') }}</p>
-                        <i class="fa-solid fa-chevron-right"></i>
+                        <!-- Description -->
+                        <div class="flex w-full justify-between">
+                            <p class="">{{ t('มาตรฐานความปลอดภัย') }}</p>
+
+                            <i class="fa-solid fa-chevron-right"></i>
+
+
+                        </div>
+
                     </div>
-
-                </div>
+                </NuxtLink>
 
                 <div class="max-w-xl mx-auto">
                     <NuxtLink :to="`/vendor/manage-business/do-survery/${route.params.id}`"
@@ -106,8 +112,8 @@
 
             <div class="flex justify-between items-center px-4">
                 <h2 class="text-lg font-bold">{{ t('รายการของฉัน') }}</h2>
-                <a href="#" class="hover:underline cursor-pointer">{{ t('ดูทั้งหมด') }}
-                    <i class="fa-solid fa-chevron-right" style="font-size: 14px;"></i></a>
+                <NuxtLink :to="`/vendor/manage-business/list/${route.params.id}`" class="hover:underline cursor-pointer">{{ t('ดูทั้งหมด') }}
+                    <i class="fa-solid fa-chevron-right" style="font-size: 14px;"></i></NuxtLink>
 
             </div>
             <div class="p-4 flex-col space-y-3">
@@ -118,15 +124,17 @@
                         <div class="flex justify-between items-center">
                             <h2 class="text-lg font-semibold text-gray-800">{{ getI18n(item?.business_list_name_i18n,
                                 locale)
-                                }}</h2>
+                            }}</h2>
                             <p class="text-gray-800 ">฿{{ item?.business_list_price }}</p>
                         </div>
                         <!-- ปุ่มแอคชัน -->
                         <hr class="border-t mt-2 mb-4">
                         <div class="flex  gap-3">
-
-                            <Button :loading="isloadingAxi" :label="t('ไม่แสดง')" severity="primary" variant="outlined"
-                                class="w-full" @click="showConfirmHide(item)" :pt="{
+                            <Button :loading="togglingId === item.id" :disabled="isloadingAxi"
+                                :label="isFlagTrue(item.status) ? t('ไม่แสดง') : t('แสดง')"
+                                 :icon="isFlagTrue(item.status) ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'"
+                                severity="primary" variant="outlined"
+                                class="w-full" @click="showConfirmToggle(item)" :pt="{
                                     label: { class: 'text-primary-main' },
                                     root: { class: '!border-primary-main' },
                                 }" />
@@ -301,51 +309,56 @@ const deleteItems = async (id) => {
 // **************************************************************** HIDE **********************************************************************
 // **************************************************************** HIDE **********************************************************************
 // **************************************************************** HIDE **********************************************************************
-const hidingId = ref(null)
-const showConfirmHide = (item) => {
+const togglingId = ref(null)
+
+const isFlagTrue = (v) => v === true || v === 1 || v === '1' || v === 'true'
+
+const showConfirmToggle = (item) => {
+  const isActive = isFlagTrue(item.status)
   confirm1.require({
-    message: t('ยืนยันการซ่อนรายการนี้ไม่ให้แสดงใช่ไหม?'),
+    message: isActive
+      ? t('ยืนยันการซ่อนรายการนี้ไม่ให้แสดงใช่ไหม?')
+      : t('ยืนยันการแสดงรายการนี้ใช่ไหม?'),
     header: t('ยืนยัน'),
     icon: 'pi pi-exclamation-triangle',
     rejectProps: { label: t('ยกเลิก'), severity: 'secondary', outlined: true },
     acceptProps: { label: t('ตกลง') },
     accept: async () => {
-      hidingId.value = item.id
-      await hideBusiness(item)
-      hidingId.value = null
+      togglingId.value = item.id
+      await toggleBusinessStatus(item, !isActive)
+      togglingId.value = null
     }
   })
 }
-const hideBusiness = async (item) => {
-    const payload = {
-        id: item.id,
-        status: false,
-    }
-    try {
-        // ปรับ endpoint ให้ตรงโปรเจกต์ของคุณ
-        // เช่น await dataApi.updateBusinessStatus(route.params.id, payload)
-        const res = await dataApi.updateBusinessStatus(route.params.id, payload)
 
-        toast.value = {
-            show: true,
-            type: 'success',
-            title: t('สำเร็จ'),
-            message: res.data.message || t('ซ่อนรายการเรียบร้อยแล้ว'),
-            life: 1500
-        }
+const toggleBusinessStatus = async (item, nextStatus) => {
+  const payload = { id: item.id, status: nextStatus }
+  try {
+    const res = await dataApi.updateBusinessStatus(route.params.id, payload)
 
-        await loadBusinessAll() // รีเฟรชข้อมูลบนหน้า
-    } catch (error) {
-        toast.value = {
-            show: true,
-            type: 'danger',
-            title: t('ผิดพลาด'),
-            message: error?.response?.data?.message || t('เกิดข้อผิดพลาด'),
-            life: null
-        }
-        console.error('hideBusiness error:', error)
-    } finally {
+    // อัพเดททันทีเพื่อให้ UI ตอบสนองเร็ว (ถ้าไม่อยากรีเฟรชทั้งหน้า)
+    item.status = nextStatus
+
+    toast.value = {
+      show: true,
+      type: 'success',
+      title: t('สำเร็จ'),
+      message: nextStatus ? t('แสดงรายการเรียบร้อยแล้ว') : t('ซ่อนรายการเรียบร้อยแล้ว'),
+      life: 1500
     }
+
+    // ถ้าต้องการความชัวร์ ดึงข้อมูลใหม่ทั้งก้อน (เลือกอย่างใดอย่างหนึ่ง)
+    // await loadBusinessAll()
+  } catch (error) {
+    toast.value = {
+      show: true,
+      type: 'danger',
+      title: t('ผิดพลาด'),
+      message: error?.response?.data?.message || t('เกิดข้อผิดพลาด'),
+      life: null
+    }
+    console.error('toggleBusinessStatus error:', error)
+  }
 }
 
 

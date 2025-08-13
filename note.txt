@@ -8,3 +8,43 @@ const { t } = useI18n();
 
 ไปเช็คหน้า inspector/warning-list/index/index.vue ว่ามี {{ item?.business_type_name }} จากapi จริงไหม
 ค้นหา keyword ร้านอาหาร
+
+
+
+// basic ที่ใช้ทุกหน้า
+definePageMeta({
+  middleware: ["auth"],
+});
+import { useForm, useField, Form } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import * as zod from 'zod'
+import * as dataApi from "./api/dataApi.js";
+import { useI18n } from 'vue-i18n';
+const { t, locale, setLocale } = useI18n()
+const isloadingAxi = useState('isloadingAxi')
+const route = useRoute()
+const router = useRouter()
+const toast = ref({
+  show: false,
+  type: null,
+  title: null,
+  message: null,
+  life: null,
+})
+const notification = reactive({
+  visible: false,
+  state: 'success',
+  title: '',
+  detail: '',
+  timeout: 0,
+  redirectUrl: null,
+  autoClose: true
+})
+// Methods
+const showNotification = (config) => {
+  Object.assign(notification, {
+    visible: true,
+    ...config
+  })
+}
+// จบการ basic ที่ใช้ทุกหน้า
