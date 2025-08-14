@@ -51,7 +51,7 @@ import * as dataApi from './api/data.js'
 // 1) ใช้ composable ที่คุณมี
 const { lat, lon, source, ready, error, refresh } = useGetLatLon({
   // redirect ถ้าไม่มี lat/lon ทั้งคู่ (composable จะจัดการให้)
-  redirectTo: '/settings/my-location'
+  redirectTo: '/profile/my-location'
 })
 
 const route = useRoute()

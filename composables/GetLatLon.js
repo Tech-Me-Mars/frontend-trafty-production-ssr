@@ -10,7 +10,7 @@ export function useGetLatLon(options = {}) {
 
   const cfg = {
     redirectIfMissing: options.redirectIfMissing ?? true,
-    redirectTo: options.redirectTo ?? '/settings/my-location',
+    redirectTo: options.redirectTo ?? '/profile/my-location',
     timeoutMs: options.timeoutMs ?? 8000,
     highAccuracy: options.highAccuracy ?? true,
   }

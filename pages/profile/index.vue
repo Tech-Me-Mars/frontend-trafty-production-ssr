@@ -29,7 +29,12 @@ const menuItems = [
     label: t('ภาษา'),
     icon: 'pi pi-language',
     to: '/profile/language'
-  }
+  },
+    {
+    label: t('ตั้งค่าโลเคชั่น'),
+    icon: 'pi pi-map-marker',
+    to: '/profile/my-location'
+  },
 ]
 
 const goTo = (path) => {
