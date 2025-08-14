@@ -7,11 +7,11 @@
             <!-- Status Header -->
             <div class="text-center mb-8 bg-zinc-100 h-[10rem] pt-5">
                 <p class="text-gray-800 text-sm mb-2">การประเมินองคุณ</p>
-                <h2 class="text-xl font-semibold text-gray-800">ค่อนข้างดี</h2>
+                <!-- <h2 class="text-xl font-semibold text-gray-800">ค่อนข้างดี</h2> -->
             </div>
 
             <!-- Progress Circle -->
-            <div class="bg-white rounded-lg p-2  border-2 border-gray-100 -mt-[6.5rem]  max-w-[22rem] mx-auto">
+            <div class="bg-white rounded-lg p-2  border-2 border-gray-100 -mt-[6.5rem] mb-5  max-w-[22rem] mx-auto">
                 <!-- <h3 class="text-lg font-medium mb-2">ประเภทรับอาหาร</h3> -->
 
                 <div class="flex justify-center">
@@ -45,7 +45,7 @@
 
             <van-tabs v-model:active="active" animated swipeable color="#281c74">
                 <van-tab :title="t('อยู่ในเกณฑ์ดี')">
-                    <div class="space-y-4" v-if="resPass.length>0">
+                    <div class="space-y-4 pt-5" v-if="resPass.length>0">
                         <div class="bg-white px-2" v-for="(item, index) in resPass" :key="item.index">
                             <p class="text-sm text-gray-600 mb-1">
                                 {{ getI18n(item?.questions_field_name_display, locale) }}
@@ -55,7 +55,7 @@
                     <SharedNoData v-else/>
                 </van-tab>
                 <van-tab :title="t('ต้องปรับปรุง')">
-                    <div class="space-y-4" v-if="resFail.length>0">
+                    <div class="space-y-4 pt-5" v-if="resFail.length>0">
                         <div class="bg-white px-2" v-for="(item, index) in resFail" :key="item.index">
                             <p class="text-sm text-gray-600 mb-1">
                                 {{ getI18n(item?.questions_field_name_display, locale) }}

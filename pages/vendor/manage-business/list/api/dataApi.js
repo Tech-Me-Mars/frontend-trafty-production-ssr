@@ -2,7 +2,8 @@ import { request } from "@/service/AxiosService.js";
 
 export async function getBusinessList(id) {
   const modulepath = await getModulePathByRoleId()
-  const url = `/api/v1/${modulepath}/business_list/get-business[-list-by-business-id/${id}`;
+  const url = `/api/v1/${modulepath}/business_list/get-business-list-by-business-id/${id}`;
+  // get-business-list-by-business-id
   return request("get", url, {}, true);
 }
 export async function deleteBusinessId(id) {
