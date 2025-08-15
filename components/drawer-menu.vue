@@ -39,22 +39,6 @@ const { t } = useI18n()
 const drawervisible = ref(false)
 
 const baseMenu = ref([
-  {
-    id: 0,
-    label: t('หน้าแรก'),
-    icon: '',
-    path: '/'
-  },
-  {
-    label: t('รายการโปรด'),
-    icon: '',
-    path: '/profile/favorite'
-  },
-  {
-    label: t('ตั้งค่า'),
-    icon: '',
-    path: '/profile'
-  },
 ])
 
 const listMenu = ref([])
@@ -69,14 +53,28 @@ const conditionAppendMenu = async () => {
     const token = await useDecryptedCookie('token')
 
     const dynamicMenu = [...baseMenu.value]
+    dynamicMenu.push({
+      id: 0,
+      label: t('หน้าแรก'),
+      icon: '',
+      path: '/'
+    })
 
-    if (role_id == 2) {
+    dynamicMenu.push(
+      {
+        label: t('รายการโปรด'),
+        icon: '',
+        path: '/profile/favorite'
+      }
+    )
+
+    if (role_id == 2 || role_id == 3 || role_id == 1) {
       dynamicMenu.push({
         label: t('ธุรกิจของฉัน'),
         icon: '',
         path: '/vendor/my-business'
       })
-    } else if (role_id == 3) {
+    } if (role_id == 3 || role_id == 1) {
       dynamicMenu.push({
         label: t('ตรวจสอบข้อมูล'),
         icon: '',
@@ -89,8 +87,13 @@ const conditionAppendMenu = async () => {
       icon: '',
       path: '/auth/login'
     }
+    const setting = {
+      label: t('ตั้งค่า'),
+      icon: '',
+      path: '/profile'
+    }
 
-    listMenu.value = [...dynamicMenu, logoutMenu]
+    listMenu.value = [...dynamicMenu, setting, logoutMenu]
   } catch (error) {
     console.error(error)
   }

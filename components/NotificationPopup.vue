@@ -1,32 +1,17 @@
 <template>
   <Transition name="fade">
-    <div
-      v-if="isVisible"
-      class="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-gray-100"
-    >
-      <div
-        class="text-center transform transition-all duration-300"
-        :class="animationClass"
-      >
+    <div v-if="isVisible" class="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-gray-100">
+      <div class="text-center transform transition-all duration-300" :class="animationClass">
         <!-- Icon Section -->
         <div class="flex justify-center mb-8">
-          <div
-            class="flex items-center justify-center w-20 h-20 rounded-full"
-            :class="iconBgClass"
-          >
-            <van-icon
-              :name="iconName"
-              :color="iconColor"
-              size="40"
-            />
+          <div class="flex items-center justify-center w-20 h-20 rounded-full" :class="iconBgClass">
+            <van-icon :name="iconName" :color="iconColor" size="40" />
           </div>
         </div>
 
         <!-- Content Section -->
         <div class="text-center">
-          <h3
-            class="text-2xl font-semibold mb-4 text-gray-800"
-          >
+          <h3 class="text-2xl font-semibold mb-4 text-gray-800">
             {{ title }}
           </h3>
           <p v-if="detail" class="text-gray-600 text-base mb-8">
@@ -37,11 +22,8 @@
         <!-- Progress Bar (if auto close and timeout is set) -->
         <div v-if="autoClose && timeout > 0" class="mb-8 max-w-xs mx-auto">
           <div class="w-full bg-gray-300 rounded-full h-1">
-            <div
-              class="h-1 rounded-full transition-all duration-100 ease-linear"
-              :class="progressBarClass"
-              :style="{ width: progressWidth + '%' }"
-            ></div>
+            <div class="h-1 rounded-full transition-all duration-100 ease-linear" :class="progressBarClass"
+              :style="{ width: progressWidth + '%' }"></div>
           </div>
           <p class="text-sm text-gray-500 text-center mt-3">
             {{ Math.ceil(remainingTime / 1000) }} วินาที
@@ -50,12 +32,7 @@
 
         <!-- Action Button (only show if not auto-closing or user wants to close manually) -->
         <div v-if="!autoClose || timeout === 0" class="text-center">
-          <van-button
-            type="primary"
-            :color="buttonColor"
-            class="px-8 py-3 text-base"
-            @click="handleClose"
-          >
+          <van-button type="primary" :color="buttonColor" class="px-8 py-3 text-base" @click="handleClose">
             ตกลง
           </van-button>
         </div>
@@ -193,7 +170,7 @@ const progressWidth = computed(() => {
 const startTimer = () => {
   if (props.autoClose && props.timeout > 0) {
     remainingTime.value = props.timeout
-    
+
     // Progress timer (updates every 100ms for smooth animation)
     progressTimer.value = setInterval(() => {
       remainingTime.value -= 100
@@ -223,12 +200,12 @@ const handleTimeout = () => {
 const handleClose = (isTimeout = false) => {
   clearTimers()
   animationClass.value = 'scale-95 opacity-0'
-  
+
   setTimeout(() => {
     isVisible.value = false
     emit('update:visible', false)
     emit('close')
-    
+
     // Only redirect if timeout occurred and redirectUrl is provided
     if (isTimeout && props.redirectUrl) {
       router.push(props.redirectUrl)
@@ -239,15 +216,15 @@ const handleClose = (isTimeout = false) => {
 const show = () => {
   isVisible.value = true
   emit('update:visible', true)
-  
+
   // Prevent body scroll when modal is open
   document.body.style.overflow = 'hidden'
-  
+
   // Trigger animation
   setTimeout(() => {
     animationClass.value = 'scale-100 opacity-100'
   }, 50)
-  
+
   startTimer()
 }
 
