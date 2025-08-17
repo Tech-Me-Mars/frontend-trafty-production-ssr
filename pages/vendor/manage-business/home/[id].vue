@@ -28,7 +28,7 @@
                 <!-- Image -->
                 <!-- <img src="https://via.placeholder.com/50" alt="Business Image" class="w-12 h-12 rounded-full object-cover"> -->
                 <!-- {{ resBusinessAll?.business_name?.image_profile }} -->
-                <Image :src="resBusinessAll?.business_img" alt="Image" width="50" class="object-cover w-20 h-20 "
+                <Image :src="resBusinessAll?.ImageProfileURL" alt="Image" width="50" class="object-cover w-20 h-20 "
                     :pt="{ image: { class: 'object-cover w-20 h-20 rounded-md shadow-md' } }" preview />
                 <!-- Info Section -->
                 <div class="ml-4 flex-1">
@@ -102,7 +102,7 @@
                     </div>
                 </div>
                 <div class="bg-white text-center p-4">
-                    <div class="cursor-pointer" @click="navigateTo(`/vendor/warning-list/${route.params.id}`)">
+                    <div class="cursor-pointer" @click="navigateTo(`/vendor/warning-list?BusinessId=${route.params.id}`)">
                         <div class="text-xl font-bold">{{ resBusinessAll?.SurveyWarningCount }}</div>
                         <div class="text-gray-600 text-sm">{{ t('ใบเตือน') }}</div>
                     </div>

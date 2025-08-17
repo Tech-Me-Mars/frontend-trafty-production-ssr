@@ -1,6 +1,7 @@
 <template>
     <div class="min-h-screen bg-zinc-50">
-        <LayoutsBaseHeader :title="t('ตรวจสอบรายการธุรกิจแหล่งท่องเที่ยว')" :showBack="true" />
+        <LayoutsBaseHeader :title="t('ตรวจสอบรายการธุรกิจแหล่งท่องเที่ยว')" :showBack="true"
+            back-to="/inspector/home" />
 
         <section class="max-w-lg mx-auto pt-0 sm:pt-4">
             <van-tabs v-model:active="activeTab" line-width="80" animated swipeable color="#281c74">
@@ -11,7 +12,7 @@
             <!-- Tab Panel 1: ใบเตือน -->
             <div v-if="activeTab === 0" class="px-3 pt-4">
 
-                <div v-for="(item, index) in resList" :key="index"
+                <div v-if="resList.length>0" v-for="(item, index) in resList" :key="index"
                     class="bg-white rounded-sm shadow-sm border border-zinc-200 mb-4 p-4">
                     <div class="font-bold text-lg text-[#202c54] mb-1">
                         {{ getI18n(item.business.shop_name_i18n, locale) }}
@@ -33,17 +34,18 @@
                                     class: '!border-primary-main'
                                 },
 
-                            }" @click="navigateTo(`/inspector/do-recheck/${item.business_id}/${item.id}`)" />
+                            }" @click="navigateTo(`/inspector/do-recheck/${item.business_id}/${item.id}?isBusiness=${route.query.isBusiness}`)" />
 
                     </div>
                 </div>
+                <SharedNoData v-else />
             </div>
 
             <!-- Tab Panel 2: จัดการใบเตือนแล้ว -->
             <!-- Tab Panel 2: จัดการใบเตือนแล้ว -->
             <!-- Tab Panel 2: จัดการใบเตือนแล้ว -->
             <div v-if="activeTab === 1" class="px-3 pt-4">
-                <div v-for="(item, index) in resChecked" :key="item.id || index"
+                <div v-if="resChecked.length>0" v-for="(item, index) in resChecked" :key="item.id || index"
                     class="relative bg-white rounded-sm shadow-sm border border-zinc-200 mb-4 p-4">
                     <!-- Badge 'อีก X วัน' -->
                     <div v-if="Number.isFinite(item?.days_until_due)"
@@ -102,8 +104,8 @@
                                 },
 
                             }" @click="navigateTo(`/client/information/${item.id}`)" />
-<Button :label="t('มาตรฐานความปลอดภัย')" :loading="isloadingAxi" severity="primary" variant="outlined"
-                            class="w-full" :pt="{
+                        <Button :label="t('มาตรฐานความปลอดภัย')" :loading="isloadingAxi" severity="primary"
+                            variant="outlined" class="w-full" :pt="{
                                 label: {
                                     class: 'text-primary-main text-xs'
                                 },
@@ -114,6 +116,8 @@
                             }" @click="navigateTo(`/client/information/${item.id}`)" />
                     </div>
                 </div>
+                <SharedNoData v-else />
+
             </div>
         </section>
 
@@ -135,6 +139,7 @@ definePageMeta({
 import { useForm, useField, Form } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as zod from 'zod'
+import { request } from "@/service/AxiosService.js";
 import * as dataApi from "./api/data.js";
 import { useI18n } from 'vue-i18n';
 const { t, locale, setLocale } = useI18n()
@@ -168,7 +173,16 @@ const showNotification = (config) => {
 const resList = ref([])
 const loadList = async () => {
     try {
-        const res = await dataApi.getSurveyAuditBusinessTouristWait();
+        
+        let route_url = '';
+        if (route.query.isBusiness == 'true') {
+            route_url = '/api/v1/management/survey_audit/get-survey-audit-business-tourist-wait'
+        } else if (route.query.isBusiness == 'false') {
+            route_url = '/api/v1/management/survey_audit/get-survey-audit-tourist-wait'
+        }else{
+            return navigateTo('/inspector/home')
+        }
+        const res = await request('get', route_url, {}, true)
         resList.value = res.data.data;
     } catch (error) {
         toast.value = {
@@ -183,8 +197,13 @@ const loadList = async () => {
 const resChecked = ref([])
 const loadChecked = async () => {
     try {
-        resChecked
-        const res = await dataApi.getSurveyAuditBusinessTouristFinish()
+        let route_url = '';
+        if (route.query.isBusiness == 'true') {
+            route_url = '/api/v1/management/survey_audit/get-survey-audit-business-tourist-finish'
+        } else if (route.query.isBusiness == 'false') {
+            route_url = '/api/v1/management/survey_audit/get-survey-audit-tourist-finish'
+        }
+        const res = await request('get', route_url, {}, true)
         resChecked.value = res.data.data;
     } catch (error) {
         toast.value = {

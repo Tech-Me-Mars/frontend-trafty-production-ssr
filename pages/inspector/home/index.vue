@@ -44,7 +44,7 @@ const showNotification = (config) => {
 
 <template>
     <div class="bg-zinc-100 min-h-screen">
-        <LayoutsBaseHeader :title="t('Smart Travel Safety')" showMenu :showBack="true">
+        <LayoutsBaseHeader :title="t('Smart Travel Safety')" showMenu :showBack="true" backTo="/">
             <template #right>
                 <div class="flex items-center gap-2">
                     <div class="border p-0.5 rounded-md w-7 flex justify-center items-center">
@@ -119,8 +119,8 @@ const showNotification = (config) => {
                     </span>
                 </template>
             </van-cell> -->
-            <van-cell :title="t('ตรวจสอบแหล่งท่องเที่ยว')" is-link
-                @click="navigateTo('/inspector/check/business-tourlist')">
+            <van-cell :title="t('ตรวจสอบธุรกิจในแหล่งท่องเที่ยว')" is-link
+                @click="navigateTo('/inspector/check/business-tourlist?isBusiness=true')">
                 <template #value>
                     <span class="relative">
                         <span class="absolute top-0 right-4" v-if="resDataComon?.notify_business_tourist > 0">
@@ -130,6 +130,29 @@ const showNotification = (config) => {
                     </span>
                 </template>
             </van-cell>
+            <van-cell :title="t('ตรวจสอบแหล่งท่องเที่ยว')" is-link
+                @click="navigateTo('/inspector/check/business-tourlist?isBusiness=false')">
+                <template #value>
+                    <span class="relative">
+                        <span class="absolute top-0 right-4" v-if="resDataComon?.notify_business_tourist > 0">
+                            <Badge :value="resDataComon?.notify_business_tourist" severity="danger" class="bg-red-700">
+                            </Badge>
+                        </span>
+                    </span>
+                </template>
+            </van-cell>
+
+            <!-- <van-cell :title="t('')" is-link
+                @click="navigateTo('/inspector/check/business-tourlist')">
+                <template #value>
+                    <span class="relative">
+                        <span class="absolute top-0 right-4" v-if="resDataComon?.notify_business_tourist > 0">
+                            <Badge :value="resDataComon?.notify_business_tourist" severity="danger" class="bg-red-700">
+                            </Badge>
+                        </span>
+                    </span>
+                </template>
+            </van-cell> -->
         </van-cell-group>
         <NotifyMessage v-model:show="toast.show" :type="toast.type" :title="toast.title" :message="toast.message"
             :life="toast.life" />

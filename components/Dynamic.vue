@@ -368,10 +368,11 @@ td.radio-table-cell {
 
 
 
-    <div class="flex items-center justify-end gap-2 py-4">
-      <Button :loading="isloadingAxi" type="submit" label="บันทึกข้อมูลทั้งหมด"
+    <div class="flex items-center justify-center gap-2 py-4 max-w-md px-4 mx-auto">
+      <!-- <Button :loading="isloadingAxi" type="submit" label="บันทึกข้อมูลทั้งหมด"
         class="bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-lg px-6 py-2 shadow transition disabled:opacity-60"
-        severity="primary" size="large" icon="pi pi-save" iconPos="left" />
+        severity="primary" size="large" icon="pi pi-save" iconPos="left" /> -->
+      <Button :label="t('บันทึกข้อมูลทั้งหมด')" type="submit" rounded :loading="isloadingAxi" severity="primary"  class="w-full"/>
     </div>
   </form>
 
@@ -530,7 +531,7 @@ const validateRequired = () => {
         try {
           const obj = JSON.parse(q.field_name_display || '{}')
           label = obj?.[locale] || q.field_name
-        } catch (e) {}
+        } catch (e) { }
         setError(groupKey, fieldName, `กรุณากรอก ${label}`)
         if (!firstInvalidKey) firstInvalidKey = `${groupKey}:${fieldName}`
       }
@@ -1173,8 +1174,8 @@ const submitAllForms = async () => {
     const base = getSubmitPayload(props.surveyDataMap, formValuesMap.value)
     const payload = {
       ...base,
-        survey_id: resBusiness.data.data?.template_survey_id,
-  business_id: resBusiness.data.data?.id,
+      survey_id: resBusiness.data.data?.template_survey_id,
+      business_id: resBusiness.data.data?.id,
       status_show: status_show.value,
       inspection_round: (role_id.value == 1 || role_id.value == 3)
         ? inspection_round.value

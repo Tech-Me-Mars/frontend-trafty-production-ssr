@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-zinc-50">
 
-    <LayoutsBaseHeader :title="t('ธุรกิจในแหล่งท่องเที่ยว')" showBack></LayoutsBaseHeader>
+    <LayoutsBaseHeader :title="t('ธุรกิจในแหล่งท่องเที่ยว')" showBack :backTo="`/inspector/check/business-tourlist?isBusiness=${route.query.isBusiness}`"></LayoutsBaseHeader>
 
     <template v-if="surveyDataMap">
       <Dynamic :survey-data-map="surveyDataMap" @submit="handleFormSubmit" :default-values="mapDefaultValueData"
@@ -45,16 +45,12 @@
         </div> -->
           <!-- Buttons Section -->
           <div class="max-w-[20rem] mx-auto">
-            <Button :loading="isloadingAxi" :label="t('ส่งใบเตือน')" severity="primary" rounded class="w-full mb-3" :pt="{
-              label: {
-                class: 'text-primary-main text-white'
-              },
-              root: {
-                class: '!border-primary-main'
-              },
-
-            }" />
-            <Button v-if="isPass" :loading="isloadingAxi" @click="navigateTo('/inspector/home')"
+            <Button v-if="!isPass" :loading="isloadingAxi" :label="t('ส่งใบเตือน')" @click="goIssueWarning"
+              severity="primary" rounded class="w-full mb-1" :pt="{
+                label: { class: 'text-primary-main text-white' },
+                root: { class: '!border-primary-main' }
+              }" />
+            <Button v-if="isPass" :loading="isloadingAxi" @click="navigateTo(`/inspector/check/business-tourlist?isBusiness=${route.query.isBusiness}`)"
               :label="t('กลับหน้าหลัก')" severity="secondary" rounded class="w-full" :pt="{}" />
 
           </div>
@@ -199,6 +195,7 @@ const dialogData = ref({
   ScorePercent: '0%',
   ScorePercentFailed: '0%',
 })
+const issueWarningId = ref(null)
 const openDialogFromApi = (dlg) => {
   dialogData.value = {
     title: dlg?.title ?? '',
@@ -208,6 +205,10 @@ const openDialogFromApi = (dlg) => {
     ScorePercentFailed: dlg?.ScorePercentFailed ?? '0%',
   }
   showDialog.value = true
+}
+const goIssueWarning = () => {
+  if (!issueWarningId.value) return
+  navigateTo(`/inspector/Issue-warning/${issueWarningId.value}?isBusiness=${route.query.isBusiness}`)
 }
 // ---- คำนวณค่าที่ใช้เรนเดอร์ ----
 const isPass = computed(() => !!dialogData.value.IsPass)
@@ -267,6 +268,7 @@ const handleFormSubmit = async (allFormsData) => {
     //   redirectUrl: `/vendor/manage-business/home/${route.params.id}`,
     //   autoClose: true
     // })
+    issueWarningId.value = res.data.data.id
     openDialogFromApi(res?.data?.dialog)
 
 
