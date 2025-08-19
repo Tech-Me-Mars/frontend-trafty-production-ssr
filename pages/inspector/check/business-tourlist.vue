@@ -12,7 +12,7 @@
             <!-- Tab Panel 1: ใบเตือน -->
             <div v-if="activeTab === 0" class="px-3 pt-4">
 
-                <div v-if="resList.length>0" v-for="(item, index) in resList" :key="index"
+                <div v-if="resList.length > 0" v-for="(item, index) in resList" :key="index"
                     class="bg-white rounded-sm shadow-sm border border-zinc-200 mb-4 p-4">
                     <div class="font-bold text-lg text-[#202c54] mb-1">
                         {{ getI18n(item.business.shop_name_i18n, locale) }}
@@ -34,7 +34,8 @@
                                     class: '!border-primary-main'
                                 },
 
-                            }" @click="navigateTo(`/inspector/do-recheck/${item.business_id}/${item.id}?isBusiness=${route.query.isBusiness}`)" />
+                            }"
+                            @click="navigateTo(`/inspector/do-recheck/${item.business_id}/${item.id}?isBusiness=${route.query.isBusiness}`)" />
 
                     </div>
                 </div>
@@ -45,7 +46,7 @@
             <!-- Tab Panel 2: จัดการใบเตือนแล้ว -->
             <!-- Tab Panel 2: จัดการใบเตือนแล้ว -->
             <div v-if="activeTab === 1" class="px-3 pt-4">
-                <div v-if="resChecked.length>0" v-for="(item, index) in resChecked" :key="item.id || index"
+                <div v-if="resChecked.length > 0" v-for="(item, index) in resChecked" :key="item.id || index"
                     class="relative bg-white rounded-sm shadow-sm border border-zinc-200 mb-4 p-4">
                     <!-- Badge 'อีก X วัน' -->
                     <div v-if="Number.isFinite(item?.days_until_due)"
@@ -103,7 +104,8 @@
                                     class: '!border-primary-main'
                                 },
 
-                            }" @click="navigateTo(`/client/information/${item.id}`)" />
+                            }"
+                            @click="navigateTo(`/inspector/do-recheck/${item.business_id}/${item.id}?isBusiness=${route.query.isBusiness}`)" />
                         <Button :label="t('มาตรฐานความปลอดภัย')" :loading="isloadingAxi" severity="primary"
                             variant="outlined" class="w-full" :pt="{
                                 label: {
@@ -113,7 +115,8 @@
                                     class: '!border-primary-main'
                                 },
 
-                            }" @click="navigateTo(`/client/information/${item.id}`)" />
+                            }"
+                            @click="navigateTo(`/inspector/policy/${item?.business_id}?isBusiness=${route.query.isBusiness}`)" />
                     </div>
                 </div>
                 <SharedNoData v-else />
@@ -173,13 +176,13 @@ const showNotification = (config) => {
 const resList = ref([])
 const loadList = async () => {
     try {
-        
+
         let route_url = '';
         if (route.query.isBusiness == 'true') {
             route_url = '/api/v1/management/survey_audit/get-survey-audit-business-tourist-wait'
         } else if (route.query.isBusiness == 'false') {
             route_url = '/api/v1/management/survey_audit/get-survey-audit-tourist-wait'
-        }else{
+        } else {
             return navigateTo('/inspector/home')
         }
         const res = await request('get', route_url, {}, true)

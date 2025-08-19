@@ -121,25 +121,36 @@ const showNotification = (config) => {
             </van-cell> -->
             <van-cell :title="t('ตรวจสอบธุรกิจในแหล่งท่องเที่ยว')" is-link
                 @click="navigateTo('/inspector/check/business-tourlist?isBusiness=true')">
-                <template #value>
+                <!-- <template #value>
                     <span class="relative">
                         <span class="absolute top-0 right-4" v-if="resDataComon?.notify_business_tourist > 0">
                             <Badge :value="resDataComon?.notify_business_tourist" severity="danger" class="bg-red-700">
                             </Badge>
                         </span>
                     </span>
-                </template>
+                </template> -->
             </van-cell>
             <van-cell :title="t('ตรวจสอบแหล่งท่องเที่ยว')" is-link
                 @click="navigateTo('/inspector/check/business-tourlist?isBusiness=false')">
-                <template #value>
+                <!-- <template #value>
                     <span class="relative">
                         <span class="absolute top-0 right-4" v-if="resDataComon?.notify_business_tourist > 0">
                             <Badge :value="resDataComon?.notify_business_tourist" severity="danger" class="bg-red-700">
                             </Badge>
                         </span>
                     </span>
-                </template>
+                </template> -->
+            </van-cell>
+            <van-cell :title="t('จัดการใบเตือน')" is-link
+                @click="navigateTo('/inspector/manage-reply')">
+                <!-- <template #value>
+                    <span class="relative">
+                        <span class="absolute top-0 right-4" v-if="resDataComon?.notify_business_tourist > 0">
+                            <Badge :value="resDataComon?.notify_business_tourist" severity="danger" class="bg-red-700">
+                            </Badge>
+                        </span>
+                    </span>
+                </template> -->
             </van-cell>
 
             <!-- <van-cell :title="t('')" is-link

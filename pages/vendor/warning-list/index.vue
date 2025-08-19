@@ -10,7 +10,7 @@
                             :key="item.id" class="bg-white rounded-xl shadow-sm border border-zinc-200 p-4 mb-4">
                             <!-- บรรทัดบน: รูป + ชื่อร้าน + ที่อยู่ -->
                             <div class="flex gap-3 items-start">
-                                <img :src="item.ImageCoverURL"
+                                <img :src="item.ImageProfileURL"
                                     class="rounded-md w-18 h-14 object-cover border border-zinc-200"
                                     :alt="getI18n(item.Business?.shop_name_i18n, locale)" />
                                 <div class="flex-1 min-w-0">
@@ -35,7 +35,7 @@
 
                             <!-- ปุ่ม -->
                             <div class="flex gap-2 mt-3">
-                                <button
+                                <button @click="navigateTo(`/vendor/warning-list/detail/${item.id}?BusinessId=${route.query.BusinessId}`)"
                                     class="flex-1 border border-[#202c54] text-[#202c54] rounded-lg py-2 transition hover:bg-[#202c54] hover:text-white text-sm font-medium">
                                     {{ t('ดูรายละเอียด') }}
                                 </button>
@@ -55,7 +55,7 @@
                             class="bg-white rounded-xl shadow-sm border border-zinc-200 p-4 mb-4">
                             <!-- บรรทัดบน: รูป + ชื่อร้าน + ที่อยู่ -->
                             <div class="flex gap-3 items-start">
-                                <img :src="item.ImageCoverURL"
+                                <img :src="item.ImageProfileURL"
                                     class="rounded-md w-18 h-14 object-cover border border-zinc-200"
                                     :alt="getI18n(item.Business?.shop_name_i18n, locale)" />
                                 <div class="flex-1 min-w-0">
@@ -80,7 +80,7 @@
 
                             <!-- ปุ่ม -->
                             <div class="flex gap-2 mt-3">
-                                <button @click="navigateTo(`/vendor/warning-list/reply/${item.survey_audit_id}?BusinessId=${route.query.BusinessId}`)"
+                                <button @click="navigateTo(`/vendor/warning-list/reply/${item.id}?BusinessId=${route.query.BusinessId}`)"
                                     class="flex-1 border border-[#202c54] text-[#202c54] rounded-lg py-2 transition hover:bg-[#202c54] hover:text-white text-sm font-medium">
                                     {{ t('ดูรายละเอียด') }}
                                 </button>

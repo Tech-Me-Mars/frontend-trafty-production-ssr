@@ -17,7 +17,7 @@
         </div>
         <div class="p-6 max-w-md w-full ">
             <!-- Button -->
-            <Button :loading="isloadingAxi" @click="navigateTo(`/vendor/manage-business/home/${route.params.id}`)" :label="t('กลับสู่หน้าหลัก')" severity="primary" rounded class="w-full" :pt="{
+            <Button :loading="isloadingAxi" @click="navigateTo(`/vendor/manage-business/home/${route.query.BusinessId}`)" :label="t('กลับสู่หน้าหลัก')" severity="primary" rounded class="w-full" :pt="{
                 root: {
                     class: '!border-primary-main'
                 },

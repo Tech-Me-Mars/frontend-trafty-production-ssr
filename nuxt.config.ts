@@ -1,5 +1,6 @@
 const buildTimestamp = new Date().getTime();
 export default defineNuxtConfig({
+  devtools: { enabled: false },
   ssr: true,
   runtimeConfig: {
     cookieSecret: process.env.COOKIE_SECRET,
