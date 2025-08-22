@@ -12,7 +12,7 @@ const { t, locale, setLocale } = useI18n();
 const router = useRouter();
 const formStore = useFormStore();
 const isloadingAxi = useState('isloadingAxi');
-const alertToast = ref({});
+
 
 // Language configuration
 const langs = [
@@ -313,12 +313,14 @@ const removeFile = (index) => {
       </template>
     </LayoutsBaseHeader>
 
-    <div>
+    <div class="max-w-[430px] mx-auto">
       <Form @submit="handleNext">
         <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54">
           <van-tab v-for="(lang, idx) in langs" :key="lang.code" :title="lang.label" :name="idx">
-            <div class="p-2 pt-10">
-              <div class="space-y-4 card">
+            <div class="p-3">
+              <div class="card">
+              <h3 class="text-lg font-semibold text-zinc-900 mb-4">{{ t('ข้อมูลหน่วยงาน') }}</h3>
+
                 <!-- Business Name - Multi-language -->
                 <div>
                   <label class="label-input">
@@ -418,8 +420,10 @@ const removeFile = (index) => {
                   <label class="label-input">
                     {{ t('เอกสารรับรอง') }}
                   </label>
-                  <FileUpload mode="basic" @select="onFileSelect" customUpload rounded auto
+                  <div class="flex justify-start">
+                    <FileUpload mode="basic" @select="onFileSelect" customUpload rounded auto
                     :chooseLabel="t('เพิ่มไฟล์')" chooseIcon="pi pi-upload" :multiple="true" class="upload-button" />
+                  </div>
 
                   <ul class="mt-4 space-y-2" v-if="listFiles && listFiles.length > 0">
                     <li v-for="(file, index) in listFiles" :key="index"
@@ -434,17 +438,18 @@ const removeFile = (index) => {
                   </ul>
                 </div>
               </div>
+              <div class="mt-6 pb-10">
+              <Button :label="t('ยืนยัน')" :loading="isloadingAxi" class="w-full" severity="primary" rounded
+                :pt="{ root: { class: '!h-12 !rounded-full !text-base' } }" type="submit" />
+            </div>
+
             </div>
           </van-tab>
         </van-tabs>
 
-        <div class="mx-auto w-full max-w-sm pb-10">
-          <Button :loading="isloadingAxi" :label="t('ยืนยัน')" severity="primary" type="submit" rounded
-            class="w-full mt-6" :pt="{ root: { class: '!border-primary-main' } }" />
-        </div>
+
       </Form>
     </div>
 
-    <MyToast :data="alertToast" />
   </div>
 </template>

@@ -8,8 +8,13 @@ export default {
         sans: ['"Noto Sans Thai"', 'sans-serif'],
       },
       colors: {
+        bg:{
+          main:'#EEF0F3'
+        },
         primary: {
-          main: '#202c54', // ชื่อหลัก primary
+          // 202c54
+          main: '#303484', // ชื่อหลัก primary
+          second: '#202c54'
           // dark: '#202c54',    // เฉดมืด (กำหนดเพิ่มตามต้องการ)
           // light: '#202c54',   // เฉดสว่าง (กำหนดเพิ่มตามต้องการ)
         },

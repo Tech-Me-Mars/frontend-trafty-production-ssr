@@ -47,7 +47,7 @@ const validationSchema = toTypedSchema(
             en: zod.string().optional().or(zod.literal('')),
             cn: zod.string().optional().or(zod.literal('')),
         }),
-        business_list_price: zod.string().nonempty(t('กรุณาระบุข้อมูลราคา')),
+        business_list_price: zod.string().nonempty(t('กรุณาระบุข้อมูลราคา')).default(''),
 
     })
 );
@@ -106,49 +106,58 @@ const getFieldError = (fieldName, langCode = null) => {
             </template>
         </LayoutsBaseHeader>
 
-        <div class="p-4 ">
+        <div
+      class="max-w-[430px] mx-auto h-[calc(100vh-56px)] overflow-y-auto"
+      :style="{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 88px)' }"
+    >
+            <!-- ใช้ Form ของ vee-validate -->
             <Form @submit="handleNext">
                 <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54"
-                    @change="moveMapToTab">
+                    @change="moveMapToTab" :line-width="100">
                     <van-tab v-for="(lang, idx) in langs" :key="lang.code" :title="lang.label" :name="idx">
-                        <div class="card pt-5 mb-10">
-                            <h2 class="font-bold text-lg mb-3 ">{{ t('ธุรกิจในแหล่งท่องเที่ยว') }}</h2>
+                        <div class="p-3">
+                            <div class="bg-white rounded-sm border border-zinc-200 p-4 shadow-sm">
+                            <h2 class="font-bold text-lg mb-3">
+                                {{ t('ธุรกิจในแหล่งท่องเที่ยว') }}
+                            </h2>
 
                             <!-- List of Businesses -->
                             <div class="space-y-4">
                                 <div>
                                     <label class="label-input">{{ t('ชื่อรายการ') }}</label>
-                                    <InputText v-model="business_list_name_i18n[lang.code]" :placeholder="t('ชื่อรายการ')"
-                                        class="w-full custom-border" :invalid="getFieldError('business_list_name_i18n')" />
+                                    <InputText v-model="business_list_name_i18n[lang.code]"
+                                        :placeholder="t('ชื่อรายการ')" class="w-full custom-border"
+                                        :invalid="!!getFieldError('business_list_name_i18n', lang.code)" />
                                     <p v-if="getFieldError('business_list_name_i18n', lang.code)" class="error-text">
                                         {{ getFieldError('business_list_name_i18n', lang.code) }}
                                     </p>
-
                                 </div>
+
                                 <div>
                                     <label class="label-input">{{ t('ราคา') }}</label>
                                     <InputText v-model="business_list_price" :placeholder="t('ราคา')"
-                                       class="w-full custom-border" inputClass="custom-border" :invalid="errors?.business_list_price ? true : false"  />
-                                    <p class="error-text" v-if="errors?.business_list_price">{{
-                                        errors?.business_list_price }}
+                                        class="w-full custom-border" inputClass="custom-border"
+                                        :invalid="!!errors?.business_list_price" />
+                                    <p class="error-text" v-if="errors?.business_list_price">
+                                        {{ errors?.business_list_price }}
                                     </p>
-
                                 </div>
-
                             </div>
+                        </div>
                         </div>
                     </van-tab>
                 </van-tabs>
-           
-                <Button :loading="isloadingAxi" :label="t('บันทึก')" severity="primary" type="submit" rounded
-                    class="w-full" :pt="{
-                        root: {
-                            class: '!border-primary-main'
-                        },
-                    }" />
 
+                <!-- <Button :loading="isloadingAxi" :label="t('บันทึก')" severity="primary" type="submit" rounded
+                    class="w-full" :pt="{ root: { class: '!border-primary-main' } }" /> -->
+                            <!-- ✅ ปุ่มบันทึกชิดขอบล่างจอเสมอ -->
+        <div class="fixed bottom-0 left-0 right-0 z-30"
+            :style="{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }">
+            <div class="max-w-[430px] mx-auto px-3 py-2">
+                <Button :label="t('บันทึก')" severity="primary" class="w-full " rounded type="submit" />
+            </div>
+        </div>
             </Form>
-  
         </div>
 
     </div>

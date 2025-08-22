@@ -9,6 +9,9 @@ const { t } = useI18n();
 ไปเช็คหน้า inspector/warning-list/index/index.vue ว่ามี {{ item?.business_type_name }} จากapi จริงไหม
 ค้นหา keyword ร้านอาหาร
 
+  :line-width="100"    
+        <section class="max-w-[430px] mx-auto">
+
 
 
 // basic ที่ใช้ทุกหน้า

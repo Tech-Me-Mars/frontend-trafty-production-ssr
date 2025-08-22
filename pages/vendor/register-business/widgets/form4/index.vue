@@ -7,7 +7,6 @@ const { t, locale, setLocale } = useI18n();
 
 const isloadingAxi = useState("isloadingAxi");
 const router = useRouter();
-const alertToast = ref({});
 
 import { useFieldArray, useForm, Form, useField } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
@@ -181,8 +180,8 @@ const { handleSubmit, handleReset, errors } = useForm({
     initialValues: {
         social_media: [
             {
-                social_media_id:"",
-                social_media_link : ""
+                social_media_id: "",
+                social_media_link: ""
 
             },
         ],
@@ -304,28 +303,28 @@ const subdistrictLabelField = computed(() => {
 })
 
 const provinceLabelField = computed(() => {
-  const lang = langs[activeLangTab.value]
-  if (lang.code === 'cn') {
-    const s = provinces.value[0]
-    if (s && !s.provinces_name_cn) {
-      if (s.provinces_name_en) return 'provinces_name_en'
-      return 'provinces_name_th'
+    const lang = langs[activeLangTab.value]
+    if (lang.code === 'cn') {
+        const s = provinces.value[0]
+        if (s && !s.provinces_name_cn) {
+            if (s.provinces_name_en) return 'provinces_name_en'
+            return 'provinces_name_th'
+        }
+        return 'provinces_name_cn'
     }
-    return 'provinces_name_cn'
-  }
-  return `provinces_name_${lang.code}`
+    return `provinces_name_${lang.code}`
 })
 
 // โหลดจังหวัด
 const loadProvinces = async () => {
     try {
         const res = await dataApi.getProvinces()
-    provinces.value = res.data.data.map((item) => ({
-      ...item,
-      provinces_name_th: item?.provinces_name_i18n?.th || "",
-      provinces_name_en: item?.provinces_name_i18n?.en || "",
-      provinces_name_cn: item?.provinces_name_i18n?.cn || "",
-    }))
+        provinces.value = res.data.data.map((item) => ({
+            ...item,
+            provinces_name_th: item?.provinces_name_i18n?.th || "",
+            provinces_name_en: item?.provinces_name_i18n?.en || "",
+            provinces_name_cn: item?.provinces_name_i18n?.cn || "",
+        }))
     } catch (err) { console.log(err) }
 }
 
@@ -403,7 +402,7 @@ const handleNext = handleSubmit((values) => {
 
         const social_media_array = fields1.value.map((field) => ({
             social_media_id: field.value.social_media_id || null,
-            social_media_link: field.value.social_media_link  || null,
+            social_media_link: field.value.social_media_link || null,
         }));
         // console.log('shop_details', shop_details.value)
 
@@ -693,13 +692,13 @@ onMounted(async () => {
 })
 
 const onSelectChange = (e) => {
-    console.log('change',e)
-//   const selected = resSociaMedia.value.find(item => item.id === selectedId);
-//   if (selected) {
-//     field.value.social_media_id = selected.id;
-//   } else {
-//     field.value.social_media_id = "";
-//   }
+    console.log('change', e)
+    //   const selected = resSociaMedia.value.find(item => item.id === selectedId);
+    //   if (selected) {
+    //     field.value.social_media_id = selected.id;
+    //   } else {
+    //     field.value.social_media_id = "";
+    //   }
 };
 
 </script>
@@ -710,163 +709,195 @@ const onSelectChange = (e) => {
                 <ButtonIconBack @click="formStore.prevPage()" />
             </template>
         </LayoutsBaseHeader>
+        <section class="max-w-[430px] mx-auto">
 
-        <div class="p-4 ">
-            <Form @submit="handleNext">
-                <!-- {{ errors }}
+
+            <div class=" ">
+                <Form @submit="handleNext">
+                    <!-- {{ errors }}
                 <pre>
             {{ fields1 }}
         </pre> -->
-                <!-- Map จริง ถูก render ทีเดียว -->
-                <div id="map" class="map-container" style="width: 100%; height: 100%; display: none;" />
-                <!-- {{ activeLangTab }} -->
-                <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54"
-                    @change="moveMapToTab">
-                    <van-tab v-for="(lang, idx) in langs" :key="lang.code" :title="lang.label" :name="idx">
-                        <div class="card pt-5 mb-10">
-                            <h2 class="font-bold text-lg ">
-                                {{ t('ธุรกิจใจแหล่งท่องเที่ยว') }}
-                            </h2>
-                            <!-- <p class="text-primary-main mb-3">ร้านอาหาร</p> -->
-                            <!-- <van-uploader :after-read="afterRead" /> -->
-                            <div class="space-y-4 mb-5">
-                                <div>
-                                    <p class="text-gray-500 text-sm">{{ t('อัพโหลดรูปภาพโปรไฟล์') }}</p>
-                                    <div class="flex flex-wrap gap-2 mb-3 relative">
-                                        <!-- Display the image preview if available -->
-                                        <div class="relative" v-if="image_profile?.src">
-                                            <!-- <img :src="image_cover.src" alt="Preview"
+                    <!-- Map จริง ถูก render ทีเดียว -->
+                    <div id="map" class="map-container" style="width: 100%; height: 100%; display: none;" />
+                    <!-- {{ activeLangTab }} -->
+                    <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54"
+                        @change="moveMapToTab" :line-width="100">
+                        <van-tab v-for="(lang, idx) in langs" :key="lang.code" :title="lang.label" :name="idx">
+                            <div class="p-3 ">
+
+                                <div class="card p-4 overflow-hidden">
+                                    <!-- <p class="text-primary-main mb-3">ร้านอาหาร</p> -->
+                                    <!-- <van-uploader :after-read="afterRead" /> -->
+                                    <div class="space-y-4 mb-5">
+                                        <div>
+                                            <h4 class="section-title">{{ t('รูปภาพธุรกิจ') }}</h4>
+
+                                            <p class="text-gray-500 text-sm">{{ t('อัพโหลดรูปภาพโปรไฟล์') }}</p>
+                                            <div class="flex flex-wrap gap-2 mb-3 relative">
+                                                <!-- Display the image preview if available -->
+                                                <div class="relative" v-if="image_profile?.src">
+                                                    <!-- <img :src="image_cover.src" alt="Preview"
                                         class="object-cover w-12 h-12 rounded-md" /> -->
-                                            <Image :src="image_profile.src" alt="Image" width="50" class="object-cover "
-                                                :pt="{ image: { class: 'object-cover w-12 h-12 rounded-md ' } }"
-                                                preview />
-                                            <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.5 text-white rounded-full cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 hover:bg-red-300"
-                                                @click="removeImageBgProfile"></i>
-                                        </div>
-
-                                        <!-- Upload Button -->
-                                        <div class="flex" v-else>
-                                            <label
-                                                class="w-12 h-12 border-2 border-dotted border-blue-900 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-600"
-                                                for="upload-image">
-                                                <i
-                                                    class="pi pi-plus text-2xl text-gray-600 hover:scale-110 transition-transform"></i>
-                                            </label>
-                                            <!-- Hidden File Input -->
-                                            <input ref="fileInputBgProfile" id="upload-image" type="file"
-                                                accept="image/*" @change="onFileSelectBgProfile" class="hidden" />
-                                        </div>
-
-
-                                    </div>
-                                    <p class="error-text" v-if="errors?.image_profile">{{ t('กรุณาเลือกอย่างน้อย') }} 1
-                                        {{
-                                            t('ภาพ') }}
-                                    </p>
-                                </div>
-
-
-                                <div>
-                                    <p class="text-gray-500 text-sm">{{ t('อัพโหลดรูปภาพหน้าปก') }}</p>
-                                    <div class="flex flex-wrap gap-2 mb-3 relative">
-                                        <!-- Display the image preview if available -->
-                                        <div class="relative" v-if="image_cover?.src">
-                                            <!-- <img :src="image_cover.src" alt="Preview"
-                                        class="object-cover w-12 h-12 rounded-md" /> -->
-                                            <Image :src="image_cover.src" alt="Image" width="50" class="object-cover "
-                                                :pt="{ image: { class: 'object-cover w-12 h-12 rounded-md ' } }"
-                                                preview />
-                                            <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.5 text-white rounded-full cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 hover:bg-red-300"
-                                                @click="removeImageBgCover"></i>
-                                        </div>
-
-                                        <!-- Upload Button -->
-                                        <div class="flex" v-else>
-                                            <label
-                                                class="w-12 h-12 border-2 border-dotted border-blue-900 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-600"
-                                                for="upload-image-bg-cover">
-                                                <i
-                                                    class="pi pi-plus text-2xl text-gray-600 hover:scale-110 transition-transform"></i>
-                                            </label>
-                                            <!-- Hidden File Input -->
-                                            <input ref="fileInputBgCover" id="upload-image-bg-cover" type="file"
-                                                accept="image/*" @change="onFileSelectBgCover" class="hidden" />
-                                        </div>
-
-
-                                    </div>
-                                    <p class="error-text" v-if="errors?.image_cover">{{ t('กรุณาเลือกอย่างน้อย') }} 1 {{
-                                        t('ภาพ') }}</p>
-                                </div>
-
-                                <p class="text-gray-500 text-sm">{{ t('อัพโหลดรูปภาพ') }} ({{ t('ไม่เกิน') }} 3 {{
-                                    t('รูป') }})
-                                </p>
-                                <div class="flex flex-wrap gap-2 mb-3 relative">
-                                    <div v-for="(image, index) in business_img" :key="index" class="relative">
-                                        <!-- Image Display -->
-                                        <Image :src="image.src" alt="Image" width="50" class="object-cover "
-                                            :pt="{ image: { class: 'object-cover w-12 h-12 rounded-md ' } }" preview />
-
-                                        <!-- Delete Icon (Overlay on Top-Right) -->
-                                        <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.5 text-white  rounded-full cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 hover:bg-red-300"
-                                            @click="removeImage(index)"></i>
-
-                                    </div>
-                                    <div class="flex">
-                                        <label
-                                            class="w-12 h-12 border-2 border-dotted border-blue-900 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-600"
-                                            @click="triggerFileInput">
-                                            <i
-                                                class="pi pi-plus text-2xl text-gray-600 hover:scale-110 transition-transform"></i>
-                                        </label>
-                                        <FileUpload ref="fileInput" id="upload-image-store" inputId="upload-image-store"
-                                            mode="basic" accept="image/*" @select="onFileSelect" customUpload
-                                            :auto="true" class="!hidden" multiple />
-                                    </div>
-                                </div>
-                                <p class="error-text" v-if="errors?.business_img">{{ t('กรุณาเลือกอย่างน้อย') }} 1 {{
-                                    'ภาพ' }}
-                                </p>
-
-                                <div>
-                                    <client-only>
-                                        <label class="label-input block">{{ t('พิกัดสถานที่ท่องเที่ยวหรือธุรกิจ')
-                                        }}</label>
-                                        <AutoComplete v-model="textSearchMap" forceSelection optionLabel="name"
-                                            :placeholder="`${t('ค้นหาสถานที่ใกล้เคียง')}...`" :suggestions="resLocation"
-                                            @complete="search" @value-change="onLocationSearchSelect"
-                                            dropdownicon="fa-regular fa-trash-can" class="mb-2"
-                                            inputClass="custom-border w-full">
-
-                                            <template #option="slotProps" class="w-full">
-                                                <div class="flex flex-col p-2 border-b border-gray-200">
-                                                    <span class="font-medium text-lg text-primary-main">{{
-                                                        slotProps.option?.name }}</span>
-                                                    <span class="text-sm text-gray-500">{{ slotProps.option?.address
-                                                    }}</span>
+                                                    <Image :src="image_profile.src" alt="Image" width="50"
+                                                        class="object-cover "
+                                                        :pt="{ image: { class: 'object-cover w-12 h-12 rounded-md ' } }"
+                                                        preview />
+                                                    <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.5 text-white rounded-full cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 hover:bg-red-300"
+                                                        @click="removeImageBgProfile"></i>
                                                 </div>
-                                            </template>
-                                        </AutoComplete>
 
-                                        <div class="w-full h-[30rem] sm:h-[25rem] md:h-[28rem] lg:h-[32rem] xl:h-[36rem] 2xl:h-[40rem] mb-2"
-                                            :ref="el => setMapWrapper(el, idx)">
-                                            <!-- ตำแหน่ง map จะถูกย้ายมาวางที่นี่ -->
+                                                <!-- Upload Button -->
+                                                <div class="flex" v-else>
+                                                    <label
+                                                        class="w-12 h-12 border-2 border-dotted border-blue-900 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-600"
+                                                        for="upload-image">
+                                                        <i
+                                                            class="pi pi-plus text-2xl text-gray-600 hover:scale-110 transition-transform"></i>
+                                                    </label>
+                                                    <!-- Hidden File Input -->
+                                                    <input ref="fileInputBgProfile" id="upload-image" type="file"
+                                                        accept="image/*" @change="onFileSelectBgProfile"
+                                                        class="hidden" />
+                                                </div>
+
+
+                                            </div>
+                                            <p class="error-text" v-if="errors?.image_profile">{{
+                                                t('กรุณาเลือกอย่างน้อย')
+                                                }} 1
+                                                {{
+                                                    t('ภาพ') }}
+                                            </p>
                                         </div>
-                                        <p class="error-text" v-if="errors?.longitude">{{
-                                            t('กรุณาปักหมุดสถานที่ท่องเที่ยวหรือธุรกิจ')
-                                        }}
+
+
+                                        <div>
+                                            <p class="text-gray-500 text-sm">{{ t('อัพโหลดรูปภาพหน้าปก') }}</p>
+                                            <div class="flex flex-wrap gap-2 mb-3 relative">
+                                                <!-- Display the image preview if available -->
+                                                <div class="relative" v-if="image_cover?.src">
+                                                    <!-- <img :src="image_cover.src" alt="Preview"
+                                        class="object-cover w-12 h-12 rounded-md" /> -->
+                                                    <Image :src="image_cover.src" alt="Image" width="50"
+                                                        class="object-cover "
+                                                        :pt="{ image: { class: 'object-cover w-12 h-12 rounded-md ' } }"
+                                                        preview />
+                                                    <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.5 text-white rounded-full cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 hover:bg-red-300"
+                                                        @click="removeImageBgCover"></i>
+                                                </div>
+
+                                                <!-- Upload Button -->
+                                                <div class="flex" v-else>
+                                                    <label
+                                                        class="w-12 h-12 border-2 border-dotted border-blue-900 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-600"
+                                                        for="upload-image-bg-cover">
+                                                        <i
+                                                            class="pi pi-plus text-2xl text-gray-600 hover:scale-110 transition-transform"></i>
+                                                    </label>
+                                                    <!-- Hidden File Input -->
+                                                    <input ref="fileInputBgCover" id="upload-image-bg-cover" type="file"
+                                                        accept="image/*" @change="onFileSelectBgCover" class="hidden" />
+                                                </div>
+
+
+                                            </div>
+                                            <p class="error-text" v-if="errors?.image_cover">{{ t('กรุณาเลือกอย่างน้อย')
+                                                }}
+                                                1 {{
+                                                    t('ภาพ') }}</p>
+                                        </div>
+
+                                        <p class="text-gray-500 text-sm">{{ t('อัพโหลดรูปภาพ') }} ({{ t('ไม่เกิน') }} 3
+                                            {{
+                                                t('รูป') }})
+                                        </p>
+                                        <div class="flex flex-wrap gap-2 mb-3 relative">
+                                            <div v-for="(image, index) in business_img" :key="index" class="relative">
+                                                <!-- Image Display -->
+                                                <Image :src="image.src" alt="Image" width="50" class="object-cover "
+                                                    :pt="{ image: { class: 'object-cover w-12 h-12 rounded-md ' } }"
+                                                    preview />
+
+                                                <!-- Delete Icon (Overlay on Top-Right) -->
+                                                <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.5 text-white  rounded-full cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 hover:bg-red-300"
+                                                    @click="removeImage(index)"></i>
+
+                                            </div>
+                                            <div class="flex">
+                                                <label
+                                                    class="w-12 h-12 border-2 border-dotted border-blue-900 rounded-md flex items-center justify-center cursor-pointer hover:border-gray-600"
+                                                    @click="triggerFileInput">
+                                                    <i
+                                                        class="pi pi-plus text-2xl text-gray-600 hover:scale-110 transition-transform"></i>
+                                                </label>
+                                                <FileUpload ref="fileInput" id="upload-image-store"
+                                                    inputId="upload-image-store" mode="basic" accept="image/*"
+                                                    @select="onFileSelect" customUpload :auto="true" class="!hidden"
+                                                    multiple />
+                                            </div>
+                                        </div>
+                                        <p class="error-text" v-if="errors?.business_img">{{ t('กรุณาเลือกอย่างน้อย') }}
+                                            1
+                                            {{
+                                                'ภาพ' }}
                                         </p>
 
-                                    </client-only>
+                                        <div>
+                                            <client-only>
+                                                <h4 class="section-title">{{ t('พิกัดสถานที่ท่องเที่ยวหรือธุรกิจ') }}
+                                                </h4>
 
-                                    <Button icon="fa-solid fa-location-dot" size="small" outlined
-                                        @click="addMarkerAtCenter" severity="primary"
-                                        :label="t('ปักหมุดตำแหน่งธุรกิจหรือสถานที่ท่องเที่ยว')" />
-                                </div>
+                                                <AutoComplete v-model="textSearchMap" forceSelection optionLabel="name"
+                                                    :placeholder="`${t('ค้นหาสถานที่ใกล้เคียง')}...`"
+                                                    :suggestions="resLocation" @complete="search"
+                                                    @value-change="onLocationSearchSelect"
+                                                    dropdownicon="fa-regular fa-trash-can" class="mb-2"
+                                                    inputClass="custom-border w-full">
+
+                                                    <template #option="slotProps" class="w-full">
+                                                        <div class="flex flex-col p-2 border-b border-gray-200">
+                                                            <span class="font-medium text-lg text-primary-main">{{
+                                                                slotProps.option?.name }}</span>
+                                                            <span class="text-sm text-gray-500">{{
+                                                                slotProps.option?.address
+                                                                }}</span>
+                                                        </div>
+                                                    </template>
+                                                </AutoComplete>
+
+                                                <div class="h-64 mt-2 rounded-lg overflow-hidden border"
+                                                    :ref="el => setMapWrapper(el, idx)">
+                                                </div>
+                                                <p class="error-text" v-if="errors?.longitude">{{
+                                                    t('กรุณาปักหมุดสถานที่ท่องเที่ยวหรือธุรกิจ')
+                                                    }}
+                                                </p>
+
+                                            </client-only>
+
+                                            <div class="mt-2">
+                                                <p class="text-xs text-zinc-600" v-if="latitude && longitude">
+                                                    {{ t('ตำแหน่ง') }}: {{ latitude }}, {{ longitude }}
+                                                </p>
+                                               <Button icon="fa-solid fa-location-dot" size="small" outlined @click="addMarkerAtCenter"
+                    :label="t('ปักหมุดตรงกลาง')" />
+                    <!-- <Button icon="fa-solid fa-location-dot" size="small" outlined
+                                                    @click="addMarkerAtCenter" severity="primary"
+                                                    :label="t('ปักหมุดตำแหน่งธุรกิจหรือสถานที่ท่องเที่ยว')" /> -->
+                                            </div>
+                                            <!-- <div class="mt-2">
+                  <p class="text-xs text-zinc-600" v-if="latitude && longitude">
+                    {{ t('ตำแหน่ง') }}: {{ latitude }}, {{ longitude }}
+                  </p>
+                  <Button icon="fa-solid fa-location-dot" size="small" outlined @click="addMarkerAtCenter"
+                    :label="t('ปักหมุดตรงกลาง')" />
+                </div> -->
+
+                                        </div>
 
 
-                                <!-- <div>
+                                        <!-- <div>
                                     <label class="label-input">{{ t('ละติจูด') }}</label>
                                     <InputText v-model="latitude" placeholder="" readonly
                                         class="w-full custom-border" />
@@ -876,243 +907,290 @@ const onSelectChange = (e) => {
                                     <InputText v-model="longitude" placeholder="" readonly
                                         class="w-full custom-border" />
                                 </div> -->
-                                <div>
-                                    <label class="label-input">{{ t('ละติจูด') }}</label>
-                                    <InputText v-model="latitude" placeholder="" readonly class="w-full custom-border"
-                                        :invalid="errors?.latitude ? true : false" />
-                                    <p class="error-text" v-if="errors?.latitude">{{
-                                        errors?.latitude }}</p>
-                                </div>
-                                <div>
-                                    <label class="label-input">{{ t('ลองจิจูด') }}</label>
-                                    <InputText v-model="longitude" placeholder="" readonly class="w-full custom-border"
-                                        :invalid="errors?.longitude ? true : false" />
-                                    <p class="error-text" v-if="errors?.longitude">{{
-                                        errors?.longitude }}</p>
-                                </div>
+                                        <div>
+                                            <label class="label-input">{{ t('ละติจูด') }}</label>
+                                            <InputText v-model="latitude" placeholder="" readonly
+                                                class="w-full custom-border"
+                                                :invalid="errors?.latitude ? true : false" />
+                                            <p class="error-text" v-if="errors?.latitude">{{
+                                                errors?.latitude }}</p>
+                                        </div>
+                                        <div>
+                                            <label class="label-input">{{ t('ลองจิจูด') }}</label>
+                                            <InputText v-model="longitude" placeholder="" readonly
+                                                class="w-full custom-border"
+                                                :invalid="errors?.longitude ? true : false" />
+                                            <p class="error-text" v-if="errors?.longitude">{{
+                                                errors?.longitude }}</p>
+                                        </div>
 
-                                <!-- ชื่อบริษัท -->
-                                <div>
+                                        <!-- ชื่อบริษัท -->
+                                        <h4 class="section-title">{{ t('ข้อมูลธุรกิจ') }}</h4>
 
-                                    <label class="label-input">{{ t('ชื่อธุรกิจในแหล่งท่องเที่ยว') }}</label>
-                                    <InputText v-model="shop_name[lang.code]"
-                                        :placeholder="t('ชื่อธุรกิจในแหล่งท่องเที่ยว')" class="w-full custom-border"
-                                        :invalid="getFieldError('shop_name')" />
-                                    <p v-if="getFieldError('shop_name', lang.code)" class="error-text">
-                                        {{ getFieldError('shop_name', lang.code) }}
-                                    </p>
+                                        <div>
 
-                                </div>
-                                <!-- ชื่อบริษัท -->
-                                <div>
-                                    <label class="label-input">{{ t('ที่อยู่ธุรกิจในแหล่งท่องเที่ยว') }}</label>
-                                    <InputText v-model="shop_address[lang.code]" :placeholder="t('ที่อยู่ธุรกิจ')"
-                                        :invalid="getFieldError(shop_address)" class="w-full custom-border" />
-                                    <p v-if="getFieldError('shop_address', lang.code)" class="error-text">
-                                        {{ getFieldError('shop_address', lang.code) }}
-                                    </p>
+                                            <label class="label-input">{{ t('ชื่อธุรกิจในแหล่งท่องเที่ยว') }}</label>
+                                            <InputText v-model="shop_name[lang.code]"
+                                                :placeholder="t('ชื่อธุรกิจในแหล่งท่องเที่ยว')"
+                                                class="w-full custom-border" :invalid="getFieldError('shop_name')" />
+                                            <p v-if="getFieldError('shop_name', lang.code)" class="error-text">
+                                                {{ getFieldError('shop_name', lang.code) }}
+                                            </p>
 
-                                </div>
+                                        </div>
+                                        <!-- ชื่อบริษัท -->
+                                        <div>
+                                            <label class="label-input">{{ t('ที่อยู่ธุรกิจในแหล่งท่องเที่ยว') }}</label>
+                                            <InputText v-model="shop_address[lang.code]"
+                                                :placeholder="t('ที่อยู่ธุรกิจ')" :invalid="getFieldError(shop_address)"
+                                                class="w-full custom-border" />
+                                            <p v-if="getFieldError('shop_address', lang.code)" class="error-text">
+                                                {{ getFieldError('shop_address', lang.code) }}
+                                            </p>
 
-
-                                <!-- จังหวัด -->
-                                <div>
-                                    <label class="label-input">{{ t('จังหวัด') }}</label>
-                                    <Dropdown v-model="shop_province_id" :options="provinces" optionValue="id"
-                                        :optionLabel="provinceLabelField" :placeholder="t('เลือกจังหวัด')"
-                                        class="w-full h-full custom-border" :filter="true" :showClear="true"
-                                        :invalid="errors?.shop_province_id ? true : false" />
-                                    <p class="error-text" v-if="errors?.shop_province_id">{{
-                                        errors?.shop_province_id }}</p>
-
-                                </div>
-                                <!-- อำเภอ -->
-                                <div>
-                                    <label class="label-input">{{ t('อำเภอ') }}</label>
-                                    <Dropdown v-model="shop_district_id" :options="districts" optionValue="id"
-                                        :optionLabel="districtLabelField" :placeholder="t('เลือกอำเภอ')"
-                                        class="w-full h-full custom-border" :filter="true" :showClear="true"
-                                        :invalid="errors?.shop_district_id ? true : false" />
-                                    <p class="error-text" v-if="errors?.shop_district_id">{{
-                                        errors?.shop_district_id }}</p>
-                                </div>
-                                <!-- ตำบล -->
-                                <div>
-                                    <label class="label-input">{{ t('ตำบล') }}</label>
-                                    <Dropdown v-model="shop_subdistrict_id" :options="subdistricts" optionValue="id"
-                                        :optionLabel="subdistrictLabelField" :placeholder="t('เลือกตำบล')"
-                                        class="w-full h-full custom-border" :filter="true" :showClear="true"
-                                        :invalid="errors?.shop_subdistrict_id ? true : false" />
-                                    <p class="error-text" v-if="errors?.shop_subdistrict_id">{{
-                                        errors?.shop_subdistrict_id }}</p>
-                                </div>
+                                        </div>
 
 
+                                        <!-- จังหวัด -->
+                                        <div>
+                                            <label class="label-input">{{ t('จังหวัด') }}</label>
+                                            <Dropdown v-model="shop_province_id" :options="provinces" optionValue="id"
+                                                :optionLabel="provinceLabelField" :placeholder="t('เลือกจังหวัด')"
+                                                class="w-full h-full custom-border" :filter="true" :showClear="true"
+                                                :invalid="errors?.shop_province_id ? true : false" />
+                                            <p class="error-text" v-if="errors?.shop_province_id">{{
+                                                errors?.shop_province_id }}</p>
+
+                                        </div>
+                                        <!-- อำเภอ -->
+                                        <div>
+                                            <label class="label-input">{{ t('อำเภอ') }}</label>
+                                            <Dropdown v-model="shop_district_id" :options="districts" optionValue="id"
+                                                :optionLabel="districtLabelField" :placeholder="t('เลือกอำเภอ')"
+                                                class="w-full h-full custom-border" :filter="true" :showClear="true"
+                                                :invalid="errors?.shop_district_id ? true : false" />
+                                            <p class="error-text" v-if="errors?.shop_district_id">{{
+                                                errors?.shop_district_id }}</p>
+                                        </div>
+                                        <!-- ตำบล -->
+                                        <div>
+                                            <label class="label-input">{{ t('ตำบล') }}</label>
+                                            <Dropdown v-model="shop_subdistrict_id" :options="subdistricts"
+                                                optionValue="id" :optionLabel="subdistrictLabelField"
+                                                :placeholder="t('เลือกตำบล')" class="w-full h-full custom-border"
+                                                :filter="true" :showClear="true"
+                                                :invalid="errors?.shop_subdistrict_id ? true : false" />
+                                            <p class="error-text" v-if="errors?.shop_subdistrict_id">{{
+                                                errors?.shop_subdistrict_id }}</p>
+                                        </div>
 
 
-                                <div>
-                                    <label class="label-input">{{ t('วันที่ทำการ') }}</label>
 
-                                    <div class="mt-2">
-                                        <!-- <pre>
+
+                                        <div>
+                                            <label class="label-input">{{ t('วันที่ทำการ') }}</label>
+
+                                            <div class="mt-2">
+                                                <!-- <pre>
                                             {{ shop_days }}
                                         </pre> -->
-                                        <div class="grid grid-cols-3 gap-x-6 gap-y-3 lg:w-fit w-full">
-                                            <div v-for="day in days" :key="day[lang.code]"
-                                                class="flex items-center space-x-2">
-                                                <Checkbox v-model="shop_days[lang.code]"
-                                                    :inputId="`${day[lang.code]}-${lang.code}`" :value="day[lang.code]"
-                                                    @change="onShopDayChange(lang.code)"
-                                                    :invalid="getFieldError('shop_days', lang.code) ? true : false" />
-                                                <label :for="`${day[lang.code]}-${lang.code}`"
-                                                    class="text-gray-700 cursor-pointer hover:text-blue-600 ml-2">
-                                                    {{ day[lang.code] }}
-                                                </label>
+                                                <div class="grid grid-cols-3 gap-x-6 gap-y-3 lg:w-fit w-full">
+                                                    <div v-for="day in days" :key="day[lang.code]"
+                                                        class="flex items-center space-x-2">
+                                                        <Checkbox v-model="shop_days[lang.code]"
+                                                            :inputId="`${day[lang.code]}-${lang.code}`"
+                                                            :value="day[lang.code]" @change="onShopDayChange(lang.code)"
+                                                            :invalid="getFieldError('shop_days', lang.code) ? true : false" />
+                                                        <label :for="`${day[lang.code]}-${lang.code}`"
+                                                            class="text-gray-700 cursor-pointer hover:text-blue-600 ml-2">
+                                                            {{ day[lang.code] }}
+                                                        </label>
+                                                    </div>
+                                                </div>
                                             </div>
+                                            <p v-if="getFieldError('shop_days', lang.code)" class="error-text">
+                                                {{ getFieldError('shop_days', lang.code) }}
+                                            </p>
+
                                         </div>
+                                        <div>
+                                            <label class="label-input block">{{ t('เวลาทำการ') }}</label>
+                                            <DatePicker id="datepicker-timeonly" v-model="shop_time_s" timeOnly
+                                                inputClass="custom-border" style="width: 6rem;"
+                                                :invalid="errors?.shop_time_s ? true : false"
+                                                :placeholder="t('ชั่วโมง:นาที')" />
+
+                                            <label class="label-input">{{ t('ถึง') }}</label>
+                                            <DatePicker id="datepicker-timeonly" v-model="shop_time_e" timeOnly
+                                                class="custom-border" inputClass="custom-border" style="width: 6rem;"
+                                                :invalid="errors?.shop_time_e ? true : false"
+                                                :placeholder="t('ชั่วโมง:นาที')" />
+
+                                            <p class="error-text" v-if="errors?.shop_time_s || errors?.shop_time_e">{{
+                                                t('กรุณาเลือกเวลาทำการ')
+                                                }}</p>
+
+                                        </div>
+                                        <!-- ติดต่อ -->
+                                        <div>
+                                            <label class="label-input">{{ t('เบอร์ติดต่อ') }}</label>
+                                            <InputText v-model="shop_phone" v-keyfilter.int
+                                                :placeholder="t('เบอร์โทรศัพท์')" class="w-full custom-border"
+                                                :invalid="errors?.shop_phone ? true : false" />
+                                            <p class="error-text" v-if="errors?.shop_phone">{{ errors?.shop_phone }}</p>
+                                        </div>
+
+                                        <div>
+                                            <label class="label-input">{{ t('รายละเอียดธุรกิจในแหล่งท่องเที่ยว')
+                                                }}</label>
+                                            <InputText v-model="shop_details[lang.code]" placeholder=""
+                                                class="w-full custom-border" :invalid="getFieldError('shop_details')" />
+                                            <p class="error-text" v-if="getFieldError('shop_details', lang.code)">{{
+                                                getFieldError('shop_details', lang.code) }}</p>
+
+                                        </div>
+
                                     </div>
-                                    <p v-if="getFieldError('shop_days', lang.code)" class="error-text">
-                                        {{ getFieldError('shop_days', lang.code) }}
-                                    </p>
-
-                                </div>
-                                <div>
-                                    <label class="label-input block">{{ t('เวลาทำการ') }}</label>
-                                    <DatePicker id="datepicker-timeonly" v-model="shop_time_s" timeOnly
-                                        inputClass="custom-border" style="width: 6rem;"
-                                        :invalid="errors?.shop_time_s ? true : false"
-                                        :placeholder="t('ชั่วโมง:นาที')" />
-
-                                    <label class="label-input">{{ t('ถึง') }}</label>
-                                    <DatePicker id="datepicker-timeonly" v-model="shop_time_e" timeOnly
-                                        class="custom-border" inputClass="custom-border" style="width: 6rem;"
-                                        :invalid="errors?.shop_time_e ? true : false"
-                                        :placeholder="t('ชั่วโมง:นาที')" />
-
-                                    <p class="error-text" v-if="errors?.shop_time_s || errors?.shop_time_e">{{
-                                        t('กรุณาเลือกเวลาทำการ')
-                                    }}</p>
-
-                                </div>
-                                <!-- ติดต่อ -->
-                                <div>
-                                    <label class="label-input">{{ t('เบอร์ติดต่อ') }}</label>
-                                    <InputText v-model="shop_phone" v-keyfilter.int :placeholder="t('เบอร์โทรศัพท์')"
-                                        class="w-full custom-border" :invalid="errors?.shop_phone ? true : false" />
-                                    <p class="error-text" v-if="errors?.shop_phone">{{ errors?.shop_phone }}</p>
-                                </div>
-
-                                <div>
-                                    <label class="label-input">{{ t('รายละเอียดธุรกิจในแหล่งท่องเที่ยว') }}</label>
-                                    <InputText v-model="shop_details[lang.code]" placeholder=""
-                                        class="w-full custom-border" :invalid="getFieldError('shop_details')" />
-                                    <p class="error-text" v-if="getFieldError('shop_details', lang.code)">{{
-                                        getFieldError('shop_details', lang.code) }}</p>
-
-                                </div>
-
-                            </div>
-                            <hr class="border-b-2 mb-3" />
-
-                            <h2 class="font-bold text-lg mb-3">
-                                {{ t('ธุรกิจใจแหล่งท่องเที่ยว') }}
-                            </h2>
-
-                            <Button :loading="isloadingAxi" type="button" :label="t('เพิ่มรายการโซเชียล')" @click="push1({
-  
-                                social_media_id: undefined,
-                                social_media_link : undefined,
-                            })" />
-
-                            <div id="table-socia-media" v-if="fields1?.length > 0">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th style="width: 8rem;">{{ t('ประเภทโซเชียล') }}</th>
-                                            <th>{{ t('ลิ้งค์') }}</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(field, index) in fields1" :key="field.key">
-
-                                            <td style="width: 8rem;" class="align-top ">
-                                                <div class="space-y-0">
+                                    <hr class="border-b-2 mb-3" />
 
 
-                                                    <Select v-model="field.value.social_media_id" :options="resSociaMedia"
-                                                        style="" optionLabel="id" optionValue="id"
-                                                        class="w-full h-full custom-border"
-                                                        :placeholder="`${t('ประเภทโซเชียล')}...`"
-                                                        @change="((e)=>{onSelectChange(e)})"
-                                                        >
-                                                        <template #value="slotProps">
-                                                            <span class="flex items-center space-x-2">
-                                                                <template v-if="slotProps.value">
-                                                                    <i :class="getIconClass(slotProps.value)"
-                                                                        class="text-lg"></i>
-                                                                    <span>
-                                                                        {{ getSocialName(slotProps.value, lang.code) }}
+                                    <h4 class="section-title">{{ t('ช่องทางโซเชียลมีเดีย') }}</h4>
+
+
+                                    <Button :loading="isloadingAxi" type="button" :label="t('เพิ่มรายการโซเชียล')"
+                                        @click="push1({
+
+                                            social_media_id: undefined,
+                                            social_media_link: undefined,
+                                        })" :pt="{
+                                label: {
+                                    class: 'text-white'
+                                },
+                                root: {
+                                    class: '!border-primary-main !bg-primary-second'
+                                },
+
+                            }" />
+
+                                    <div id="table-socia-media" v-if="fields1?.length > 0">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 8rem" class="text-start">{{ t('ประเภทโซเชียล') }}</th>
+                                                    <th class="text-start">{{ t('ลิ้งค์') }}</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="(field, index) in fields1" :key="field.key">
+
+                                                    <td style="width: 8rem;" class="align-top ">
+                                                        <div class="space-y-0">
+
+
+                                                            <Select v-model="field.value.social_media_id"
+                                                                :options="resSociaMedia" style="" optionLabel="id"
+                                                                optionValue="id" class="w-full h-full custom-border"
+                                                                :placeholder="`${t('ประเภทโซเชียล')}...`"
+                                                                @change="((e) => { onSelectChange(e) })">
+                                                                <template #value="slotProps">
+                                                                    <span class="flex items-center space-x-2">
+                                                                        <template v-if="slotProps.value">
+                                                                            <i :class="getIconClass(slotProps.value)"
+                                                                                class="text-lg"></i>
+                                                                            <span>
+                                                                                {{ getSocialName(slotProps.value,
+                                                                                    lang.code)
+                                                                                }}
+                                                                            </span>
+                                                                        </template>
+                                                                        <template v-else>
+                                                                            {{ t('ประเภทโซเชียล') }}...
+                                                                        </template>
                                                                     </span>
                                                                 </template>
-                                                                <template v-else>
-                                                                    {{ t('ประเภทโซเชียล') }}...
+                                                                <template #option="slotProps">
+                                                                    <div class="flex items-center space-x-2">
+                                                                        <i :class="slotProps.option.icon"
+                                                                            class="text-lg"></i>
+                                                                        <span>{{
+                                                                            slotProps.option[`social_media_name_${lang.code}`]
+                                                                            }}</span>
+                                                                    </div>
                                                                 </template>
-                                                            </span>
-                                                        </template>
-                                                        <template #option="slotProps">
-                                                            <div class="flex items-center space-x-2">
-                                                                <i :class="slotProps.option.icon" class="text-lg"></i>
-                                                                <span>{{
-                                                                    slotProps.option[`social_media_name_${lang.code}`]
-                                                                    }}</span>
-                                                            </div>
-                                                        </template>
-                                                    </Select>
-                                                    <p v-if="errors?.[`social_media[${index}].social_media_id`]"
-                                                        class="text-red-500 text-sm mt-1">
-                                                        {{ errors[`social_media[${index}].social_media_id`] }}
-                                                    </p>
-                                                </div>
-                                            </td>
+                                                            </Select>
+                                                            <p v-if="errors?.[`social_media[${index}].social_media_id`]"
+                                                                class="text-red-500 text-sm mt-1">
+                                                                {{ errors[`social_media[${index}].social_media_id`] }}
+                                                            </p>
+                                                        </div>
+                                                    </td>
 
-                                            <!-- Column: Social Link -->
-                                            <td class="align-top ">
-                                                <div class="space-y-0">
-                                                    <InputText v-model="field.value.social_media_link "
-                                                        class="w-full custom-border"
-                                                        :placeholder="`${t('ลิ้งโซเชียล')}...`" />
-                                                    <p v-if="errors?.[`social_media[${index}].social_media_link `]"
-                                                        class="text-red-500 text-sm">
-                                                        {{ errors[`social_media[${index}].social_media_link `] }}
-                                                    </p>
-                                                </div>
-                                            </td>
+                                                    <!-- Column: Social Link -->
+                                                    <td class="align-top ">
+                                                        <div class="space-y-0">
+                                                            <InputText v-model="field.value.social_media_link"
+                                                                class="w-full custom-border"
+                                                                :placeholder="`${t('ลิ้งโซเชียล')}...`" />
+                                                            <p v-if="errors?.[`social_media[${index}].social_media_link `]"
+                                                                class="text-red-500 text-sm">
+                                                                {{ errors[`social_media[${index}].social_media_link `]
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                    </td>
 
-                                            <!-- Column: Actions -->
-                                            <td class="align-top">
-                                                <Button :loading="isloadingAxi" icon="pi pi-times" severity="danger"
-                                                    size="small" @click="remove1(index)" rounded aria-label="Cancel" />
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                                    <!-- Column: Actions -->
+                                                    <td class="align-top">
+                                                        <Button :loading="isloadingAxi" icon="pi pi-times"
+                                                            severity="danger" size="small" @click="remove1(index)"
+                                                            rounded aria-label="Cancel" />
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
                             </div>
+                        </van-tab>
+                    </van-tabs> 
+                    <div class="p-3">
+                        <Button :loading="isloadingAxi" :label="t('ถัดไป')" severity="primary" type="submit" rounded
+                        class="w-full" :pt="{
+                            root: {
+                                class: '!border-primary-main'
+                            },
+                        }" />
+                    </div>
 
-                        </div>
-                    </van-tab>
-                </van-tabs>
-                <Button :loading="isloadingAxi" :label="t('ถัดไป')" severity="primary" type="submit" rounded
-                    class="w-full" :pt="{
-                        root: {
-                            class: '!border-primary-main'
-                        },
-                    }" />
+                </Form>
 
-            </Form>
-
-        </div>
-        <MyToast :data="alertToast" />
-
+            </div>
+        </section>
     </div>
 </template>
+
+<style scoped>
+.card {
+    @apply bg-white rounded-sm border border-zinc-200;
+}
+
+.section-title {
+    @apply font-semibold text-zinc-800 mb-2;
+}
+
+.label {
+    @apply text-sm text-zinc-600;
+}
+
+.custom-border :deep(.p-inputtext),
+:deep(.p-dropdown),
+:deep(.p-select) {
+    @apply w-full;
+}
+
+.upload-box {
+    @apply w-12 h-12 rounded-md border-2 border-dotted border-indigo-900 flex items-center justify-center cursor-pointer hover:border-zinc-600;
+}
+</style>

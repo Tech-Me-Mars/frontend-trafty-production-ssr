@@ -67,36 +67,41 @@ const selectedBusinessName = computed(() => {
         <ButtonIconBack @click="formStore.prevPage()" />
       </template>
     </LayoutsBaseHeader>
+    <main class="max-w-[430px] mx-auto">
+
     <Form @submit="handleNext">
       <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54">
         <van-tab v-for="lang in langs" :title="lang.label" :name="lang.code" :key="lang.code" class="p-2">
-          <h2 class="text-center font-bold text-xl mb-8 pt-2">
+          <section class="px-3 pb-8 pt-3 ">
+
+          <h2 class="text-center text-[19px] sm:text-[20px] font-extrabold text-[#202c54] tracking-tight my-3">
             {{ lang.code === 'th' ? 'เลือกประเภทการท่องเที่ยว' : (lang.code === 'en' ? 'Select Tourist Attraction Type' : '选择旅游景点类型') }}
           </h2>
-          <div class="grid grid-cols-2 gap-3 my-6">
+          <div class="grid grid-cols-2 gap-3 mt-3.5">
             <div
               v-for="item in resBusinessType"
               :key="item.id"
               class="flex flex-col items-center justify-center border-2 rounded-sm p-4 cursor-pointer bg-white"
-              :class="{
-                '!border-indigo-900 bg-blue-50': selectedItem === item.id,
-                'border-gray-300': selectedItem !== item.id
-              }"
+
+              :class="selectedItem === item.id ? 'tile--active' : 'tile--normal'"
               @click="selectedItem = item.id"
             >
-              <i :class="item.icon" class="text-2xl mb-2 text-primary-main"></i>
-              <span class="text-sm text-center">
+            <div class="icon-wrap">
+                    <!-- fixed-width + normalize line-height -->
+                    <i :class="[item.icon, '']"></i>
+                  </div>
+
+              <!-- <i :class="item.icon" class="text-2xl mb-2 text-primary-main"></i> -->
+              <span class="name clamp-2">
                 {{ item.business_type_name_i18n?.[lang.code] || '-' }}
               </span>
             </div>
           </div>
+          </section>
         </van-tab>
       </van-tabs>
 
       <div class="mx-auto w-full max-w-md pb-10">
-        <!-- <div v-if="selectedItem" class="text-center text-primary-dark text-lg mt-2">
-          {{ t('คุณเลือก') }}: <span class="font-bold">{{ selectedBusinessName }}</span>
-        </div> -->
         <p v-if="errors.selectedItem" class="text-red-500 text-center mt-2 text-sm">
           {{ errors.selectedItem }}
         </p>
@@ -106,5 +111,46 @@ const selectedBusinessName = computed(() => {
         </div>
       </div>
     </Form>
+    </main>
   </div>
 </template>
+
+
+<style scoped>
+.tile {
+  @apply flex flex-col items-center justify-start bg-white rounded-sm border px-3 py-3 text-center shadow-sm transition;
+}
+
+.tile--normal {
+  @apply border-zinc-200 hover:border-[#202c54]/50;
+}
+
+.tile--active {
+  @apply border-[#243a8b] bg-[#eef3ff];
+}
+
+/* กล่องไอคอนขนาดคงที่ */
+.icon-wrap {
+  @apply w-10 h-10 rounded-md bg-[#eef2ff] flex items-center justify-center mb-2;
+}
+
+/* ทำให้ไอคอนอยู่ระดับเดียวกันทุกใบ */
+.icon {
+  @apply text-[18px] text-[#202c54];
+  line-height: 1;
+  display: block;
+}
+
+/* ชื่อ: สูงเท่ากับ 2 บรรทัดเสมอ (text-sm/leading-5 => 20px x 2 = 40px) */
+.name {
+  @apply text-[#202c54] text-sm leading-5 min-h-10;
+}
+
+/* ตัดข้อความ 2 บรรทัด */
+.clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>

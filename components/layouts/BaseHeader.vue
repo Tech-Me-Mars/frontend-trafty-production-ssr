@@ -1,5 +1,6 @@
 <template>
-  <div class="bg-primary-main text-white px-4 py-3 flex items-center justify-between h-[56px]">
+  <div class="relative bg-[#101444] text-white px-4 pt-0 pb-3
+  flex items-end justify-between h-[80px]">
     <!-- Left -->
     <div class="flex items-center gap-2 min-w-0">
 
@@ -27,6 +28,11 @@
       </span>
 
     </div>
+
+    <span
+  class="pointer-events-none absolute bottom-0 left-0 right-0 h-[4px]
+         bg-gradient-to-r from-orange-400 via-orange-300 yellow-orange-700 to-yellow-300"
+/>
   </div>
 </template>
 

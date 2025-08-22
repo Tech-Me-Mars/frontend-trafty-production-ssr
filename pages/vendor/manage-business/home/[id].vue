@@ -1,28 +1,23 @@
 <template>
     <div class="min-h-screen bg-zinc-50">
-        <!-- <van-nav-bar :title="t('ธุรกิจในแหล่งท่องเที่ยว')">
-            <template #left>
-                <drawer-menu />
-            </template>
-<template #right>
+        <LayoutsBaseHeader :title="t('ธุรกิจในแหล่งท่องเที่ยว')" showMenu>
+            <template #right>
                 <div class="flex items-center gap-2">
                     <div class="border p-0.5 rounded-md w-7 flex justify-center items-center">
                         <i class="fa-regular fa-comment-dots" style="color: white;font-size: 22px;"></i>
                     </div>
                     <div class="border p-0.5 rounded-md w-7 flex justify-center items-center">
-                        <van-badge :dot="resNotify.length > 0 ? true : false">
-                            <i @click="navigateTo(`/vendor/notifications/${route.params.id}`)"
-                                class="fa-regular fa-bell" style="color: white;font-size: 22px;"></i>
+                        <van-badge :dot="false">
+                            <i class="fa-regular fa-bell" style="color: white;font-size: 22px;"></i>
                         </van-badge>
                     </div>
 
                 </div>
 
             </template>
-</van-nav-bar> -->
-        <LayoutsBaseHeader :title="t('ธุรกิจในแหล่งท่องเที่ยว')" showMenu></LayoutsBaseHeader>
+        </LayoutsBaseHeader>
         <!-- {{ resBusinessAll }} -->
-        <section class="">
+        <section class="max-w-[430px] mx-auto">
             <!-- Header Section -->
             <div class="flex items-center w-full card mb-2">
                 <!-- Image -->
@@ -35,7 +30,7 @@
                     <h2 class="text-lg font-bold">{{ getI18n(resBusinessAll?.shop_name_i18n, locale) }}</h2>
                     <p class="text-sm text-gray-500">{{
                         getI18n(resBusinessAll?.business_type?.business_type_name_i18n, locale)
-                        }}</p>
+                    }}</p>
 
 
                     <span v-if="resBusinessAll?.survey_status?.survey_success_note"
@@ -43,7 +38,7 @@
                             ? { backgroundColor: resBusinessAll.survey_status.bg_color }
                             : {}" :class="!resBusinessAll?.survey_status?.bg_color?.startsWith('#')
                                 ? resBusinessAll.survey_status.bg_color : ''">
-                        <i class="fa-solid fa-circle-exclamation mr-1"></i>
+                        <!-- <i class="fa-solid fa-circle-exclamation mr-1"></i> -->
                         {{ getI18n(resBusinessAll?.survey_status?.survey_success_note, locale) }}
                     </span>
 
@@ -53,7 +48,11 @@
                 </div>
 
                 <!-- Approval Status -->
-
+                <!-- Preview pill (ขวาสุด) -->
+                <button class="ml-3 shrink-0 px-3 py-1.5 rounded-full text-xs font-medium !text-gray-400
+           border border-zinc-300 text-zinc-600 bg-zinc-50 hover:bg-zinc-200">
+                    {{ t('พรีวิว') }}
+                </button>
             </div>
 
             <!-- Progress Section -->
@@ -102,7 +101,8 @@
                     </div>
                 </div>
                 <div class="bg-white text-center p-4">
-                    <div class="cursor-pointer" @click="navigateTo(`/vendor/warning-list?BusinessId=${route.params.id}`)">
+                    <div class="cursor-pointer"
+                        @click="navigateTo(`/vendor/warning-list?BusinessId=${route.params.id}`)">
                         <div class="text-xl font-bold">{{ resBusinessAll?.SurveyWarningCount }}</div>
                         <div class="text-gray-600 text-sm">{{ t('ใบเตือน') }}</div>
                     </div>
@@ -112,19 +112,22 @@
 
             <div class="flex justify-between items-center px-4">
                 <h2 class="text-lg font-bold">{{ t('รายการของฉัน') }}</h2>
-                <NuxtLink :to="`/vendor/manage-business/list/${route.params.id}`" class="hover:underline cursor-pointer">{{ t('ดูทั้งหมด') }}
-                    <i class="fa-solid fa-chevron-right" style="font-size: 14px;"></i></NuxtLink>
+                <NuxtLink :to="`/vendor/manage-business/list/${route.params.id}`"
+                    class="hover:underline cursor-pointer">{{
+                        t('ดูทั้งหมด') }}
+                    <i class="fa-solid fa-chevron-right" style="font-size: 14px;"></i>
+                </NuxtLink>
 
             </div>
             <div class="p-4 flex-col space-y-3">
                 <div v-for="(item, index) in resBusinessAll?.business_list" :key="index"
-                    class="border rounded-lg shadow-md bg-white w-full max-w-md mx-auto">
+                    class="border rounded-sm shadow-md bg-white w-full max-w-md mx-auto">
                     <div class="p-3">
                         <!-- ชื่อธุรกิจ -->
                         <div class="flex justify-between items-center">
                             <h2 class="text-lg font-semibold text-gray-800">{{ getI18n(item?.business_list_name_i18n,
                                 locale)
-                            }}</h2>
+                                }}</h2>
                             <p class="text-gray-800 ">฿{{ item?.business_list_price }}</p>
                         </div>
                         <!-- ปุ่มแอคชัน -->
@@ -132,9 +135,9 @@
                         <div class="flex  gap-3">
                             <Button :loading="togglingId === item.id" :disabled="isloadingAxi"
                                 :label="isFlagTrue(item.status) ? t('ไม่แสดง') : t('แสดง')"
-                                 :icon="isFlagTrue(item.status) ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'"
-                                severity="primary" variant="outlined"
-                                class="w-full" @click="showConfirmToggle(item)" :pt="{
+                                :icon="isFlagTrue(item.status) ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'"
+                                severity="primary" variant="outlined" class="w-full" @click="showConfirmToggle(item)"
+                                :pt="{
                                     label: { class: 'text-primary-main' },
                                     root: { class: '!border-primary-main' },
                                 }" />
@@ -154,39 +157,56 @@
 
         </section>
         <van-action-sheet v-model:show="showEditSheet" :close-on-click-overlay="true" :round="true"
-            safe-area-inset-bottom :title="t('แก้ไขรายการ')">
-            <div class="p-4">
-                <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54">
-                    <van-tab v-for="(lang, idx) in langs" :key="lang.code" :title="lang.label" :name="idx">
-                        <div class="space-y-4 py-2">
-                            <div>
-                                <label class="label-input block mb-1">{{ t('ชื่อรายการ') }}</label>
-                                <InputText v-model="business_list_name_i18n[lang.code]" :placeholder="t('ชื่อรายการ')"
-                                    class="w-full custom-border"
-                                    :invalid="!!getFieldError('business_list_name_i18n', lang.code)" />
-                                <p v-if="getFieldError('business_list_name_i18n', lang.code)" class="error-text">
-                                    {{ getFieldError('business_list_name_i18n', lang.code) }}
-                                </p>
-                            </div>
+            safe-area-inset-bottom>
+            <template #default>
+                <div class="sticky top-0 bg-white px-4 pt-3 pb-2 border-b border-zinc-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-base font-semibold text-zinc-800">
+                            {{ t(isEditMode ? 'แก้ไขรายการ' : 'เพิ่มรายการสินค้า') }}
+                        </h3>
 
-                            <div>
-                                <label class="label-input block mb-1">{{ t('ราคา') }}</label>
-                                <InputText v-model="business_list_price" :placeholder="t('ราคา')"
-                                    class="w-full custom-border" :invalid="!!errors?.business_list_price" />
-                                <p v-if="errors?.business_list_price" class="error-text">
-                                    {{ errors?.business_list_price }}
-                                </p>
-                            </div>
-                        </div>
-                    </van-tab>
-                </van-tabs>
-
-                <div class="mt-4 grid grid-cols-2 gap-3">
-                    <Button :label="t('ยกเลิก')" severity="secondary" class="w-full" @click="showEditSheet = false" />
-                    <Button :loading="isloadingAxi" :label="t('บันทึก')" severity="primary" class="w-full"
-                        @click="onSave" />
+                        <button type="button" aria-label="Close" @click="showEditSheet = false" class="w-7 h-7 rounded-full bg-zinc-100 border border-zinc-200
+                 text-zinc-500 flex items-center justify-center
+                 hover:bg-zinc-200 active:scale-[.98] transition">
+                            <i class="fa-solid fa-xmark text-[12px]"></i>
+                        </button>
+                    </div>
                 </div>
-            </div>
+
+                <div class="p-4">
+                    <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54">
+                        <van-tab v-for="(lang, idx) in langs" :key="lang.code" :title="lang.label" :name="idx" :line-width="100">
+                            <div class="space-y-4 py-2">
+                                <div>
+                                    <label class="label-input block mb-1">{{ t('ชื่อรายการ') }}</label>
+                                    <InputText v-model="business_list_name_i18n[lang.code]"
+                                        :placeholder="t('ชื่อรายการ')" class="w-full custom-border"
+                                        :invalid="!!getFieldError('business_list_name_i18n', lang.code)" />
+                                    <p v-if="getFieldError('business_list_name_i18n', lang.code)" class="error-text">
+                                        {{ getFieldError('business_list_name_i18n', lang.code) }}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label class="label-input block mb-1">{{ t('ราคา') }}</label>
+                                    <InputText v-model="business_list_price" :placeholder="t('ราคา')"
+                                        class="w-full custom-border" :invalid="!!errors?.business_list_price" />
+                                    <p v-if="errors?.business_list_price" class="error-text">
+                                        {{ errors?.business_list_price }}
+                                    </p>
+                                </div>
+                            </div>
+                        </van-tab>
+                    </van-tabs>
+
+                    <div class="mt-4 grid grid-cols-2 gap-3">
+                        <Button :label="t('ยกเลิก')" severity="secondary" class="w-full"
+                            @click="showEditSheet = false" />
+                        <Button :loading="isloadingAxi" :label="t('บันทึก')" severity="primary" class="w-full"
+                            @click="onSave" />
+                    </div>
+                </div>
+            </template>
         </van-action-sheet>
         <NotifyMessage v-model:show="toast.show" :type="toast.type" :title="toast.title" :message="toast.message"
             :life="toast.life" />
@@ -314,51 +334,51 @@ const togglingId = ref(null)
 const isFlagTrue = (v) => v === true || v === 1 || v === '1' || v === 'true'
 
 const showConfirmToggle = (item) => {
-  const isActive = isFlagTrue(item.status)
-  confirm1.require({
-    message: isActive
-      ? t('ยืนยันการซ่อนรายการนี้ไม่ให้แสดงใช่ไหม?')
-      : t('ยืนยันการแสดงรายการนี้ใช่ไหม?'),
-    header: t('ยืนยัน'),
-    icon: 'pi pi-exclamation-triangle',
-    rejectProps: { label: t('ยกเลิก'), severity: 'secondary', outlined: true },
-    acceptProps: { label: t('ตกลง') },
-    accept: async () => {
-      togglingId.value = item.id
-      await toggleBusinessStatus(item, !isActive)
-      togglingId.value = null
-    }
-  })
+    const isActive = isFlagTrue(item.status)
+    confirm1.require({
+        message: isActive
+            ? t('ยืนยันการซ่อนรายการนี้ไม่ให้แสดงใช่ไหม?')
+            : t('ยืนยันการแสดงรายการนี้ใช่ไหม?'),
+        header: t('ยืนยัน'),
+        icon: 'pi pi-exclamation-triangle',
+        rejectProps: { label: t('ยกเลิก'), severity: 'secondary', outlined: true },
+        acceptProps: { label: t('ตกลง') },
+        accept: async () => {
+            togglingId.value = item.id
+            await toggleBusinessStatus(item, !isActive)
+            togglingId.value = null
+        }
+    })
 }
 
 const toggleBusinessStatus = async (item, nextStatus) => {
-  const payload = { id: item.id, status: nextStatus }
-  try {
-    const res = await dataApi.updateBusinessStatus(route.params.id, payload)
+    const payload = { id: item.id, status: nextStatus }
+    try {
+        const res = await dataApi.updateBusinessStatus(route.params.id, payload)
 
-    // อัพเดททันทีเพื่อให้ UI ตอบสนองเร็ว (ถ้าไม่อยากรีเฟรชทั้งหน้า)
-    item.status = nextStatus
+        // อัพเดททันทีเพื่อให้ UI ตอบสนองเร็ว (ถ้าไม่อยากรีเฟรชทั้งหน้า)
+        item.status = nextStatus
 
-    toast.value = {
-      show: true,
-      type: 'success',
-      title: t('สำเร็จ'),
-      message: nextStatus ? t('แสดงรายการเรียบร้อยแล้ว') : t('ซ่อนรายการเรียบร้อยแล้ว'),
-      life: 1500
+        toast.value = {
+            show: true,
+            type: 'success',
+            title: t('สำเร็จ'),
+            message: nextStatus ? t('แสดงรายการเรียบร้อยแล้ว') : t('ซ่อนรายการเรียบร้อยแล้ว'),
+            life: 1500
+        }
+
+        // ถ้าต้องการความชัวร์ ดึงข้อมูลใหม่ทั้งก้อน (เลือกอย่างใดอย่างหนึ่ง)
+        // await loadBusinessAll()
+    } catch (error) {
+        toast.value = {
+            show: true,
+            type: 'danger',
+            title: t('ผิดพลาด'),
+            message: error?.response?.data?.message || t('เกิดข้อผิดพลาด'),
+            life: null
+        }
+        console.error('toggleBusinessStatus error:', error)
     }
-
-    // ถ้าต้องการความชัวร์ ดึงข้อมูลใหม่ทั้งก้อน (เลือกอย่างใดอย่างหนึ่ง)
-    // await loadBusinessAll()
-  } catch (error) {
-    toast.value = {
-      show: true,
-      type: 'danger',
-      title: t('ผิดพลาด'),
-      message: error?.response?.data?.message || t('เกิดข้อผิดพลาด'),
-      life: null
-    }
-    console.error('toggleBusinessStatus error:', error)
-  }
 }
 
 
@@ -492,3 +512,17 @@ const onSave = handleSubmit(async (values) => {
     }
 })
 </script>
+<style scoped>
+.card {
+    @apply bg-white border border-zinc-200 p-4;
+}
+
+.label-input {
+    @apply text-sm text-zinc-600;
+}
+
+.custom-border :deep(.p-inputtext),
+:deep(.p-dropdown) {
+    @apply w-full;
+}
+</style>

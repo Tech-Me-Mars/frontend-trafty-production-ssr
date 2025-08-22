@@ -5,8 +5,8 @@ import { useFormStore } from '@/store/businessStore.js';
 import { useI18n } from 'vue-i18n';
 import * as dataApi from '../../api/data.js';
 const { t, locale, setLocale } = useI18n();
-onMounted(()=>{
-  setLocale('th')
+onMounted(() => {
+    setLocale('th')
 })
 
 const isloadingAxi = useState('isloadingAxi');  // สำหรับการโหลด
@@ -61,7 +61,7 @@ onMounted(loadServiceType);
     <div class="bg-zinc-100 min-h-screen">
         <LayoutsBaseHeader :title="t('ประเภทการให้บริการ')" showBack backTo="/vendor/my-business"></LayoutsBaseHeader>
 
-        <div>
+        <div class="max-w-md mx-auto ">
             <!-- <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54">
                 <van-tab title="ภาษาไทย" name="th" class="p-2 pt-10">
                     <div class="text-center">
@@ -84,8 +84,23 @@ onMounted(loadServiceType);
                 </van-tab>
                 
             </van-tabs> -->
-            <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54">
-                <van-tab v-for="lang in langs" :title="lang.label" :name="lang.code" :key="lang.code" class="p-2">
+            <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54" class="" :line-width="100">
+                <van-tab v-for="lang in langs" :title="lang.label" :name="lang.code" :key="lang.code"
+                    class="p-2 px-6 pt-8 pb-12">
+                    <h1 class="text-center text-2xl font-extrabold text-[#202c54]">
+                        {{ ({ th: 'เลือกประเภทบริการ', en: 'Select service type', cn: '选择服务类型' }[lang.code] || 'เลือกประเภทบริการ') }}
+
+</h1>
+<p class="text-center text-primary-main mt-2">
+  {{
+    ({
+      th: 'กรุณาเลือกประเภทการให้บริการของคุณ',
+      en: 'Please choose your service type',
+      cn: '请选择您的服务类型'
+    }[lang.code] || 'กรุณาเลือกประเภทการให้บริการของคุณ')
+  }}
+</p>
+
                     <!-- <h2 class="text-center font-bold text-xl mb-8 pt-2">
                         {{ lang.code === 'th' ? 'เลือกประเภทการท่องเที่ยว' : (lang.code === 'en' ? 'Select Tourist
                         Attraction Type' : '选择旅游景点类型') }}
@@ -103,22 +118,17 @@ onMounted(loadServiceType);
                             </span>
                         </div>
                     </div> -->
-                    <div class="text-center pt-[4rem]">
-                        <Button
-                            v-for="(item, index) in resServiceType"
-                            :key="item.id"
-                            :label="item.service_type_name_i18n[lang.code]"
-                            severity="primary"
-                            rounded
-                            variant="outlined"
-                            class="w-full mb-4"
-                            :pt="{
-                                label: { class: 'text-primary-main' },
-                                root:  { class: selectedId === item.id ? '!border-indigo-900 bg-blue-50' : '!border-primary-main' }
-                            }"
-                            :loading="isloadingAxi"
-                            @click="handleServiceTypeClick(item.id)" 
-                        />
+                    <div class="mt-10 flex flex-col items-center space-y-4">
+                        <Button v-for="(item, index) in resServiceType" :key="item.id"
+                            :label="item.service_type_name_i18n[lang.code]" severity="primary" rounded
+                            variant="outlined" class="w-full max-w-xs h-12" :pt="{
+                                label: {
+                                    class: 'text-primary-main'
+                                },
+                                root: {
+                                    class: '!border-primary-main'
+                                },
+                            }" :loading="isloadingAxi" @click="handleServiceTypeClick(item.id)" />
                     </div>
                 </van-tab>
             </van-tabs>

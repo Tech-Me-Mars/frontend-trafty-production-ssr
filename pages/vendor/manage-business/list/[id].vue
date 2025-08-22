@@ -3,85 +3,141 @@
 
         <LayoutsBaseHeader :title="t('ธุรกิจในแหล่งท่องเที่ยว')" showBack
             :backTo="`/vendor/manage-business/home/${route.params.id}`"></LayoutsBaseHeader>
-        <div class="p-4 flex justify-end">
-            <Button :label="t('เพิ่มรายการสินค้า')" icon="fa-regular fa-square-plus" severity="primary"
-                @click="openCreate" />
-        </div>
+
 
         <main>
-            <!-- {{ resBusinessAll }} -->
-            <div class="p-4 flex-col space-y-3" v-if="resBusinessAll.length > 0">
-                <div v-for="(item, index) in resBusinessAll" :key="index"
-                    class="border rounded-lg shadow-md bg-white w-full max-w-md mx-auto">
-                    <div class="p-3">
-                        <!-- ชื่อธุรกิจ -->
-                        <div class="flex justify-between items-center">
-                            <h2 class="text-lg font-semibold text-gray-800">{{ getI18n(item?.business_list_name_i18n,
-                                locale)
-                                }}</h2>
-                            <p class="text-gray-800 ">฿{{ item?.business_list_price }}</p>
-                        </div>
-                        <!-- ปุ่มแอคชัน -->
-                        <hr class="border-t mt-2 mb-4">
-                        <div class="flex  gap-3">
-                            <Button :loading="togglingId === item.id" :disabled="isloadingAxi"
-                                :label="isFlagTrue(item.status) ? t('ไม่แสดง') : t('แสดง')"
-                                :icon="isFlagTrue(item.status) ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye'"
-                                severity="primary" variant="outlined" class="w-full" @click="showConfirmToggle(item)"
-                                :pt="{
-                                    label: { class: 'text-primary-main' },
-                                    root: { class: '!border-primary-main' },
-                                }" />
-                            <Button :loading="isloadingAxi" :label="t('แก้ไข')" severity="primary" variant="outlined"
-                                class="w-full" @click="openEdit(item)" :pt="{
-                                    label: { class: 'text-primary-main' },
-                                    root: { class: '!border-primary-main' }
-                                }" />
+            <van-tabs v-model:active="activeStatusTab" animated color="#202c54" :line-width="100">
+                <!-- แท็บ: แสดงอยู่ -->
+                <van-tab :title="t('แสดงอยู่')">
+                    <div class="p-4 flex justify-end">
+                        <Button :label="t('เพิ่มรายการสินค้า')" icon="fa-regular fa-square-plus" severity="primary"
+                            @click="openCreate" size="small" />
+                    </div>
+                    <div class="p-4 flex-col space-y-3" v-if="listDisplayed.length > 0">
+                        <div v-for="(item, index) in listDisplayed" :key="item.id"
+                            class="border rounded-sm shadow-md bg-white w-full max-w-md mx-auto">
+                            <div class="p-3">
+                                <!-- ชื่อธุรกิจ -->
+                                <div class="flex justify-between items-center">
+                                    <h2 class="text-lg font-semibold text-gray-800">
+                                        {{ getI18n(item?.business_list_name_i18n, locale) }}
+                                    </h2>
+                                    <p class="text-gray-800">฿{{ item?.business_list_price }}</p>
+                                </div>
 
-                            <Button :loading="deletingId === item.id" :disabled="isloadingAxi"
-                                @click="showConfirmDel(item)" icon="fa-regular fa-trash-can" label="" severity="danger"
-                                variant="outlined" class="!w-[10rem]" />
+                                <!-- ปุ่มแอคชัน -->
+                                <hr class="border-t mt-2 mb-4" />
+                                <div class="flex gap-3">
+                                    <!-- ในแท็บแสดงอยู่ ให้ปุ่มเป็น "ไม่แสดง" -->
+                                    <Button :loading="togglingId === item.id" :disabled="isloadingAxi"
+                                        :label="t('ไม่แสดง')" icon="fa-regular fa-eye-slash" severity="primary"
+                                        variant="outlined" class="w-full" @click="showConfirmToggle(item)"
+                                        :pt="{ label: { class: 'text-primary-main' }, root: { class: '!border-primary-main' } }" />
+                                    <Button :loading="isloadingAxi" :label="t('แก้ไข')" severity="primary"
+                                        variant="outlined" class="w-full" @click="openEdit(item)"
+                                        :pt="{ label: { class: 'text-primary-main' }, root: { class: '!border-primary-main' } }" />
+                                    <Button :loading="deletingId === item.id" :disabled="isloadingAxi"
+                                        @click="showConfirmDel(item)" icon="fa-regular fa-trash-can" label=""
+                                        severity="danger" variant="outlined" class="!w-[10rem]" />
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                    <SharedNoData v-else />
+                </van-tab>
 
-            <SharedNoData v-else />
-        </main>
-        <van-action-sheet v-model:show="showEditSheet" :close-on-click-overlay="true" :round="true"
-            safe-area-inset-bottom :title="t(isEditMode ? 'แก้ไขรายการ' : 'เพิ่มรายการสินค้า')">
-            <div class="p-4">
-                <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54">
-                    <van-tab v-for="(lang, idx) in langs" :key="lang.code" :title="lang.label" :name="idx">
-                        <div class="space-y-4 py-2">
-                            <div>
-                                <label class="label-input block mb-1">{{ t('ชื่อรายการ') }}</label>
-                                <InputText v-model="business_list_name_i18n[lang.code]" :placeholder="t('ชื่อรายการ')"
-                                    class="w-full custom-border"
-                                    :invalid="!!getFieldError('business_list_name_i18n', lang.code)" />
-                                <p v-if="getFieldError('business_list_name_i18n', lang.code)" class="error-text">
-                                    {{ getFieldError('business_list_name_i18n', lang.code) }}
-                                </p>
-                            </div>
+                <!-- แท็บ: ไม่แสดง -->
+                <van-tab :title="t('ไม่แสดง')">
+                    <div class="p-4 flex justify-end">
+                        <Button :label="t('เพิ่มรายการสินค้า')" icon="fa-regular fa-square-plus" severity="primary"
+                            @click="openCreate" size="small" />
+                    </div>
+                    <div class="p-4 flex-col space-y-3" v-if="listHidden.length > 0">
+                        <div v-for="(item, index) in listHidden" :key="item.id"
+                            class="border rounded-lg shadow-md bg-white w-full max-w-md mx-auto">
+                            <div class="p-3">
+                                <!-- ชื่อธุรกิจ -->
+                                <div class="flex justify-between items-center">
+                                    <h2 class="text-lg font-semibold text-gray-800">
+                                        {{ getI18n(item?.business_list_name_i18n, locale) }}
+                                    </h2>
+                                    <p class="text-gray-800">฿{{ item?.business_list_price }}</p>
+                                </div>
 
-                            <div>
-                                <label class="label-input block mb-1">{{ t('ราคา') }}</label>
-                                <InputText v-model="business_list_price" :placeholder="t('ราคา')"
-                                    class="w-full custom-border" :invalid="!!errors?.business_list_price" />
-                                <p v-if="errors?.business_list_price" class="error-text">
-                                    {{ errors?.business_list_price }}
-                                </p>
+                                <!-- ปุ่มแอคชัน -->
+                                <hr class="border-t mt-2 mb-4" />
+                                <div class="flex gap-3">
+                                    <!-- ในแท็บไม่แสดง ให้ปุ่มเป็น "แสดง" -->
+                                    <Button :loading="togglingId === item.id" :disabled="isloadingAxi"
+                                        :label="t('แสดง')" icon="fa-regular fa-eye" severity="primary"
+                                        variant="outlined" class="w-full" @click="showConfirmToggle(item)"
+                                        :pt="{ label: { class: 'text-primary-main' }, root: { class: '!border-primary-main' } }" />
+                                    <Button :loading="isloadingAxi" :label="t('แก้ไข')" severity="primary"
+                                        variant="outlined" class="w-full" @click="openEdit(item)"
+                                        :pt="{ label: { class: 'text-primary-main' }, root: { class: '!border-primary-main' } }" />
+                                    <Button :loading="deletingId === item.id" :disabled="isloadingAxi"
+                                        @click="showConfirmDel(item)" icon="fa-regular fa-trash-can" label=""
+                                        severity="danger" variant="outlined" class="!w-[10rem]" />
+                                </div>
                             </div>
                         </div>
-                    </van-tab>
-                </van-tabs>
+                    </div>
+                    <SharedNoData v-else />
+                </van-tab>
+            </van-tabs>
+        </main>
 
-                <div class="mt-4 grid grid-cols-2 gap-3">
-                    <Button :label="t('ยกเลิก')" severity="secondary" class="w-full" @click="showEditSheet = false" />
-                    <Button :loading="isloadingAxi" :label="t('บันทึก')" severity="primary" class="w-full"
-                        @click="onSave" />
+        <van-action-sheet v-model:show="showEditSheet" :close-on-click-overlay="true" :round="true"
+            safe-area-inset-bottom>
+            <template #default>
+                <div class="sticky top-0 bg-white px-4 pt-3 pb-2 border-b border-zinc-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-base font-semibold text-zinc-800">
+                            {{ t(isEditMode ? 'แก้ไขรายการ' : 'เพิ่มรายการสินค้า') }}
+                        </h3>
+
+                        <button type="button" aria-label="Close" @click="showEditSheet = false" class="w-7 h-7 rounded-full bg-zinc-100 border border-zinc-200
+                 text-zinc-500 flex items-center justify-center
+                 hover:bg-zinc-200 active:scale-[.98] transition">
+                            <i class="fa-solid fa-xmark text-[12px]"></i>
+                        </button>
+                    </div>
                 </div>
-            </div>
+
+                <div class="p-4">
+                    <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54">
+                        <van-tab v-for="(lang, idx) in langs" :key="lang.code" :title="lang.label" :name="idx">
+                            <div class="space-y-4 py-2">
+                                <div>
+                                    <label class="label-input block mb-1">{{ t('ชื่อรายการ') }}</label>
+                                    <InputText v-model="business_list_name_i18n[lang.code]"
+                                        :placeholder="t('ชื่อรายการ')" class="w-full custom-border"
+                                        :invalid="!!getFieldError('business_list_name_i18n', lang.code)" />
+                                    <p v-if="getFieldError('business_list_name_i18n', lang.code)" class="error-text">
+                                        {{ getFieldError('business_list_name_i18n', lang.code) }}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label class="label-input block mb-1">{{ t('ราคา') }}</label>
+                                    <InputText v-model="business_list_price" :placeholder="t('ราคา')"
+                                        class="w-full custom-border" :invalid="!!errors?.business_list_price" />
+                                    <p v-if="errors?.business_list_price" class="error-text">
+                                        {{ errors?.business_list_price }}
+                                    </p>
+                                </div>
+                            </div>
+                        </van-tab>
+                    </van-tabs>
+
+                    <div class="mt-4 grid grid-cols-2 gap-3">
+                        <Button :label="t('ยกเลิก')" severity="secondary" class="w-full"
+                            @click="showEditSheet = false" />
+                        <Button :loading="isloadingAxi" :label="t('บันทึก')" severity="primary" class="w-full"
+                            @click="onSave" />
+                    </div>
+                </div>
+            </template>
         </van-action-sheet>
         <ConfirmDialog></ConfirmDialog>
 
@@ -133,6 +189,15 @@ const showNotification = (config) => {
 }
 // จบการ basic ที่ใช้ทุกหน้า
 
+const activeStatusTab = ref(0)
+
+// แยกรายการตามสถานะ
+const listDisplayed = computed(() =>
+    (resBusinessAll.value || []).filter((x) => isFlagTrue(x.status))
+)
+const listHidden = computed(() =>
+    (resBusinessAll.value || []).filter((x) => !isFlagTrue(x.status))
+)
 
 const resBusinessAll = ref([])
 const loadBusinessAll = async () => {
