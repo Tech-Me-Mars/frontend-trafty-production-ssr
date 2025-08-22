@@ -32,7 +32,7 @@ const route = useRoute();
 const resPolicy=ref([])
 const loadChoiceAudit=async ()=>{
     try {
-        const res= await dataApi.getResultPoliceSurveyAudit();
+        const res= await dataApi.getSurveyAuditAllByBusinessId(route.params.id);
         resPolicy.value =res.data.data;
     } catch (error) {
         

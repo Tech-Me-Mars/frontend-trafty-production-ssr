@@ -3,7 +3,7 @@
         <LayoutsBaseHeader :title="t('พรีวิว')" :showBack="true" back-to="/">
             <template #right>
                 <div class="flex gap-2">
-                    <i class="fa-solid fa-xmark" style="color: white; font-size: 22px;"></i>
+                    <i class="fa-solid fa-xmark cursor-pointer" style="color: white; font-size: 22px;"  @click="navigateTo(`/vendor/manage-business/home/${route.params.id}`)"></i>
                 </div>
             </template>
         </LayoutsBaseHeader>
@@ -58,22 +58,6 @@
                     {{ resInfo?.shop_subdistrict?.zip_code }}
                 </p>
 
-                <!-- Details Section -->
-                <!-- <div class="mt-4">
-                <h2 class="text-gray-800 font-semibold">{{ t('รายละเอียด') }}</h2>
-                <p class="text-sm text-gray-600 mt-2">
-                    {{ resInfo?.shop_details }}
-                </p>
-                <div class="mt-2 text-sm text-gray-600">
-                    <p><strong>{{ t('วันที่ทำการ') }}:</strong>
-                        <span v-for="(item, index) in resInfo?.shop_days" :key="index">
-                            {{ item?.day_name }}<span v-if="index !== resInfo.shop_days.length - 1">,</span>
-                        </span>
-                    </p>
-                    <p><strong>{{ t('เวลาเปิด - ปิด') }}:</strong> {{ resInfo?.shop_time }}</p>
-                    <p><strong>{{ t('เบอร์ติดต่อ') }}:</strong> {{ resInfo?.shop_phone }}</p>
-                </div>
-            </div> -->
                 <div class="mt-2 text-sm text-gray-800 space-y-2">
                     <h2 class="text-gray-800 font-semibold">{{ t('รายละเอียด') }}</h2>
                     <p class="text-sm text-gray-600 mt-2">
@@ -83,7 +67,7 @@
                         <i class="pi pi-calendar text-yellow-500 text-lg mt-1" />
                         <span>
                             <strong class="text-black">{{ t('วันที่ทำการ') }} :</strong>
-                            <span class="text-primary-700">
+                            <span class="text-primary-main">
                                 {{
                                     (() => {
                                         try {
@@ -101,7 +85,7 @@
                         <i class="pi pi-clock text-blue-500 text-lg mt-1" />
                         <span>
                             <strong class="text-black">{{ t('เวลาเปิด - ปิด') }} :</strong>
-                            <span class="text-primary-700">{{ resInfo?.shop_time }}</span>
+                            <span class="text-primary-main">{{ resInfo?.shop_time }}</span>
                         </span>
                     </p>
 
@@ -109,17 +93,17 @@
                         <i class="pi pi-phone text-green-500 text-lg mt-1" />
                         <span>
                             <strong class="text-black">{{ t('เบอร์ติดต่อ') }} :</strong>
-                            <span class="text-primary-700">{{ resInfo?.shop_phone }}</span>
+                            <span class="text-primary-main">{{ resInfo?.shop_phone }}</span>
                         </span>
                     </p>
                 </div>
-                <!-- <widgetSocial :resInfo="resInfo?.social_medias" /> -->
+                <widgetSocial :resInfo="resInfo?.business_social_media" />
             </div>
-            <!-- <widgetItemsBusiness :resInfo="resInfo?.business_lists" /> -->
+            <widgetItemsBusiness class="mt-2" :resInfo="resInfo?.business_list" />
 
 
-            <!-- <widgetReview :resInfo="resInfo?.comments" />
-            <widgetPolicy /> -->
+            <!-- <widgetReview :resInfo="resInfo?.comments" /> -->
+            <widgetPolicy />
 
             <!-- <div class="flex justify-center gap-2 mt-10 pb-2" v-if="resProfile?.role_id == 3">
                 <Button :loading="isloadingAxi" :label="t('ตรวจสอบมาตรฐาน')" rounded severity="primary" class="" />

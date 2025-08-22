@@ -1,32 +1,22 @@
-// ใช้ใน Nuxt 3 / Vue 3
-// วางไฟล์นี้ที่: /composables/useImage.ts
-export function useImage(fallback = '/image/image494.jpg') {
-    const normalize = (src?: unknown): string => {
-      if (typeof src !== 'string') return fallback;
-      const s = src.trim();
-      if (!s) return fallback;
-  
-      // data URL
-      if (s.startsWith('data:')) return s;
-  
-      // กรณีลืมใส่ '//' เช่น 'https:dododo/image.png'
-      if (/^https?:[^/]/i.test(s)) {
-        return s.replace(/^https?:/i, (m) => `${m}//`);
-      }
-  
-      // http(s) ปกติ
-      if (/^https?:\/\//i.test(s)) return s;
-  
-      // absolute path (เสิร์ฟจาก /public)
-      if (s.startsWith('/')) return s;
-  
-      // อื่น ๆ ให้มองเป็นไฟล์ใน /public
-      return `/${s}`;
-    };
-  
-    /** ใช้ใน template: :src="getImage(image)" */
-    const getImage = (src?: unknown): string => normalize(src);
-  
-    return { getImage };
+// ~/composables/useImage.js
+
+// คืน URL ที่พร้อมใช้งานทันที (เหมาะใช้ตรง ๆ ใน template)
+export const useImage = (src, fallback = '/image/image404.jpg') => {
+  const normalize = (v) => {
+    if (typeof v !== 'string') return fallback
+    const s = v.trim()
+    if (!s) return fallback
+    if (s.startsWith('data:')) return s                      // data URL
+    if (/^https?:[^/]/i.test(s)) return s.replace(/^https?:/i, m => `${m}//`) // https:xxx -> https://xxx
+    if (/^https?:\/\//i.test(s)) return s                    // http(s)
+    if (s.startsWith('/')) return s                          // /public
+    return `/${s}`                                           // มองเป็นไฟล์ใต้ /public
   }
-  
+  return normalize(src ?? fallback)
+}
+
+// เผื่ออยากดึง helper มาใช้ซ้ำใน <script setup>
+// export const useImage = (fallback = '/image/image494.jpg') => {
+//   const getImage = (src, fb = fallback) => useImageUrl(src, fb)
+//   return { getImage }
+// }

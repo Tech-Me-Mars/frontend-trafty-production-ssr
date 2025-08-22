@@ -49,8 +49,8 @@
 
                 <!-- Approval Status -->
                 <!-- Preview pill (ขวาสุด) -->
-                <button class="ml-3 shrink-0 px-3 py-1.5 rounded-full text-xs font-medium !text-gray-400
-           border border-zinc-300 text-zinc-600 bg-zinc-50 hover:bg-zinc-200">
+                <button @click="navigateTo(`/vendor/preview/${route.params.id}`)" class="ml-3 shrink-0 px-3 py-1.5 rounded-full text-xs font-medium 
+           border border-zinc-300 !text-zinc-600 bg-zinc-50 hover:bg-zinc-200">
                     {{ t('พรีวิว') }}
                 </button>
             </div>

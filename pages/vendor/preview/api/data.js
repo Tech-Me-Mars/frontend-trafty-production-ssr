@@ -12,8 +12,8 @@ export function getProfile() {
   return request("get", url, {}, true);
 }
 
-export function getResultPoliceSurveyAudit() {
-  const url = `/api/v1/survey-police/get-survey-audit-police-by-business-id/19`;
+export function getSurveyAuditAllByBusinessId(id) {
+  const url = `/api/v1/business/survey_audit/get-survey-audit-all-by-business-id/${id}`;
   return request("get", url, {}, true);
 }
 
