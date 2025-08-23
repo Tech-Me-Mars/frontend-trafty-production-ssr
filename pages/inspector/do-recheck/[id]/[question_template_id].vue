@@ -1,37 +1,39 @@
 <template>
-  <div class="min-h-screen bg-zinc-50">
+  <div class="min-h-screen bg-zinc-100">
 
-    <LayoutsBaseHeader :title="t('ธุรกิจในแหล่งท่องเที่ยว')" showBack :backTo="`/inspector/check/business-tourlist?isBusiness=${route.query.isBusiness}`"></LayoutsBaseHeader>
+    <LayoutsBaseHeader :title="t('ธุรกิจในแหล่งท่องเที่ยว')" showBack
+      :backTo="`/inspector/check/business-tourlist?isBusiness=${route.query.isBusiness}`"></LayoutsBaseHeader>
+    <section class="max-w-[430px] mx-auto">
 
-    <template v-if="surveyDataMap">
-      <Dynamic :survey-data-map="surveyDataMap" @submit="handleFormSubmit" :default-values="mapDefaultValueData"
-        :model-change="model_change" />
-    </template>
-    <!-- Dialog บังทั้งหน้า -->
-    <Transition name="fade">
-      <div v-if="showDialog" class="fixed inset-0 z-[99999] bg-white flex items-center justify-center">
-        <div class="text-center px-6">
-          <!-- วงแหวนเปอร์เซ็นต์ -->
-          <div class="relative w-28 h-28 mx-auto mb-6">
-            <div class="w-28 h-28 rounded-full" :style="ringStyle"></div>
-            <div
-              class="absolute inset-2 rounded-full bg-white flex items-center justify-center text-xl font-bold text-[#202c54]">
-              {{ chosenPercentStr }}
+      <template v-if="surveyDataMap">
+        <Dynamic :survey-data-map="surveyDataMap" @submit="handleFormSubmit" :default-values="mapDefaultValueData"
+          :model-change="model_change" />
+      </template>
+      <!-- Dialog บังทั้งหน้า -->
+      <Transition name="fade">
+        <div v-if="showDialog" class="fixed inset-0 z-[99999] bg-white flex items-center justify-center">
+          <div class="text-center px-6">
+            <!-- วงแหวนเปอร์เซ็นต์ -->
+            <div class="relative w-28 h-28 mx-auto mb-6">
+              <div class="w-28 h-28 rounded-full" :style="ringStyle"></div>
+              <div
+                class="absolute inset-2 rounded-full bg-white flex items-center justify-center text-xl font-bold text-[#202c54]">
+                {{ chosenPercentStr }}
+              </div>
             </div>
-          </div>
 
-          <!-- หัวข้อใหญ่ -->
-          <h3 class="text-2xl font-semibold mb-3 text-[#202c54]">
-            {{ headerTitle }}
-          </h3>
+            <!-- หัวข้อใหญ่ -->
+            <h3 class="text-2xl font-semibold mb-3 text-[#202c54]">
+              {{ headerTitle }}
+            </h3>
 
-          <!-- รายละเอียด -->
-          <p class="text-gray-600 text-base leading-relaxed max-w-xs mx-aut mb-20">
-            {{ detailLine }}
-          </p>
+            <!-- รายละเอียด -->
+            <p class="text-gray-600 text-base leading-relaxed max-w-xs mx-aut mb-20">
+              {{ detailLine }}
+            </p>
 
-          <!-- ปุ่ม (ปรับตามที่ต้องการ) -->
-          <!-- <div class="mt-8 flex flex-col items-center gap-5">
+            <!-- ปุ่ม (ปรับตามที่ต้องการ) -->
+            <!-- <div class="mt-8 flex flex-col items-center gap-5">
           <button
             class="px-8 py-3 text-base rounded-full text-white"
             :class="isPass ? 'bg-green-600' : 'bg-[#202c54]'"
@@ -43,27 +45,29 @@
             กลับสู่หน้าหลัก
           </button>
         </div> -->
-          <!-- Buttons Section -->
-          <div class="max-w-[20rem] mx-auto">
-            <Button v-if="!isPass" :loading="isloadingAxi" :label="t('ส่งใบเตือน')" @click="goIssueWarning"
-              severity="primary" rounded class="w-full mb-1" :pt="{
-                label: { class: 'text-primary-main text-white' },
-                root: { class: '!border-primary-main' }
-              }" />
-            <Button v-if="isPass" :loading="isloadingAxi" @click="navigateTo(`/inspector/check/business-tourlist?isBusiness=${route.query.isBusiness}`)"
-              :label="t('กลับหน้าหลัก')" severity="secondary" rounded class="w-full" :pt="{}" />
+            <!-- Buttons Section -->
+            <div class="max-w-[20rem] mx-auto">
+              <Button v-if="!isPass" :loading="isloadingAxi" :label="t('ส่งใบเตือน')" @click="goIssueWarning"
+                severity="primary" rounded class="w-full mb-1" :pt="{
+                  label: { class: 'text-primary-main text-white' },
+                  root: { class: '!border-primary-main' }
+                }" />
+              <Button v-if="isPass" :loading="isloadingAxi"
+                @click="navigateTo(`/inspector/check/business-tourlist?isBusiness=${route.query.isBusiness}`)"
+                :label="t('กลับหน้าหลัก')" severity="secondary" rounded class="w-full" :pt="{}" />
+
+            </div>
 
           </div>
-
         </div>
-      </div>
-    </Transition>
+      </Transition>
 
-    <NotifyMessage v-model:show="toast.show" :type="toast.type" :title="toast.title" :message="toast.message"
-      :life="toast.life" />
-    <NotificationPopup v-model:visible="notification.visible" :state="notification.state" :title="notification.title"
-      :detail="notification.detail" :timeout="notification.timeout" :redirect-url="notification.redirectUrl"
-      :auto-close="notification.autoClose" />
+      <NotifyMessage v-model:show="toast.show" :type="toast.type" :title="toast.title" :message="toast.message"
+        :life="toast.life" />
+      <NotificationPopup v-model:visible="notification.visible" :state="notification.state" :title="notification.title"
+        :detail="notification.detail" :timeout="notification.timeout" :redirect-url="notification.redirectUrl"
+        :auto-close="notification.autoClose" />
+    </section>
   </div>
 </template>
 <script setup>
@@ -269,7 +273,20 @@ const handleFormSubmit = async (allFormsData) => {
     //   autoClose: true
     // })
     issueWarningId.value = res.data.data.id
-    openDialogFromApi(res?.data?.dialog)
+    // openDialogFromApi(res?.data?.dialog)
+    navigateTo({
+      path: '/inspector/do-recheck/state-finish',
+      query: {
+        // คีย์ใดก็ได้ตามที่รองรับด้านบน
+        title: res?.data?.dialog?.title,
+        isPass: res?.data?.dialog?.IsPass,                // true/false
+        detail: res?.data?.dialog?.detail,
+        score: res?.data?.dialog?.ScorePercent,           // "72.34%" หรือ "72.34"
+        scoreFailed: res?.data?.dialog?.ScorePercentFailed,
+        id: res?.data?.data?.id,                          // ใช้ไปหน้าออกใบเตือน
+        isBusiness: route.query.isBusiness                // ส่งต่อค่าเดิม
+      }
+    })
 
 
   } catch (error) {

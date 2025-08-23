@@ -1141,6 +1141,28 @@ function getSubmitPayload(surveyDataMap, formValuesMap) {
 // ส่งข้อมูลฟอร์ม
 import * as dataApiBusiness from "@/service/business.js";
 const route = useRoute()
+// ✅ แปลงค่า radio ที่ว่างให้เป็น '0' (หรือ unchecked_value ถ้ามี)
+const normalizeRadioBlanksToZero = (surveyMap, values) => {
+  // deep clone ป้องกันกระทบตัวแปรต้นฉบับ
+  const out = JSON.parse(JSON.stringify(values || {}))
+
+  for (const [groupKey, groupValue] of Object.entries(surveyMap || {})) {
+    const qs = groupValue?._question || []
+    for (const q of qs) {
+      if (q?.question_type === 'radio') {
+        const name = q.field_name
+        const current = out?.[groupKey]?.[name]
+        // ว่างจริง ๆ เท่านั้นที่จะแปลง (ไม่ไปยุ่งกับ '0')
+        if (current === '' || current === null || typeof current === 'undefined') {
+          if (!out[groupKey]) out[groupKey] = {}
+          // ใช้ unchecked_value เป็นหลัก ถ้าไม่มีให้ fallback เป็น '0'
+          out[groupKey][name] = String(q?.unchecked_value ?? '0')
+        }
+      }
+    }
+  }
+  return out
+}
 const submitAllForms = async () => {
   try {
     // ตรวจสอบฟอร์มทั่วไป
@@ -1171,7 +1193,10 @@ const submitAllForms = async () => {
     }
     const resBusiness = await dataApiBusiness.getBusiness(route.params.id)
     // ส่งข้อมูล
-    const base = getSubmitPayload(props.surveyDataMap, formValuesMap.value)
+    // const base = getSubmitPayload(props.surveyDataMap, formValuesMap.value)
+
+   const normalizedValues = normalizeRadioBlanksToZero(props.surveyDataMap, formValuesMap.value)
+   const base = getSubmitPayload(props.surveyDataMap, normalizedValues)
     const payload = {
       ...base,
       survey_id: resBusiness.data.data?.template_survey_id,

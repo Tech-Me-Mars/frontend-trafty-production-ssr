@@ -12,8 +12,9 @@ export function getProfile() {
   return request("get", url, {}, true);
 }
 
-export function getSurveyAuditAllByBusinessId(id) {
-  const url = `/api/v1/business/survey_audit/get-survey-audit-all-by-business-id/${id}`;
+export async function getSurveyAuditAllByBusinessId(id) {
+    const modulepath = await getModulePathByRoleId()
+  const url = `/api/v1/${modulepath}/survey_audit/get-survey-audit-all-by-business-id/${id}`;
   return request("get", url, {}, true);
 }
 

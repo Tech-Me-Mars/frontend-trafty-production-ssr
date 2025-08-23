@@ -1,0 +1,121 @@
+<template>
+    <div class="bg-zinc-100 min-h-screen w-full">
+        <LayoutsBaseHeader title="มาตรฐานความปลอดภัย" :showBack="true"
+            :back-to="`/vendor/preview/${route.params.id}`" />
+        <section class="max-w-[430px] mx-auto">
+            <div class="p-4">
+                <div class="mx-auto bg-white rounded-lg shadow-md px-4 py-2">
+                    <div class="border-b flex justify-between">
+                        <div class="flex justify-between flex-wrap w-full py-3">
+                            <h2 class="font-bold">มาตรฐาานความปลอดภัย</h2>
+                            <!-- <ConfirmSwitch v-model="isOpen" message-on="คุณต้องการเปิดรีวิวนี้ให้ผู้อื่นเห็นหรือไม่?"
+                                message-off="คุณต้องการปิดรีวิวนี้ใช่หรือไม่?" /> -->
+                        </div>
+                    </div>
+
+
+                    <div v-if="isLoading" class="p-4">
+                        <div class="h-4 w-40 bg-zinc-200 rounded mb-4 animate-pulse"></div>
+                        <ul class="space-y-3">
+                            <li v-for="n in 6" :key="n" class="flex items-start space-x-3">
+                                <div class="w-5 h-5 rounded-full bg-zinc-200 animate-pulse mt-0.5"></div>
+                                <div class="flex-1">
+                                    <div class="h-4 bg-zinc-200 rounded w-[90%] mb-2 animate-pulse"></div>
+                                    <div class="h-3 bg-zinc-200 rounded w-[70%] animate-pulse"></div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Content -->
+                    <div v-else class="p-4">
+                        <!-- List -->
+                        <ul v-if="resPolicy.length" class="space-y-5">
+                            <li v-for="(item, index) in resPolicy" :key="index" class="flex items-start space-x-3">
+                                <i v-if="item.FieldValue == '1'"
+                                    class="fa-solid fa-circle-check text-blue-700 mt-1"></i>
+                                <i v-else class="fa-solid fa-circle-xmark text-red-600 mt-1"></i>
+
+                                <div class="flex-1">
+                                    <span class="block">
+                                        {{ getI18n(item.questions_field_name_display) }}
+                                    </span>
+                                </div>
+                            </li>
+                        </ul>
+
+                        <!-- Empty state -->
+                        <div v-else class="text-sm text-zinc-500 py-2">
+                            {{ t('ยังไม่มีรายการ') }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</template>
+
+<script setup>
+// basic ที่ใช้ทุกหน้า
+definePageMeta({ middleware: ['auth'] })
+
+
+import * as dataApi from '../api/data.js'
+import { useI18n } from 'vue-i18n'
+
+const { t, locale, setLocale } = useI18n()
+const isloadingAxi = useState('isloadingAxi')
+const route = useRoute()
+const router = useRouter()
+
+const toast = ref({
+    show: false,
+    type: null,
+    title: null,
+    message: null,
+    life: null
+})
+
+const notification = reactive({
+    visible: false,
+    state: 'success',
+    title: '',
+    detail: '',
+    timeout: 0,
+    redirectUrl: null,
+    autoClose: true
+})
+
+const showNotification = (config) => {
+    Object.assign(notification, { visible: true, ...config })
+}
+
+// --------------------
+// Data + Loading state
+// --------------------
+const isLoading = ref(true)
+const resPolicy = ref([])
+const isOpen = ref(true)
+
+
+
+const loadPolicy = async () => {
+    try {
+        isLoading.value = true
+        const res = await dataApi.getSurveyAuditAllByBusinessId(route.params.id)
+        resPolicy.value = res.data.data || []
+    } catch (err) {
+        console.error(err)
+        resPolicy.value = []
+    } finally {
+        isLoading.value = false
+    }
+}
+
+
+onMounted(() => {
+    setTimeout(() => {
+        loadPolicy()
+    }, 1000);
+})
+</script>
