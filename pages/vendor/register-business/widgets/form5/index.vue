@@ -177,6 +177,9 @@ const saveRegisterBusiness = async () => {
     if (formStore.business_social_media) {
       formData.append("business_social_media", JSON.stringify(formStore.business_social_media));
     }
+    if (formStore.business_bank) {
+      formData.append("business_social_media", JSON.stringify(formStore.business_social_media));
+    }
     if (formStore.business_img) {
       formStore.business_img.forEach((item, idx) => {
         formData.append("business_img", item.file, item.file.name || `image_${idx}.jpg`);
@@ -316,18 +319,13 @@ const saveRegisterBusiness = async () => {
         </van-tabs>
         <!-- <Button type="submit" :loading="isloadingAxi" :label="t('บันทึก')" severity="primary" class="w-full" rounded /> -->
         <!-- ปุ่มบันทึกชิดขอบล่าง แบบก้อน 1 แต่เป็น submit เข้าฟอร์มก้อน 2 -->
-        <div class="fixed bottom-0 left-0 right-0 z-30" :style="{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }">
-            <div class="max-w-[430px] mx-auto px-3 py-2">
-              <Button
-                type="submit"
-                :loading="isloadingAxi"
-                :label="t('บันทึก')"
-                severity="primary"
-                class="w-full"
-                rounded
-              />
-            </div>
+        <div class="fixed bottom-0 left-0 right-0 z-30"
+          :style="{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }">
+          <div class="max-w-[430px] mx-auto px-3 py-2">
+            <Button type="submit" :loading="isloadingAxi" :label="t('บันทึก')" severity="primary" class="w-full"
+              rounded />
           </div>
+        </div>
       </Form>
     </div>
 

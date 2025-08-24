@@ -94,7 +94,7 @@
                     <h2 class="text-lg font-bold">{{ getI18n(resBusinessAll?.shop_name_i18n, locale) }}</h2>
                     <p class="text-sm text-gray-500">{{
                         getI18n(resBusinessAll?.business_type?.business_type_name_i18n, locale)
-                        }}</p>
+                    }}</p>
 
                     <span v-if="resBusinessAll?.survey_status?.survey_success_note"
                         class="inline-flex items-center px-2 py-1 text-xs font-medium text-white rounded" :style="resBusinessAll?.survey_status?.bg_color?.startsWith('#')
@@ -146,12 +146,21 @@
                 </div>
             </div>
 
-            <div class="w-full card" v-if="responsiblePerson">
+            <div class="w-full card" v-if="resBusinessAll?.station_id">
                 <div>
-                    <h2 class="text-lg font-bold">{{ t('ข้อมูลธุรกิจในแหล่งท่องเที่ยว') }}</h2>
-                    <p class="">
-                        <span class="">สถานีตำรวจท่องเที่ยว: <span></span></span>
+                    <h2 class="text-lg font-bold">{{ t('ผู้รับผิดชอบสถานที่') }}</h2>
+                    <p class="mb-2">
+                        <span class="text-gray-600 text-sm font-semibold ">{{
+                            getI18n(resBusinessAll?.station?.station_name_i18n,locale) }}</span>
                     </p>
+                    <label class="text-lg font-semibold">{{ t('แก้ไขผู้รับผิดชอบสถานที่') }}</label>
+                    <Dropdown v-model="selectedResponsibleId" :options="responsiblePerson" option-label="fullname"
+                        option-value="user_id" :filter="true" :filter-placeholder="t('ค้นหาชื่อผู้รับผิดชอบ')"
+                        size="small" :placeholder="t('เลือกผู้รับผิดชอบสถานที่')" class="w-full mb-4 custom-border" />
+                    <div class="flex justify-end">
+                        <Button :label="t('แก้ไขข้อมูล')" :loading="isSaving" :disabled="!canSubmit" rounded
+                            @click="updateResponsible" size="small" class="w-15 "></Button>
+                    </div>
                 </div>
             </div>
 
@@ -343,9 +352,16 @@ const responsiblePerson = ref(null)
 const loadResponsible = async () => {
     try {
         const role_id = await useDecryptedCookie("role_id")
-        if (role_id != '3') return;
-        const res = await dataApi.getResponsiblePerson(route.params.id);
-        responsiblePerson.value = res.data.data;
+        if (role_id == '3' || role_id == '1') {
+            const res = await dataApi.getResponsiblePerson(route.params.id);
+            responsiblePerson.value = res.data.data.map((item) => ({
+                ...item,
+                fullname: `${item.Prefix} ${item.fname} ${item.lname}`
+            }))
+        } else {
+            return;
+        }
+
     } catch (error) {
         toast.value = {
             show: true,
@@ -597,6 +613,56 @@ const onSave = handleSubmit(async (values) => {
         console.error(e)
     }
 })
+
+// ✅ v-model สำหรับ Dropdown (id จากรายการ responsiblePerson)
+const selectedResponsibleId = ref(null)
+
+// สถานะปุ่ม/โหลด
+const isSaving = ref(false)
+const canSubmit = computed(() => !!selectedResponsibleId.value && !isSaving.value)
+
+// ✅ กดปุ่มแล้วสร้าง payload และยิง API ตามที่ระบุ
+async function updateResponsible() {
+    if (!selectedResponsibleId.value) {
+        toast.value = {
+            show: true,
+            type: 'warning',
+            title: t('แจ้งเตือน'),
+            message: t('กรุณาเลือกผู้รับผิดชอบ'),
+            life: 2000
+        }
+        return
+    }
+
+    const payload = { user_id: parseInt(selectedResponsibleId.value) } // ← ตามสเปกที่ให้มา
+
+    try {
+        isSaving.value = true
+        const res = await dataApi.updateBusinessResponsible(route.params.id, payload)
+        toast.value = {
+            show: true,
+            type: 'success',
+            title: t('สำเร็จ'),
+            message: t('แก้ไขผู้รับผิดชอบสถานที่เรียบร้อยแล้ว'),
+            life: 2000
+        }
+        // ถ้าต้อง refresh ข้อมูลหน้า ปรับใช้ฟังก์ชัน fetch ใหม่ที่คุณมีอยู่
+        await resBusinessAll.value.station_id == null
+        await loadBusinessAll();
+    } catch (error) {
+        console.error(err)
+        toast.value = {
+            show: true,
+            type: 'danger',
+            title: t('ผิดพลาด'),
+            message: error?.response?.data?.message || t('เกิดข้อผิดพลาด'),
+            life: null
+        }
+    } finally {
+        isSaving.value = false
+    }
+}
+
 </script>
 
 <style scoped>

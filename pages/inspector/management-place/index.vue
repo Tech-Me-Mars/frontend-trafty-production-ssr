@@ -32,7 +32,7 @@
                             </div>
                             <hr class="border-zinc-200 mb-2" />
                             <div class="flex gap-2 mt-3">
-                                <Button :label="t('จัดการข้อมูล')" :loading="isloadingAxi" severity="primary"
+                                <Button v-if="item?.business_station_id != null" :label="t('จัดการข้อมูล')" :loading="isloadingAxi" severity="primary"
                                     variant="outlined" class="w-full" :pt="{
                                         label: { class: 'text-primary-main text-xs' },
                                         root: { class: '!border-primary-main' },

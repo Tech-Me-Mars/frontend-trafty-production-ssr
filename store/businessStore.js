@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 
 export const useFormStore = defineStore('form', {
   state: () => ({
-    activePage:1,
+    activePage:5,
     service_type_id: null,
     business_type_id: null,
     business_model_id:null,
@@ -30,6 +30,7 @@ export const useFormStore = defineStore('form', {
     image_cover: '',
     image_profile: '',
     business_img: [],
+    business_bank:[],
     business_social_media: [],
     business_list:[]
   }),
@@ -54,7 +55,7 @@ export const useFormStore = defineStore('form', {
       this.business_email_i18n = business_email_i18n;
       this.business_documents = business_documents;
     },
-    setForm4(shop_name_i18n, shop_address_i18n,shop_province_id,shop_district_id,shop_subdistrict_id, business_open_date, shop_time_i18n, shop_phone_i18n, shop_details_i18n, image_cover, image_profile, business_img, business_social_media,latitude_i18n,longitude_i18n) {
+    setForm4(shop_name_i18n, shop_address_i18n,shop_province_id,shop_district_id,shop_subdistrict_id, business_open_date, shop_time_i18n, shop_phone_i18n, shop_details_i18n, image_cover, image_profile, business_img,business_bank, business_social_media,latitude_i18n,longitude_i18n) {
       this.shop_name_i18n = shop_name_i18n;
       this.shop_address_i18n = shop_address_i18n;
       this.shop_province_id = shop_province_id;
@@ -67,6 +68,7 @@ export const useFormStore = defineStore('form', {
       this.image_cover = image_cover;
       this.image_profile = image_profile;
       this.business_img = business_img;
+      this.business_bank = business_bank;
       this.business_social_media = business_social_media;
       this.latitude_i18n = latitude_i18n,
       this.longitude_i18n = longitude_i18n

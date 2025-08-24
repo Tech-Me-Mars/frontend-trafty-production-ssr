@@ -43,3 +43,15 @@ export async function updateBusinessStatus(id,payload) {
   return request("put", url, payload, true);
 }
 
+export async function getResponsiblePerson() {
+  const modulepath = await getModulePathByRoleId()
+  const url = `/api/v1/${modulepath}/business/get_responsible`;
+  return request("get", url, {}, true);
+}
+
+export async function updateBusinessResponsible(id,payload) {
+  const modulepath = await getModulePathByRoleId()
+  const url = `/api/v1/${modulepath}/business/update-business-responsible/${id}`;
+  return request("put", url, payload, true);
+}
+

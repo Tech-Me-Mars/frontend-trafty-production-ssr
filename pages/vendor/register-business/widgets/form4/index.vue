@@ -146,6 +146,24 @@ const validationSchema = toTypedSchema(
                     .nonempty(t('กรุณาระบุข้อมูลลิงก์')),
             })
         ),
+        business_bank: zod
+            .array(
+                zod.object({
+                    business_bank_name_i18n: zod.object({
+                        th: zod.string().min(1, requireValue),
+                        en: zod.string().optional().or(zod.literal('')),
+                        cn: zod.string().optional().or(zod.literal('')),
+                    }),
+                    business_bank_account_i18n: zod.object({
+                        th: zod.string().min(1, requireValue),
+                        en: zod.string().optional().or(zod.literal('')),
+                        cn: zod.string().optional().or(zod.literal('')),
+                    }),
+                    business_bank_account_number: zod.string().min(1, requireValue),
+                })
+            )
+            .min(1, t('กรุณาเพิ่มอย่างน้อย 1 บัญชี')),
+
 
         image_cover: zod
             .union([
@@ -185,6 +203,14 @@ const { handleSubmit, handleReset, errors } = useForm({
 
             },
         ],
+        business_bank: [
+            {
+                business_bank_name_i18n: { th: '', en: '', cn: '' },
+                business_bank_account_i18n: { th: '', en: '', cn: '' },
+                business_bank_account_number: '',
+            },
+        ],
+
     },
     validationSchema,
 });
@@ -376,6 +402,7 @@ watch(shop_district_id, val => {
 
 // const { push, fields, remove } = useFieldArray("social_media");
 const { remove: remove1, push: push1, fields: fields1 } = useFieldArray("social_media");
+const { remove: removeBank, push: pushBank, fields: fieldsBank } = useFieldArray('business_bank')
 
 // const { value: business_name } = useField('business_name', null, {
 //     initialValue: null
@@ -404,6 +431,20 @@ const handleNext = handleSubmit((values) => {
             social_media_id: field.value.social_media_id || null,
             social_media_link: field.value.social_media_link || null,
         }));
+        const business_bank_array = (fieldsBank?.value || []).map((field) => ({
+            business_bank_name_i18n: {
+                th: field.value?.business_bank_name_i18n?.th || '',
+                en: field.value?.business_bank_name_i18n?.en || '',
+                cn: field.value?.business_bank_name_i18n?.cn || '',
+            },
+            business_bank_account_i18n: {
+                th: field.value?.business_bank_account_i18n?.th || '',
+                en: field.value?.business_bank_account_i18n?.en || '',
+                cn: field.value?.business_bank_account_i18n?.cn || '',
+            },
+            // เก็บเฉพาะตัวเลข/ตัดช่องว่าง (ถ้าไม่ต้องการให้ตัด ให้ใช้ String(...) เฉย ๆ)
+            business_bank_account_number: String(field.value?.business_bank_account_number ?? ''),
+        }));
         // console.log('shop_details', shop_details.value)
 
         // เก็บข้อมูลลง Pinia แทน LocalStorage
@@ -420,6 +461,7 @@ const handleNext = handleSubmit((values) => {
             image_cover.value,
             image_profile.value,
             business_img_array,
+            business_bank_array,
             social_media_array,
             latitude.value,
             longitude.value
@@ -765,7 +807,7 @@ const onSelectChange = (e) => {
                                             </div>
                                             <p class="error-text" v-if="errors?.image_profile">{{
                                                 t('กรุณาเลือกอย่างน้อย')
-                                                }} 1
+                                            }} 1
                                                 {{
                                                     t('ภาพ') }}
                                             </p>
@@ -803,7 +845,7 @@ const onSelectChange = (e) => {
 
                                             </div>
                                             <p class="error-text" v-if="errors?.image_cover">{{ t('กรุณาเลือกอย่างน้อย')
-                                                }}
+                                            }}
                                                 1 {{
                                                     t('ภาพ') }}</p>
                                         </div>
@@ -861,7 +903,7 @@ const onSelectChange = (e) => {
                                                                 slotProps.option?.name }}</span>
                                                             <span class="text-sm text-gray-500">{{
                                                                 slotProps.option?.address
-                                                                }}</span>
+                                                            }}</span>
                                                         </div>
                                                     </template>
                                                 </AutoComplete>
@@ -871,7 +913,7 @@ const onSelectChange = (e) => {
                                                 </div>
                                                 <p class="error-text" v-if="errors?.longitude">{{
                                                     t('กรุณาปักหมุดสถานที่ท่องเที่ยวหรือธุรกิจ')
-                                                    }}
+                                                }}
                                                 </p>
 
                                             </client-only>
@@ -880,9 +922,9 @@ const onSelectChange = (e) => {
                                                 <p class="text-xs text-zinc-600" v-if="latitude && longitude">
                                                     {{ t('ตำแหน่ง') }}: {{ latitude }}, {{ longitude }}
                                                 </p>
-                                               <Button icon="fa-solid fa-location-dot" size="small" outlined @click="addMarkerAtCenter"
-                    :label="t('ปักหมุดตรงกลาง')" />
-                    <!-- <Button icon="fa-solid fa-location-dot" size="small" outlined
+                                                <Button icon="fa-solid fa-location-dot" size="small" outlined
+                                                    @click="addMarkerAtCenter" :label="t('ปักหมุดตรงกลาง')" />
+                                                <!-- <Button icon="fa-solid fa-location-dot" size="small" outlined
                                                     @click="addMarkerAtCenter" severity="primary"
                                                     :label="t('ปักหมุดตำแหน่งธุรกิจหรือสถานที่ท่องเที่ยว')" /> -->
                                             </div>
@@ -1028,7 +1070,7 @@ const onSelectChange = (e) => {
 
                                             <p class="error-text" v-if="errors?.shop_time_s || errors?.shop_time_e">{{
                                                 t('กรุณาเลือกเวลาทำการ')
-                                                }}</p>
+                                            }}</p>
 
                                         </div>
                                         <!-- ติดต่อ -->
@@ -1042,7 +1084,7 @@ const onSelectChange = (e) => {
 
                                         <div>
                                             <label class="label-input">{{ t('รายละเอียดธุรกิจในแหล่งท่องเที่ยว')
-                                                }}</label>
+                                            }}</label>
                                             <InputText v-model="shop_details[lang.code]" placeholder=""
                                                 class="w-full custom-border" :invalid="getFieldError('shop_details')" />
                                             <p class="error-text" v-if="getFieldError('shop_details', lang.code)">{{
@@ -1050,6 +1092,89 @@ const onSelectChange = (e) => {
 
                                         </div>
 
+                                    </div>
+                                    <hr class="border-b-2 mb-3" />
+                                    <h4 class="section-title mt-6">{{ t('เลขที่บัญชี') }}</h4>
+
+                                    <Button :loading="isloadingAxi" type="button" :label="t('เพิ่มเลขที่บัญชี')" @click="pushBank({
+                                        business_bank_name_i18n: { th: '', en: '', cn: '' },
+                                        business_bank_account_i18n: { th: '', en: '', cn: '' },
+                                        business_bank_account_number: '',
+                                    })" :pt="{
+                                        label: { class: 'text-white' },
+                                        root: { class: '!border-primary-main !bg-primary-second' },
+                                    }" />
+
+                                    <div v-if="fieldsBank?.length > 0" class="mt-3">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-start" style="width: 11rem">{{ t('ธนาคาร') }}</th>
+                                                    <th class="text-start" style="width: 11rem">{{ t('ชื่อบัญชี') }}
+                                                    </th>
+                                                    <th class="text-start" style="width: 10rem">{{ t('เลขบัญชี') }}</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="(field, index) in fieldsBank" :key="field.key">
+                                                    <!-- ชื่อธนาคาร (i18n) -->
+                                                    <td class="align-top">
+                                                        <div class="space-y-0">
+                                                            <InputText
+                                                                v-model="field.value.business_bank_name_i18n[lang.code]"
+                                                                class="w-full custom-border"
+                                                                :placeholder="t('ธนาคาร')" />
+                                                            <p v-if="errors?.[`business_bank[${index}].business_bank_name_i18n.${lang.code}`]"
+                                                                class="text-red-500 text-sm mt-1">
+                                                                {{
+                                                                    errors[`business_bank[${index}].business_bank_name_i18n.${lang.code}`]
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                    </td>
+
+                                                    <!-- ชื่อบัญชี (i18n) -->
+                                                    <td class="align-top">
+                                                        <div class="space-y-0">
+                                                            <InputText
+                                                                v-model="field.value.business_bank_account_i18n[lang.code]"
+                                                                class="w-full custom-border"
+                                                                :placeholder="t('ชื่อบัญชี')" />
+                                                            <p v-if="errors?.[`business_bank[${index}].business_bank_account_i18n.${lang.code}`]"
+                                                                class="text-red-500 text-sm mt-1">
+                                                                {{
+                                                                    errors[`business_bank[${index}].business_bank_account_i18n.${lang.code}`]
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                    </td>
+
+                                                    <!-- เลขบัญชี -->
+                                                    <td class="align-top">
+                                                        <div class="space-y-0">
+                                                            <InputText
+                                                                v-model="field.value.business_bank_account_number"
+                                                                v-keyfilter.int class="w-full custom-border"
+                                                                :placeholder="t('เลขบัญชี')" />
+                                                            <p v-if="errors?.[`business_bank[${index}].business_bank_account_number`]"
+                                                                class="text-red-500 text-sm mt-1">
+                                                                {{
+                                                                    errors[`business_bank[${index}].business_bank_account_number`]
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                    </td>
+
+                                                    <!-- Actions -->
+                                                    <td class="align-top">
+                                                        <Button :loading="isloadingAxi" icon="pi pi-times"
+                                                            severity="danger" size="small" @click="removeBank(index)"
+                                                            rounded aria-label="Cancel" />
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
                                     <hr class="border-b-2 mb-3" />
 
@@ -1063,20 +1188,21 @@ const onSelectChange = (e) => {
                                             social_media_id: undefined,
                                             social_media_link: undefined,
                                         })" :pt="{
-                                label: {
-                                    class: 'text-white'
-                                },
-                                root: {
-                                    class: '!border-primary-main !bg-primary-second'
-                                },
+                                            label: {
+                                                class: 'text-white'
+                                            },
+                                            root: {
+                                                class: '!border-primary-main !bg-primary-second'
+                                            },
 
-                            }" />
+                                        }" />
 
                                     <div id="table-socia-media" v-if="fields1?.length > 0">
                                         <table>
                                             <thead>
                                                 <tr>
-                                                    <th style="width: 8rem" class="text-start">{{ t('ประเภทโซเชียล') }}</th>
+                                                    <th style="width: 8rem" class="text-start">{{ t('ประเภทโซเชียล') }}
+                                                    </th>
                                                     <th class="text-start">{{ t('ลิ้งค์') }}</th>
                                                     <th></th>
                                                 </tr>
@@ -1115,7 +1241,7 @@ const onSelectChange = (e) => {
                                                                             class="text-lg"></i>
                                                                         <span>{{
                                                                             slotProps.option[`social_media_name_${lang.code}`]
-                                                                            }}</span>
+                                                                        }}</span>
                                                                     </div>
                                                                 </template>
                                                             </Select>
@@ -1154,14 +1280,14 @@ const onSelectChange = (e) => {
                                 </div>
                             </div>
                         </van-tab>
-                    </van-tabs> 
+                    </van-tabs>
                     <div class="p-3">
                         <Button :loading="isloadingAxi" :label="t('ถัดไป')" severity="primary" type="submit" rounded
-                        class="w-full" :pt="{
-                            root: {
-                                class: '!border-primary-main'
-                            },
-                        }" />
+                            class="w-full" :pt="{
+                                root: {
+                                    class: '!border-primary-main'
+                                },
+                            }" />
                     </div>
 
                 </Form>
