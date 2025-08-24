@@ -1,6 +1,8 @@
 <template>
     <div class="bg-zinc-100 min-h-screen">
         <LayoutsBaseHeader :title="t('ธุรกิจของฉัน')" :showBack="true" backTo="/"></LayoutsBaseHeader>
+        <section class="max-w-[430px] mx-auto">
+
         <div class="flex justify-between flex-wrap gap-2 bg-white px-4 py-3">
             <h1 class="text-xl font-semibold">{{ t('ธุรกิจของฉัน') }} ({{ resBusiness.length }})</h1>
             <Button :loading="isloadingAxi" :label="t('เพิ่มธุรกิจ')" severity="primary" type="button" rounded
@@ -20,9 +22,11 @@
                     <!-- ชื่อธุรกิจ -->
                     <div class="flex justify-between items-start">
                         <div class="flex-1">
-                            <h2 class="text-lg font-semibold text-gray-800 flex-1"><span>{{ getI18n(item?.shop_name_i18n, lang) }}</span>
+                            <h2 class="text-lg font-semibold text-gray-800 flex-1"><span>{{
+                                    getI18n(item?.shop_name_i18n, lang) }}</span>
                                 <span v-if="item?.notification_status == 1"><i class="fa-solid fa-circle-exclamation"
-                                        style="color: red;"></i></span></h2>
+                                        style="color: red;"></i></span>
+                            </h2>
 
                         </div>
 
@@ -39,7 +43,16 @@
                     <!-- ปุ่มแอคชัน -->
                     <hr class="border-t mb-4 mx-5">
                     <div class="flex  gap-3">
+                        <Button :loading="isloadingAxi" :label="t('แก้ไขข้อมูล')" severity="primary" variant="outlined"
+                            class="w-full" :pt="{
+                                label: {
+                                    class: 'text-primary-main'
+                                },
+                                root: {
+                                    class: '!border-primary-main'
+                                },
 
+                            }" @click="navigateTo(`/vendor/manage-business/home/${item.id}`)" />
                         <Button :loading="isloadingAxi" :label="t('รายละเอียด')" severity="primary" variant="outlined"
                             class="w-full" :pt="{
                                 label: {
@@ -55,7 +68,7 @@
                 </div>
             </div>
         </div>
-
+        </section>
     </div>
 </template>
 <style scoped>

@@ -1,7 +1,7 @@
 import { Locale } from 'vant'
-import enUS from 'vant/es/locale/lang/en-US'
+import thTh from 'vant/es/locale/lang/th-Th'
 
-Locale.use('en-US', enUS)
+Locale.use('th-Th', thTh)
 
 import '@vant/touch-emulator'
 

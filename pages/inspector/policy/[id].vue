@@ -71,19 +71,53 @@
         </div>
       </div>
     </div>
+
+        <NotifyMessage v-model:show="toast.show" :type="toast.type" :title="toast.title" :message="toast.message"
+      :life="toast.life" />
+    <NotificationPopup v-model:visible="notification.visible" :state="notification.state" :title="notification.title"
+      :detail="notification.detail" :timeout="notification.timeout" :redirect-url="notification.redirectUrl"
+      :auto-close="notification.autoClose" @close="onNotificationClose" />
   </div>
 </template>
 
 <script setup>
-definePageMeta({ middleware: ['auth'] })
-
-import * as dataApi from './api/data.js'
-import { useI18n } from 'vue-i18n'
-
-const { t, locale } = useI18n()
+// basic ที่ใช้ทุกหน้า
+definePageMeta({
+  middleware: ["auth"],
+});
+import { useForm, useField, Form } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import * as zod from 'zod'
+import * as dataApi from "./api/data.js";
+import { useI18n } from 'vue-i18n';
+const { t, locale, setLocale } = useI18n()
 const isloadingAxi = useState('isloadingAxi')
 const route = useRoute()
 const router = useRouter()
+const toast = ref({
+  show: false,
+  type: null,
+  title: null,
+  message: null,
+  life: null,
+})
+const notification = reactive({
+  visible: false,
+  state: 'success',
+  title: '',
+  detail: '',
+  timeout: 0,
+  redirectUrl: null,
+  autoClose: true
+})
+// Methods
+const showNotification = (config) => {
+  Object.assign(notification, {
+    visible: true,
+    ...config
+  })
+}
+// จบการ basic ที่ใช้ทุกหน้า
 
 // states
 const isLoading = ref(true)
@@ -107,11 +141,19 @@ const loadPolicy = async () => {
 
 const toggleReviewVisibility = async (nextValue) => {
   try {
-    await dataApi.updateSurveyStatusShow({ status_show: nextValue })
+
+    await dataApi.updateSurveyStatusShow(route.params.id,{ status_show: nextValue })
     isOpen.value = nextValue
   } catch (error) {
     isOpen.value = !nextValue
     console.error(error)
+        toast.value = {
+      show: true,
+      type: 'danger',
+      title: t('ผิดพลาด'),
+      message: error?.response?.data?.message || t('เกิดข้อผิดพลาด'),
+      life: null
+    }
     // ใส่ toast ได้หากต้องการแจ้งผู้ใช้
   }
 }

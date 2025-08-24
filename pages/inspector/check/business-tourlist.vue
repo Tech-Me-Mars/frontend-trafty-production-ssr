@@ -3,7 +3,7 @@
     <LayoutsBaseHeader :title="t('ตรวจสอบรายการธุรกิจแหล่งท่องเที่ยว')" :showBack="true" back-to="/inspector/home" />
 
     <section class="max-w-[430px] mx-auto">
-      <van-tabs v-model:active="activeTab" line-width="80" animated swipeable color="#281c74">
+      <van-tabs v-model:active="activeTab" animated swipeable color="#281c74" :line-width="100">
         <!-- TAB 1 -->
         <van-tab :title="t('รอตรวจสอบ')">
           <div class="p-3">
@@ -98,11 +98,11 @@
                   </div>
 
                   <div class="flex items-start gap-4">
-                    <img
+                    <!-- <img
                       :src="item?.business?.ImageProfileURL || item?.business?.image_profile"
                       :alt="getI18n(item?.business?.shop_name_i18n, locale) || ''"
                       class="w-16 h-16 object-cover rounded-md flex-shrink-0"
-                    />
+                    /> -->
 
                     <div class="flex-1 min-w-0">
                       <div class="font-bold text-lg text-[#202c54] mb-1 truncate">

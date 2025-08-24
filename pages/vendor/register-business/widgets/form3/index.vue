@@ -418,11 +418,11 @@ const removeFile = (index) => {
                 <!-- Files - Single field (shown in all tabs but same value) -->
                 <div>
                   <label class="label-input">
-                    {{ t('เอกสารรับรอง') }}
+                    {{ t('เอกสารรับรองหน่วยงาน') }}
                   </label>
                   <div class="flex justify-start">
                     <FileUpload mode="basic" @select="onFileSelect" customUpload rounded auto
-                    :chooseLabel="t('เพิ่มไฟล์')" chooseIcon="pi pi-upload" :multiple="true" class="upload-button" />
+                    :chooseLabel="t('เอกสาร')" chooseIcon="pi pi-file" :multiple="true" class="upload-button" />
                   </div>
 
                   <ul class="mt-4 space-y-2" v-if="listFiles && listFiles.length > 0">

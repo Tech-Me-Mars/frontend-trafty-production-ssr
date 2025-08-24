@@ -79,7 +79,7 @@
                                 class="bg-white rounded-sm border border-zinc-200 shadow-sm px-3.5 py-3">
                                 <!-- Header: avatar + shop name + address -->
                                 <div class="flex items-start gap-3">
-                                    <img :src="(row?.ImageProfileURL)" alt="cover"
+                                    <img :src="useImage(row?.ImageProfileURL)" alt="cover"
                                         class="h-12 w-12 rounded-sm object-cover border border-zinc-200" />
                                     <div class="min-w-0 flex-1">
                                         <p class="font-semibold text-zinc-900 truncate">

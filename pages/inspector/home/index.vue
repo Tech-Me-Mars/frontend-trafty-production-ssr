@@ -89,60 +89,25 @@ const showNotification = (config) => {
 
         <!-- List Section -->
         <van-cell-group class="!m-0 !p-0">
-            <!-- <van-cell :title="t('จัดการแหล่งท่องเที่ยว')" is-link @click="navigateTo('/inspector/list/tourlist')">
-                <template #value>
-                    <span class="relative" v-if="resDataComon?.notify_tourist > 0">
-                        <span class="absolute top-0 right-4">
-                            <Badge :value="resDataComon?.notify_tourist" severity="danger" class="bg-red-700"></Badge>
-                        </span>
-                    </span>
-                </template>
+            <van-cell :title="t('จัดการแหล่งท่องเที่ยว')" is-link
+                @click="navigateTo('/inspector/management-place?isBusiness=false')">
             </van-cell>
             <van-cell :title="t('จัดการธุรกิจในแหล่งท่องเที่ยว')" is-link
-                @click="navigateTo('/inspector/list/business-tourlist')">
-                <template #value>
-                    <span class="relative">
-                        <span class="absolute top-0 right-4" v-if="resDataComon?.notify_business_tourist > 0">
-                            <Badge :value="resDataComon?.notify_business_tourist" severity="danger" class="bg-red-700">
-                            </Badge>
-                        </span>
-                    </span>
-                </template>
+                @click="navigateTo('/inspector/management-place?isBusiness=false')">
             </van-cell>
-            <van-cell :title="t('ตรวจสอบคอมเมนท์')" is-link />
-            <van-cell :title="t('จัดการใบเตือน')" is-link @click="navigateTo('/inspector/warning-list')">
-                <template #value>
-                    <span class="relative">
-                        <span class="absolute top-0 right-4" v-if="resDataComon?.notify_warning > 0">
-                            <Badge :value="resDataComon?.notify_warning" severity="danger" class="bg-red-700"></Badge>
-                        </span>
-                    </span>
-                </template>
-            </van-cell> -->
-            <van-cell :title="t('ตรวจสอบธุรกิจในแหล่งท่องเที่ยว')" is-link
-                @click="navigateTo('/inspector/check/business-tourlist?isBusiness=true')">
-                <!-- <template #value>
-                    <span class="relative">
-                        <span class="absolute top-0 right-4" v-if="resDataComon?.notify_business_tourist > 0">
-                            <Badge :value="resDataComon?.notify_business_tourist" severity="danger" class="bg-red-700">
-                            </Badge>
-                        </span>
-                    </span>
-                </template> -->
-            </van-cell>
+
+
+
             <van-cell :title="t('ตรวจสอบแหล่งท่องเที่ยว')" is-link
                 @click="navigateTo('/inspector/check/business-tourlist?isBusiness=false')">
-                <!-- <template #value>
-                    <span class="relative">
-                        <span class="absolute top-0 right-4" v-if="resDataComon?.notify_business_tourist > 0">
-                            <Badge :value="resDataComon?.notify_business_tourist" severity="danger" class="bg-red-700">
-                            </Badge>
-                        </span>
-                    </span>
-                </template> -->
             </van-cell>
-            <van-cell :title="t('จัดการใบเตือน')" is-link
-                @click="navigateTo('/inspector/manage-reply')">
+            <van-cell :title="t('ตรวจสอบธุรกิจในแหล่งท่องเที่ยว')" is-link
+                @click="navigateTo('/inspector/check/business-tourlist?isBusiness=true')">
+            </van-cell>
+
+            <van-cell :title="t('ตรวจสอบคอมเม้นท์')" is-link @click="navigateTo('/inspector/check-comment')">
+            </van-cell>
+            <van-cell :title="t('จัดการใบเตือน')" is-link @click="navigateTo('/inspector/manage-reply')">
                 <!-- <template #value>
                     <span class="relative">
                         <span class="absolute top-0 right-4" v-if="resDataComon?.notify_business_tourist > 0">

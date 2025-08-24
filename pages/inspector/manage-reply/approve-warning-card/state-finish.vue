@@ -83,8 +83,15 @@ const toBool = (v) => {
     const s = String(v).toLowerCase()
     return s === 'true' || s === '1' || s === 'yes'
 }
+// const toNum = (v, d = 0) => {
+//     const n = Number(v)
+//     return Number.isFinite(n) ? n : d
+// }
 const toNum = (v, d = 0) => {
-    const n = Number(v)
+    if (v == null) return d
+    // ดึงเฉพาะตัวเลข ทศนิยม และเครื่องหมายลบ (ลอก % และตัวอักษรอื่นออก)
+    const cleaned = String(v).replace(/[^\d.-]/g, '')
+    const n = Number(cleaned)
     return Number.isFinite(n) ? n : d
 }
 

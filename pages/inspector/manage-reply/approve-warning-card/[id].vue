@@ -12,9 +12,9 @@
                 </div>
 
                 <!-- info tip -->
-                <div class="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-amber-800 text-sm">
+                <div class="rounded-sm border border-amber-200 bg-amber-50 px-3 py-2 text-amber-800 text-sm">
                     <h1 class="text-lg"><i class="fa-solid fa-triangle-exclamation"></i> {{ t('ได้รับการตอบกลับใบเตือน')
-                        }}</h1>
+                    }}</h1>
 
                     <p class="">
                         {{ t('โปรดตรวจสอบมาตรฐานเพื่ออนุมัติใบเตือน') }}
@@ -29,7 +29,7 @@
 
                 <!-- Skeleton Loading -->
                 <div v-if="loading" class="space-y-3">
-                    <div v-for="n in 3" :key="n" class="rounded-xl border bg-white p-4 animate-pulse">
+                    <div v-for="n in 3" :key="n" class="rounded-sm border bg-white p-4 animate-pulse">
                         <div class="h-4 w-3/4 bg-zinc-200 rounded mb-2"></div>
                         <div class="h-3 w-5/6 bg-zinc-200 rounded mb-1"></div>
                         <div class="h-3 w-2/3 bg-zinc-200 rounded mb-3"></div>
@@ -44,11 +44,11 @@
                 <!-- Dynamic fields -->
                 <template v-else>
                     <div v-if="fields.length > 0" v-for="(item, index) in fields" :key="index"
-                        class="mb-2 card max-w-md px-2 py-3 rounded-xl border bg-white shadow-sm hover:shadow-md transition"
+                        class="mb-2 card max-w-md px-2 py-3 rounded-sm border bg-white shadow-sm hover:shadow-md transition"
                         :data-row="index">
                         <div class="flex items-start gap-3 mb-2">
                             <span
-                                class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-red-50 text-red-600">
+                                class="inline-flex h-6 w-6 items-center justify-center rounded-full  text-red-600">
                                 <i class="fa-solid fa-circle-xmark text-[13px]"></i>
                             </span>
 
@@ -76,49 +76,35 @@
                         </div>
 
                         <!-- รูปตอบกลับ -->
-                        <div class="mt-2">
+                        <div class="mt-2" v-if="item.value.respond_warning_detail_img">
                             <div class="w-24 h-24 rounded-md border bg-zinc-50 overflow-hidden flex items-center justify-center"
                                 :class="item.value.respond_warning_detail_img ? 'p-0' : 'p-2'">
-                                <img v-if="item.value.respond_warning_detail_img"
-                                    :src="item.value.respond_warning_detail_img" alt="respond image"
+                                <img :src="useImage(item.value.respond_warning_detail_img)" alt="respond image"
                                     class="w-full h-full object-cover" />
-                                <div v-else class="text-zinc-400 text-xs text-center leading-tight">
-                                    <i class="fa-regular fa-image text-lg block mb-1"></i>
-                                    {{ t('ไม่มีรูปแนบ') }}
-                                </div>
                             </div>
                         </div>
 
                         <!-- Radio Approve (แบบ segmented) -->
                         <div class="mt-3">
-                            <div class="grid grid-cols-2 gap-1 sm:max-w-sm">
-                                <button type="button"
-                                    class="h-10 rounded-lg border flex items-center justify-center gap-1 text-xs transition"
-                                    :class="item.value.respond_warning_approve === '1'
-                                        ? 'border-emerald-500 bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200'
-                                        : 'border-zinc-300 hover:bg-zinc-50'"
-                                    @click="item.value.respond_warning_approve = '1'">
-                                    <i class="fa-regular fa-circle-check"></i> {{ t('มี/ปฏิบัติ') }}
-                                </button>
+                            <div class="grid grid-cols-2 gap-3 sm:max-w-sm">
+                                <div class="flex items-center gap-2 px-2 py-1" >
+                                    <RadioButton :inputId="`approve-yes-${index}`" name="approve" value="1"
+                                        v-model="item.value.respond_warning_approve" />
+                                    <label :for="`approve-yes-${index}`" class="text-sm cursor-pointer">
+                                        {{ t('มี/ปฏิบัติ') }}
+                                    </label>
+                                </div>
 
-                                <button type="button"
-                                    class="h-10 rounded-lg border flex items-center justify-center gap-1 text-xs transition p-0"
-                                    :class="item.value.respond_warning_approve === '0'
-                                        ? 'border-rose-500 bg-rose-50 text-rose-700 ring-1 ring-rose-200'
-                                        : 'border-zinc-300 hover:bg-zinc-50'"
-                                    @click="item.value.respond_warning_approve = '0'">
-                                    <i class="fa-regular fa-circle-xmark"></i>{{ t('ไม่มีรายการ/ไม่ปฏิบัติ') }}
-                                </button>
+                                <div class="flex items-center gap-2 px-2 py-1" >
+                                    <RadioButton :inputId="`approve-no-${index}`" name="approve" value="0"
+                                        v-model="item.value.respond_warning_approve" />
+                                    <label :for="`approve-no-${index}`" class="text-sm cursor-pointer">
+                                        {{ t('ไม่มีรายการ/ไม่ปฏิบัติ') }}
+                                    </label>
+                                </div>
                             </div>
 
-                            <!-- radio ของจริง (ซ่อน) ให้ vee-validate เก็บค่า -->
-                            <div class="sr-only">
-                                <input type="radio" :name="`approve-${index}`" value="1"
-                                    v-model="item.value.respond_warning_approve" />
-                                <input type="radio" :name="`approve-${index}`" value="0"
-                                    v-model="item.value.respond_warning_approve" />
-                            </div>
-
+                            <!-- error -->
                             <p v-if="errors[`responses_approve[${index}].respond_warning_approve`]"
                                 class="mt-2 text-sm text-red-600">
                                 {{ errors[`responses_approve[${index}].respond_warning_approve`] }}
@@ -258,60 +244,60 @@ const scrollToFirstError = () => {
 
 /* submit */
 const stripPercent = (v) => {
-  if (v == null) return ''
-  const n = Number(String(v).replace('%', '').trim())
-  return Number.isFinite(n) ? String(n) : ''
+    if (v == null) return ''
+    const n = Number(String(v).replace('%', '').trim())
+    return Number.isFinite(n) ? String(n) : ''
 }
 
 const onSubmit = handleSubmit(
-  async (values) => {
-    try {
-      submitting.value = true
+    async (values) => {
+        try {
+            submitting.value = true
 
-      const payload = {
-        survey_audit_id: survey_audit_id.value,
-        responses_approve: values.responses_approve.map(v => ({
-          survey_warning_respond_details_id: v.survey_warning_respond_details_id,
-          survey_audit_details_id: v.survey_audit_details_id,
-          respond_warning_approve: String(v.respond_warning_approve) // "1" | "0"
-        }))
-      }
+            const payload = {
+                survey_audit_id: survey_audit_id.value,
+                responses_approve: values.responses_approve.map(v => ({
+                    survey_warning_respond_details_id: v.survey_warning_respond_details_id,
+                    survey_audit_details_id: v.survey_audit_details_id,
+                    respond_warning_approve: String(v.respond_warning_approve) // "1" | "0"
+                }))
+            }
 
-      const res = await dataApi.updateSurveyWarningRespond(route.params.id, payload)
+            const res = await dataApi.updateSurveyWarningRespond(route.params.id, payload)
 
-      // --- ดึง dialog จาก API แล้ว normalize เป็น query params ---
-      const dialog = res?.data?.data?.dialog || {}
-      const query = {
-        state: (dialog.state || 'success'),
-        title: (dialog.title || t('ตรวจสอบมาตรฐานความปลอดภัยสำเร็จ')),
-        IsPass: String(dialog.IsPass ?? ''),                       // true/false -> string
-        detail: (dialog.detail || ''),
-        ScorePercent: stripPercent(dialog.ScorePercent),           // "100%" -> "100"
-        ScorePercentFailed: stripPercent(dialog.ScorePercentFailed),
-        status_text: (dialog.status_text || ''),
-        // ใส่ BusinessId ถ้ามีใน route เดิม
-        ...(route.query?.BusinessId ? { BusinessId: String(route.query.BusinessId) } : {})
-      }
+            // --- ดึง dialog จาก API แล้ว normalize เป็น query params ---
+            const dialog = res?.data?.dialog || {}
+            const query = {
+                state: (dialog.state || 'success'),
+                title: (dialog.title || t('ตรวจสอบมาตรฐานความปลอดภัยสำเร็จ')),
+                IsPass: String(dialog.IsPass ?? ''),                       // true/false -> string
+                detail: (dialog.detail || ''),
+                ScorePercent: stripPercent(dialog.ScorePercent),           // "100%" -> "100"
+                ScorePercentFailed: stripPercent(dialog.ScorePercentFailed),
+                status_text: (dialog.status_text || ''),
+                // ใส่ BusinessId ถ้ามีใน route เดิม
+                ...(route.query?.BusinessId ? { BusinessId: String(route.query.BusinessId) } : {})
+            }
 
-      // --- ไปหน้า success/error พร้อม query ---
-      await navigateTo({
-        path: '/inspector/manage-reply/approve-warning-card/state-finish',
-        query
-      })
-    } catch (error) {
-      console.error(error)
-      toast.value = {
-        show: true,
-        type: 'danger',
-        title: t('ผิดพลาด'),
-        message: error?.response?.data?.message || t('เกิดข้อผิดพลาด'),
-        life: null
-      }
-    } finally {
-      submitting.value = false
-    }
-  },
-  // onInvalid -> เลื่อนหน้าไปยัง error แรก
-  () => scrollToFirstError()
+            // --- ไปหน้า success/error พร้อม query ---
+            await navigateTo({
+                path: '/inspector/manage-reply/approve-warning-card/state-finish',
+                query
+            })
+        } catch (error) {
+            console.error(error)
+            toast.value = {
+                show: true,
+                type: 'danger',
+                title: t('ผิดพลาด'),
+                message: error?.response?.data?.message || t('เกิดข้อผิดพลาด'),
+                life: null
+            }
+        } finally {
+            submitting.value = false
+        }
+    },
+    // onInvalid -> เลื่อนหน้าไปยัง error แรก
+    () => scrollToFirstError()
 )
 </script>

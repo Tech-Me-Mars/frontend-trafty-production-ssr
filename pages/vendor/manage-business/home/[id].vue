@@ -11,13 +11,77 @@
                             <i class="fa-regular fa-bell" style="color: white;font-size: 22px;"></i>
                         </van-badge>
                     </div>
-
                 </div>
-
             </template>
         </LayoutsBaseHeader>
+
+        <!-- ================= SKELETON LOADING ================= -->
+        <section v-if="isLoading" class="max-w-[430px] mx-auto">
+            <!-- Header Section Skeleton -->
+            <div class="flex items-center w-full card mb-2">
+                <Skeleton width="5rem" height="5rem" class="rounded-md shadow-md" />
+                <div class="ml-4 flex-1 space-y-2">
+                    <Skeleton width="60%" height="1.25rem" />
+                    <Skeleton width="40%" height="1rem" />
+                    <Skeleton width="30%" height="1.25rem" class="rounded" />
+                </div>
+                <Skeleton width="4.5rem" height="2rem" class="ml-3 rounded-full" />
+            </div>
+
+            <!-- Progress Section Skeleton -->
+            <div class="w-full card">
+                <Skeleton width="40%" height="1.25rem" class="mb-5" />
+                <div class="flex items-center gap-4 mb-5">
+                    <Skeleton width="60px" height="60px" class="rounded-full" />
+                    <div class="flex w-full justify-between items-center">
+                        <Skeleton width="30%" height="1rem" />
+                        <Skeleton width="1.25rem" height="1.25rem" class="rounded-full" />
+                    </div>
+                </div>
+                <Skeleton width="100%" height="2.5rem" class="rounded-md" />
+            </div>
+
+            <!-- Stats Grid Skeleton -->
+            <div class="card border-t grid grid-cols-2 gap-4 mb-3">
+                <div class="bg-white text-center p-4 border-r-2 space-y-2">
+                    <Skeleton width="20%" height="1.25rem" class="mx-auto" />
+                    <Skeleton width="60%" height="1rem" class="mx-auto" />
+                </div>
+                <div class="bg-white text-center p-4 space-y-2">
+                    <Skeleton width="20%" height="1.25rem" class="mx-auto" />
+                    <Skeleton width="60%" height="1rem" class="mx-auto" />
+                </div>
+            </div>
+
+            <!-- List Header Skeleton -->
+            <div class="flex justify-between items-center px-4">
+                <Skeleton width="30%" height="1.25rem" />
+                <Skeleton width="20%" height="1rem" />
+            </div>
+
+            <!-- Items Skeleton -->
+            <div class="p-4 flex-col space-y-3">
+                <div v-for="i in 3" :key="'sk-' + i"
+                    class="border rounded-sm shadow-md bg-white w-full max-w-md mx-auto">
+                    <div class="p-3">
+                        <div class="flex justify-between items-center mb-3">
+                            <Skeleton width="45%" height="1.125rem" />
+                            <Skeleton width="20%" height="1rem" />
+                        </div>
+                        <hr class="border-t my-3">
+                        <div class="grid grid-cols-3 gap-3">
+                            <Skeleton height="2.25rem" class="rounded-md" />
+                            <Skeleton height="2.25rem" class="rounded-md" />
+                            <Skeleton height="2.25rem" class="rounded-md" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- ================= END SKELETON LOADING ================= -->
+
         <!-- {{ resBusinessAll }} -->
-        <section class="max-w-[430px] mx-auto">
+        <section class="max-w-[430px] mx-auto" v-show="!isLoading">
             <!-- Header Section -->
             <div class="flex items-center w-full card mb-2">
                 <!-- Image -->
@@ -30,8 +94,7 @@
                     <h2 class="text-lg font-bold">{{ getI18n(resBusinessAll?.shop_name_i18n, locale) }}</h2>
                     <p class="text-sm text-gray-500">{{
                         getI18n(resBusinessAll?.business_type?.business_type_name_i18n, locale)
-                    }}</p>
-
+                        }}</p>
 
                     <span v-if="resBusinessAll?.survey_status?.survey_success_note"
                         class="inline-flex items-center px-2 py-1 text-xs font-medium text-white rounded" :style="resBusinessAll?.survey_status?.bg_color?.startsWith('#')
@@ -41,10 +104,6 @@
                         <!-- <i class="fa-solid fa-circle-exclamation mr-1"></i> -->
                         {{ getI18n(resBusinessAll?.survey_status?.survey_success_note, locale) }}
                     </span>
-
-
-
-
                 </div>
 
                 <!-- Approval Status -->
@@ -68,18 +127,15 @@
                         <!-- Description -->
                         <div class="flex w-full justify-between">
                             <p class="">{{ t('มาตรฐานความปลอดภัย') }}</p>
-
                             <i class="fa-solid fa-chevron-right"></i>
-
-
                         </div>
-
                     </div>
                 </NuxtLink>
+                <!-- responsiblePerson -->
 
-                <div class="max-w-xl mx-auto">
-                    <NuxtLink :to="`/vendor/manage-business/do-survery/${route.params.id}`"
-                        v-if="resBusinessAll?.SurveyAuditCount == 0">
+
+                <div class="mx-auto" v-if="resBusinessAll?.SurveyAuditCount == 0">
+                    <NuxtLink :to="`/vendor/manage-business/do-survery/${route.params.id}`">
                         <Button :loading="isloadingAxi" :label="t('เริ่มประเมินมาตรฐานความปลอดภัย')" severity="primary"
                             size="" rounded class="w-full" variant="outlined" :pt="{
                                 root: {
@@ -88,9 +144,15 @@
                             }" />
                     </NuxtLink>
                 </div>
+            </div>
 
-
-
+            <div class="w-full card" v-if="responsiblePerson">
+                <div>
+                    <h2 class="text-lg font-bold">{{ t('ข้อมูลธุรกิจในแหล่งท่องเที่ยว') }}</h2>
+                    <p class="">
+                        <span class="">สถานีตำรวจท่องเที่ยว: <span></span></span>
+                    </p>
+                </div>
             </div>
 
             <div class="card border-t grid grid-cols-2 gap-4 mb-3">
@@ -107,7 +169,6 @@
                         <div class="text-gray-600 text-sm">{{ t('ใบเตือน') }}</div>
                     </div>
                 </div>
-
             </div>
 
             <div class="flex justify-between items-center px-4">
@@ -117,17 +178,18 @@
                         t('ดูทั้งหมด') }}
                     <i class="fa-solid fa-chevron-right" style="font-size: 14px;"></i>
                 </NuxtLink>
-
             </div>
+
             <div class="p-4 flex-col space-y-3">
                 <div v-for="(item, index) in resBusinessAll?.business_list" :key="index"
                     class="border rounded-sm shadow-md bg-white w-full max-w-md mx-auto">
                     <div class="p-3">
                         <!-- ชื่อธุรกิจ -->
                         <div class="flex justify-between items-center">
-                            <h2 class="text-lg font-semibold text-gray-800">{{ getI18n(item?.business_list_name_i18n,
-                                locale)
-                                }}</h2>
+                            <h2 class="text-lg font-semibold text-gray-800">{{
+                                getI18n(item?.business_list_name_i18n,
+                                    locale)
+                            }}</h2>
                             <p class="text-gray-800 ">฿{{ item?.business_list_price }}</p>
                         </div>
                         <!-- ปุ่มแอคชัน -->
@@ -146,7 +208,6 @@
                                     label: { class: 'text-primary-main' },
                                     root: { class: '!border-primary-main' }
                                 }" />
-
                             <Button :loading="deletingId === item.id" :disabled="isloadingAxi"
                                 @click="showConfirmDel(item)" icon="fa-regular fa-trash-can" label="" severity="danger"
                                 variant="outlined" class="!w-[10rem]" />
@@ -154,8 +215,8 @@
                     </div>
                 </div>
             </div>
-
         </section>
+
         <van-action-sheet v-model:show="showEditSheet" :close-on-click-overlay="true" :round="true"
             safe-area-inset-bottom>
             <template #default>
@@ -164,7 +225,6 @@
                         <h3 class="text-base font-semibold text-zinc-800">
                             {{ t(isEditMode ? 'แก้ไขรายการ' : 'เพิ่มรายการสินค้า') }}
                         </h3>
-
                         <button type="button" aria-label="Close" @click="showEditSheet = false" class="w-7 h-7 rounded-full bg-zinc-100 border border-zinc-200
                  text-zinc-500 flex items-center justify-center
                  hover:bg-zinc-200 active:scale-[.98] transition">
@@ -175,7 +235,8 @@
 
                 <div class="p-4">
                     <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54">
-                        <van-tab v-for="(lang, idx) in langs" :key="lang.code" :title="lang.label" :name="idx" :line-width="100">
+                        <van-tab v-for="(lang, idx) in langs" :key="lang.code" :title="lang.label" :name="idx"
+                            :line-width="100">
                             <div class="space-y-4 py-2">
                                 <div>
                                     <label class="label-input block mb-1">{{ t('ชื่อรายการ') }}</label>
@@ -212,9 +273,9 @@
             :life="toast.life" />
 
         <ConfirmDialog></ConfirmDialog>
-
     </div>
 </template>
+
 <style scoped>
 .van-nav-bar {
     --van-nav-bar-background: #281c74;
@@ -224,6 +285,7 @@
     --van-nav-bar-height: 70px
 }
 </style>
+
 <script setup>
 definePageMeta({
     middleware: ["auth"],
@@ -234,7 +296,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import * as zod from 'zod'
 import * as dataApi from "./api/data.js";
 import { useI18n } from 'vue-i18n';
-
+import Skeleton from 'primevue/skeleton' // ✅ เพิ่ม import component สำหรับ skeleton
 
 const isloadingAxi = useState("isloadingAxi");
 const router = useRouter();
@@ -247,14 +309,18 @@ const toast = ref({
     life: null, // ถ้าใส่เลข = แสดง auto close
 })
 
-
 const currentRate = ref(0);
 const rate = ref(0)
 const textRate = computed(() => currentRate.value.toFixed(0) + '%');
 
 const resBusinessAll = ref()
+
+// ✅ NEW: state โหลดหน้า (เพิ่มอย่างเดียว ไม่แก้ของเดิม)
+const isLoading = ref(true)
+
 const loadBusinessAll = async () => {
     try {
+        isLoading.value = true           // ✅ start loading
         const res = await dataApi.getBusiness(route.params.id);
         resBusinessAll.value = res.data.data;
         currentRate.value = await res.data.data?.score_percent
@@ -268,14 +334,34 @@ const loadBusinessAll = async () => {
             life: null
         }
         console.error(error)
+    } finally {
+        isLoading.value = false          // ✅ end loading
     }
 }
-onMounted(() => {
+
+const responsiblePerson = ref(null)
+const loadResponsible = async () => {
+    try {
+        const role_id = await useDecryptedCookie("role_id")
+        if (role_id != '3') return;
+        const res = await dataApi.getResponsiblePerson(route.params.id);
+        responsiblePerson.value = res.data.data;
+    } catch (error) {
+        toast.value = {
+            show: true,
+            type: 'danger',
+            title: t('ผิดพลาด'),
+            message: error?.response?.data?.message || t('เกิดข้อผิดพลาด'),
+            life: null
+        }
+        console.error(error)
+    }
+}
+onMounted(async () => {
+
     loadBusinessAll();
-
+    loadResponsible();
 })
-
-
 
 const confirm1 = useConfirm()
 
@@ -512,6 +598,7 @@ const onSave = handleSubmit(async (values) => {
     }
 })
 </script>
+
 <style scoped>
 .card {
     @apply bg-white border border-zinc-200 p-4;
