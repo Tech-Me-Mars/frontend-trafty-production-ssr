@@ -808,7 +808,7 @@ const onSelectChange = (e) => {
                                             </div>
                                             <p class="error-text" v-if="errors?.image_profile">{{
                                                 t('กรุณาเลือกอย่างน้อย')
-                                            }} 1
+                                                }} 1
                                                 {{
                                                     t('ภาพ') }}
                                             </p>
@@ -846,7 +846,7 @@ const onSelectChange = (e) => {
 
                                             </div>
                                             <p class="error-text" v-if="errors?.image_cover">{{ t('กรุณาเลือกอย่างน้อย')
-                                            }}
+                                                }}
                                                 1 {{
                                                     t('ภาพ') }}</p>
                                         </div>
@@ -904,7 +904,7 @@ const onSelectChange = (e) => {
                                                                 slotProps.option?.name }}</span>
                                                             <span class="text-sm text-gray-500">{{
                                                                 slotProps.option?.address
-                                                            }}</span>
+                                                                }}</span>
                                                         </div>
                                                     </template>
                                                 </AutoComplete>
@@ -914,7 +914,7 @@ const onSelectChange = (e) => {
                                                 </div>
                                                 <p class="error-text" v-if="errors?.longitude">{{
                                                     t('กรุณาปักหมุดสถานที่ท่องเที่ยวหรือธุรกิจ')
-                                                }}
+                                                    }}
                                                 </p>
 
                                             </client-only>
@@ -1071,7 +1071,7 @@ const onSelectChange = (e) => {
 
                                             <p class="error-text" v-if="errors?.shop_time_s || errors?.shop_time_e">{{
                                                 t('กรุณาเลือกเวลาทำการ')
-                                            }}</p>
+                                                }}</p>
 
                                         </div>
                                         <!-- ติดต่อ -->
@@ -1085,7 +1085,7 @@ const onSelectChange = (e) => {
 
                                         <div>
                                             <label class="label-input">{{ t('รายละเอียดธุรกิจในแหล่งท่องเที่ยว')
-                                            }}</label>
+                                                }}</label>
                                             <InputText v-model="shop_details[lang.code]" placeholder=""
                                                 class="w-full custom-border" :invalid="getFieldError('shop_details')" />
                                             <p class="error-text" v-if="getFieldError('shop_details', lang.code)">{{
@@ -1242,7 +1242,7 @@ const onSelectChange = (e) => {
                                                                             class="text-lg"></i>
                                                                         <span>{{
                                                                             slotProps.option[`social_media_name_${lang.code}`]
-                                                                        }}</span>
+                                                                            }}</span>
                                                                     </div>
                                                                 </template>
                                                             </Select>

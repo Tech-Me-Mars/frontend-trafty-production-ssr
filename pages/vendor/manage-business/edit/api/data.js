@@ -81,5 +81,12 @@ export async function deleteShopImg(id) {
   return request("delete", url, {}, true);
 }
 
+export async function deletDocment(id) {
+  const modulepath = await getModulePathByRoleId()
+  const url = `/api/v1/${modulepath}/business_document/${id}`;
+  return request("delete", url, {}, true);
+}
+
+
 
 

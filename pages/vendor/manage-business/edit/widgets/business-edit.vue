@@ -1,0 +1,573 @@
+<script setup>
+import { ref, watch, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { useForm, useField, Form } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import * as zod from 'zod'
+import { useFormStore } from '@/store/businessStore.js'
+import * as dataApi from '../api/data.js'
+import { useConfirm } from 'primevue/useconfirm'
+
+const { t, locale, setLocale } = useI18n()
+const router = useRouter()
+const route = useRoute()
+const formStore = useFormStore()
+const isloadingAxi = useState('isloadingAxi')
+
+const toast = ref({
+    show: false,
+    type: null,
+    title: null,
+    message: null,
+    life: null,
+})
+const notification = reactive({
+    visible: false,
+    state: 'success',
+    title: '',
+    detail: '',
+    timeout: 0,
+    redirectUrl: null,
+    autoClose: true
+})
+// Methods
+const showNotification = (config) => {
+    Object.assign(notification, {
+        visible: true,
+        ...config
+    })
+}
+
+// ---------- Language tabs ----------
+const langs = [
+    { code: 'th', label: 'ภาษาไทย', locale: 'th' },
+    { code: 'en', label: 'English', locale: 'en' },
+    { code: 'cn', label: '中文', locale: 'cn' }
+]
+const activeLangTab = ref(langs.findIndex(l => l.locale === locale.value) ?? 0)
+onMounted(async () => {
+    setLocale('th')
+    await loadProvinces()
+    await loadForEdit()
+})
+watch(activeLangTab, (newIdx) => setLocale(langs[newIdx].locale))
+watch(locale, (newLocale) => {
+    const idx = langs.findIndex(l => l.locale === newLocale)
+    if (idx !== -1) activeLangTab.value = idx
+})
+
+// ---------- Validation ----------
+const requireValue = t('กรุณาระบุข้อมูลให้ถูกต้อง')
+const validationSchema = toTypedSchema(
+    zod.object({
+        shop_province_id: zod.number({ required_error: t('กรุณาเลือกจังหวัด'), invalid_type_error: t('กรุณาเลือกจังหวัด') }),
+        shop_district_id: zod.number({ required_error: t('กรุณาเลือกอำเภอ'), invalid_type_error: t('กรุณาเลือกอำเภอ') }),
+        shop_subdistrict_id: zod.number({ required_error: t('กรุณาเลือกตำบล'), invalid_type_error: t('กรุณาเลือกตำบล') }),
+
+        business_name: zod.object({
+            th: zod.string().nonempty(requireValue),
+            en: zod.string().default(''),
+            cn: zod.string().default(''),
+        }),
+        business_person: zod.object({
+            th: zod.string().nonempty(requireValue),
+            en: zod.string().default(''),
+            cn: zod.string().default(''),
+        }),
+        business_address: zod.object({
+            th: zod.string().nonempty(requireValue),
+            en: zod.string().default(''),
+            cn: zod.string().default(''),
+        }),
+        business_contact: zod.string().nonempty(requireValue),
+        business_email: zod.string().email(t('กรุณาระบุอีเมลที่ถูกต้อง')).nonempty(requireValue),
+
+        // เอกสาร (array ของ { src, file, id? })
+        listFiles: zod.array(zod.any()).default([]),
+    })
+)
+const { handleSubmit, errors, handleReset } = useForm({ validationSchema })
+
+// ---------- Multi-lang fields ----------
+const { value: businessNameTh } = useField('business_name.th', undefined, { initialValue: '' })
+const { value: businessNameEn } = useField('business_name.en', undefined, { initialValue: '' })
+const { value: businessNameCn } = useField('business_name.cn', undefined, { initialValue: '' })
+
+const { value: businessPersonTh } = useField('business_person.th', undefined, { initialValue: '' })
+const { value: businessPersonEn } = useField('business_person.en', undefined, { initialValue: '' })
+const { value: businessPersonCn } = useField('business_person.cn', undefined, { initialValue: '' })
+
+const { value: businessAddressTh } = useField('business_address.th', undefined, { initialValue: '' })
+const { value: businessAddressEn } = useField('business_address.en', undefined, { initialValue: '' })
+const { value: businessAddressCn } = useField('business_address.cn', undefined, { initialValue: '' })
+
+// ---------- Single fields ----------
+const { value: business_contact } = useField('business_contact', undefined, { initialValue: '' })
+const { value: business_email } = useField('business_email', undefined, { initialValue: '' })
+const { value: listFiles } = useField('listFiles', undefined, { initialValue: [] })
+
+const { value: shop_province_id } = useField('shop_province_id')
+const { value: shop_district_id } = useField('shop_district_id')
+const { value: shop_subdistrict_id } = useField('shop_subdistrict_id')
+
+const provinces = ref([])
+const districts = ref([])
+const subdistricts = ref([])
+
+// ---------- Province/District/Subdistrict ----------
+const districtLabelField = computed(() => {
+    const lang = langs[activeLangTab.value]
+    if (lang.code === 'cn') {
+        const d = districts.value[0]
+        if (d && !d.district_name_cn) return d?.district_name_en ? 'district_name_en' : 'district_name_th'
+        return 'district_name_cn'
+    }
+    return `district_name_${lang.code}`
+})
+const subdistrictLabelField = computed(() => {
+    const lang = langs[activeLangTab.value]
+    if (lang.code === 'cn') {
+        const s = subdistricts.value[0]
+        if (s && !s.subdistrict_name_cn) return s?.subdistrict_name_en ? 'subdistrict_name_en' : 'subdistrict_name_th'
+        return 'subdistrict_name_cn'
+    }
+    return `subdistrict_name_${lang.code}`
+})
+const provinceLabelField = computed(() => {
+    const lang = langs[activeLangTab.value]
+    if (lang.code === 'cn') {
+        const p = provinces.value[0]
+        if (p && !p.provinces_name_cn) return p?.provinces_name_en ? 'provinces_name_en' : 'provinces_name_th'
+        return 'provinces_name_cn'
+    }
+    return `provinces_name_${lang.code}`
+})
+
+const loadProvinces = async () => {
+    try {
+        const res = await dataApi.getProvinces()
+        provinces.value = res.data.data.map((item) => ({
+            ...item,
+            provinces_name_th: item?.provinces_name_i18n?.th || '',
+            provinces_name_en: item?.provinces_name_i18n?.en || '',
+            provinces_name_cn: item?.provinces_name_i18n?.cn || '',
+        }))
+    } catch (err) { console.log(err) }
+}
+const loadDistricts = async (provinceId) => {
+    if (!provinceId) return districts.value = []
+    try {
+        const res = await dataApi.getDistrictByProvinceId(provinceId)
+        districts.value = res.data.data.map((item) => ({
+            ...item,
+            district_name_th: item?.district_name_i18n?.th || '',
+            district_name_en: item?.district_name_i18n?.en || '',
+            district_name_cn: item?.district_name_i18n?.cn || '',
+        }))
+    } catch (err) { console.log(err) }
+}
+const loadSubdistricts = async (districtId) => {
+    if (!districtId) return subdistricts.value = []
+    try {
+        const res = await dataApi.getSubDistrictByDistrictId(districtId)
+        subdistricts.value = res.data.data.map((item) => ({
+            ...item,
+            subdistrict_name_th: item?.subdistrict_name_i18n?.th || '',
+            subdistrict_name_en: item?.subdistrict_name_i18n?.en || '',
+            subdistrict_name_th: item?.subdistrict_name_i18n?.th || ''
+        }))
+    } catch (err) { console.log(err) }
+}
+watch(shop_province_id, val => {
+    shop_district_id.value = null
+    shop_subdistrict_id.value = null
+    districts.value = []
+    subdistricts.value = []
+    if (val) loadDistricts(val)
+})
+watch(shop_district_id, val => {
+    shop_subdistrict_id.value = null
+    subdistricts.value = []
+    if (val) loadSubdistricts(val)
+})
+
+// ---------- Computed wrappers (สำหรับ binding) ----------
+const business_name = ref({
+    get th() { return businessNameTh.value },
+    set th(v) { businessNameTh.value = v },
+    get en() { return businessNameEn.value },
+    set en(v) { businessNameEn.value = v },
+    get cn() { return businessNameCn.value },
+    set cn(v) { businessNameCn.value = v },
+})
+const business_person = ref({
+    get th() { return businessPersonTh.value },
+    set th(v) { businessPersonTh.value = v },
+    get en() { return businessPersonEn.value },
+    set en(v) { businessPersonEn.value = v },
+    get cn() { return businessPersonCn.value },
+    set cn(v) { businessPersonCn.value = v },
+})
+const business_address = ref({
+    get th() { return businessAddressTh.value },
+    set th(v) { businessAddressTh.value = v },
+    get en() { return businessAddressEn.value },
+    set en(v) { businessAddressEn.value = v },
+    get cn() { return businessAddressCn.value },
+    set cn(v) { businessAddressCn.value = v },
+})
+
+// ---------- Error helper ----------
+const getFieldError = (fieldName, langCode = null) => {
+    if (langCode) return errors.value[`${fieldName}.${langCode}`] || null
+    return errors.value[fieldName] || null
+}
+
+// ---------- URL -> File helpers (แปลงตั้งแต่ loadForEdit) ----------
+const guessExt = (n) => (n?.split('.').pop() || '').toLowerCase()
+const mimeFromExt = (ext) =>
+    ({ jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', svg: 'image/svg+xml', pdf: 'application/pdf' }[ext] || 'application/octet-stream')
+
+async function urlToFileClient(url, fallbackName = 'file.bin') {
+    const res = await fetch(url, { credentials: 'omit' })
+    if (!res.ok) throw new Error('fetch failed')
+    const blob = await res.blob()
+    const clean = decodeURIComponent((url.split('?')[0].split('/').pop()) || fallbackName)
+    return new File([blob], clean, { type: blob.type || mimeFromExt(guessExt(clean)) })
+}
+async function urlToFileProxy(url, fallbackName = 'file.bin') {
+    const res = await fetch(`/api/file-proxy?url=${encodeURIComponent(url)}`)
+    if (!res.ok) throw new Error('proxy failed')
+    const blob = await res.blob()
+    return new File([blob], fallbackName, { type: blob.type || mimeFromExt(guessExt(fallbackName)) })
+}
+async function urlToFileAny(url, fallbackName) {
+    try { return await urlToFileClient(url, fallbackName) }
+    catch { return await urlToFileProxy(url, fallbackName || 'file.bin') }
+}
+
+// ---------- Normalize helper ----------
+const normI18nTri = (o) => ({
+    th: o?.th || '',
+    en: o?.en || '',
+    cn: o?.cn || '',
+})
+const normQuoted = (v) => {
+    if (typeof v !== 'string') return v || ''
+    try {
+        // ถ้าเป็นสตริงที่ถูก stringify ซ้ำ (เช่น "\"089...\"")
+        if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
+            return JSON.parse(v)
+        }
+    } catch { /* ignore */ }
+    return v
+}
+
+// ---------- Load for edit ----------
+const resGetBusiness = ref(null)
+const loadForEdit = async () => {
+    try {
+        const { data } = await dataApi.getBusinessById(route.params.id)
+        const d = data?.data || {}
+        resGetBusiness.value = d
+
+        // Province/District/Subdistrict
+        shop_province_id.value = d.business_province_id ?? null
+        await loadDistricts(shop_province_id.value)
+        shop_district_id.value = d.business_district_id ?? null
+        await loadSubdistricts(shop_district_id.value)
+        shop_subdistrict_id.value = d.business_subdistrict_id ?? null
+
+        // i18n text
+        const bn = normI18nTri(d.business_name_i18n || {})
+        const bp = normI18nTri(d.business_person_i18n || {})
+        const ba = normI18nTri(d.business_address_i18n || {})
+
+        businessNameTh.value = bn.th; businessNameEn.value = bn.en; businessNameCn.value = bn.cn
+        businessPersonTh.value = bp.th; businessPersonEn.value = bp.en; businessPersonCn.value = bp.cn
+        businessAddressTh.value = ba.th; businessAddressEn.value = ba.en; businessAddressCn.value = ba.cn
+
+        business_contact.value = normQuoted(d.business_contact) || ''
+        business_email.value = d.business_email || ''
+
+        // business_documents: แปลง URL → File ตั้งแต่โหลด
+        const docsRaw = Array.isArray(d.business_documents) ? d.business_documents : []
+        const mapped = await Promise.all(
+            docsRaw.map(async (x, idx) => {
+                const url = x?.business_document_url || x?.file_url || x?.url || ''
+                if (!url) return { id: x?.id, src: '', file: null }
+                try {
+                    const file = await urlToFileAny(url, (url.split('/').pop() || `doc_${idx}`))
+                    return { id: x?.id, src: url, file }
+                } catch {
+                    return { id: x?.id, src: url, file: null }
+                }
+            })
+        )
+        listFiles.value = mapped
+    } catch (e) {
+        console.error(e)
+    }
+}
+
+// ---------- File select / remove (เอกสาร) ----------
+const onFileSelect = (event) => {
+    event.files.forEach((file) => {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+            listFiles.value.push({ src: e.target.result, file })
+        }
+        reader.readAsDataURL(file)
+    })
+}
+
+const confirm1 = useConfirm()
+const removeFile = (index) => {
+    const item = listFiles.value[index]
+    confirm1.require({
+        message: `${t('ยืนยันการลบ')}?`,
+        header: 'Confirmation',
+        icon: 'pi pi-exclamation-triangle',
+        rejectProps: {
+            label: t('ยกเลิก'),
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: t('ตกลง')
+        },
+        accept: async () => {
+            try {
+                if (item?.id) {
+                    // ปรับชื่อเมธอดตาม backend ของคุณ
+                    await dataApi.deletDocment(item.id)
+                }
+                listFiles.value.splice(index, 1)
+                toast.value = {
+                    show: true,
+                    type: 'success',
+                    title: t('สำเร็จ'),
+                    message: t('ลบรายการเอกสารสำเร็จ'),
+                    life: 1500
+                }
+            } catch (err) {
+                toast.value = {
+                    show: true,
+                    type: 'error',
+                    title: t('ล้มเหลว'),
+                    message: t('ลบเอกสารไม่สำเร็จ'),
+                    life: null
+                }
+                console.error('delete document failed:', err)
+            }
+        },
+        reject: () => { }
+    })
+}
+
+// ---------- Submit ----------
+const handleNext = handleSubmit(async (values) => {
+    try {
+        const fd = new FormData()
+
+        // meta จาก backend (คงไว้แบบเดิม)
+        if (resGetBusiness.value?.service_type_id) fd.append('service_type_id', resGetBusiness.value.service_type_id)
+        if (resGetBusiness.value?.business_type_id) fd.append('business_type_id', resGetBusiness.value.business_type_id)
+        if (resGetBusiness.value?.business_model_id) fd.append('business_model_id', resGetBusiness.value.business_model_id)
+
+        // i18n text
+        fd.append('business_name_i18n', JSON.stringify(values.business_name))
+        fd.append('business_person_i18n', JSON.stringify(values.business_person))
+        fd.append('business_address_i18n', JSON.stringify(values.business_address))
+
+        // ที่อยู่
+        fd.append('business_province_id', String(values.shop_province_id))
+        fd.append('business_district_id', String(values.shop_district_id))
+        fd.append('business_subdistrict_id', String(values.shop_subdistrict_id))
+
+        // ติดต่อ
+        fd.append('business_contact', String(values.business_contact || ''))
+        fd.append('business_email', String(values.business_email || ''))
+
+        // เอกสาร: แนบไฟล์ทั้งหมด + ส่ง id เดิมที่คงไว้
+        const docIds = []
+        for (const doc of (listFiles.value || [])) {
+            if (doc?.id) docIds.push({ id: doc.id, status: true })
+            if (doc?.file instanceof File) {
+                fd.append('business_documents', doc.file, doc.file.name)
+            }
+        }
+        fd.append('business_documents_id', JSON.stringify(docIds))
+
+        const res = await dataApi.updateBusinessById(route.params.id, fd)
+                toast.value = {
+            show: true,
+            type: 'success',
+            title: t('สำเร็จ'),
+            message: t('อัพเดทข้อมูลธุรกิจสำเร็จ'),
+            life: 1500
+        }
+        // ทำต่อ เช่น toast/route ตามที่ระบบคุณต้องการ
+    } catch (err) {
+        toast.value = {
+            show: true,
+            type: 'error',
+            title: t('ล้มเหลว'),
+            message: t('บันทึกข้อมูลไม่สำเร็จ'),
+            life: null
+        }
+        console.error('submit failed:', err)
+    }
+})
+</script>
+
+<template>
+    <div>
+        {{ errors }}
+        <Form @submit="handleNext">
+            <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54">
+                <van-tab v-for="(lang, idx) in langs" :key="lang.code" :title="lang.label" :name="idx">
+                    <div class="p-3">
+                        <div class="card">
+                            <h3 class="text-lg font-semibold text-zinc-900 mb-4">{{ t('ข้อมูลหน่วยงาน') }}</h3>
+
+                            <!-- Business Name -->
+                            <div>
+                                <label class="label-input">{{ t('ชื่อธุรกิจ') }}</label>
+                                <InputText v-model="business_name[lang.code]" class="w-full custom-border"
+                                    :class="{ 'p-invalid': getFieldError('business_name', lang.code) }"
+                                    :placeholder="t('ชื่อธุรกิจ')" />
+                                <p v-if="getFieldError('business_name', lang.code)" class="error-text">
+                                    {{ getFieldError('business_name', lang.code) }}
+                                </p>
+                            </div>
+
+                            <!-- Responsible Person -->
+                            <div>
+                                <label class="label-input">{{ t('ผู้รับผิดชอบ') }}</label>
+                                <InputText v-model="business_person[lang.code]" class="w-full custom-border"
+                                    :class="{ 'p-invalid': getFieldError('business_person', lang.code) }"
+                                    :placeholder="t('ผู้รับผิดชอบ')" />
+                                <p v-if="getFieldError('business_person', lang.code)" class="error-text">
+                                    {{ getFieldError('business_person', lang.code) }}
+                                </p>
+                            </div>
+
+                            <!-- จังหวัด -->
+                            <div>
+                                <label class="label-input">{{ t('จังหวัด') }}</label>
+                                <Dropdown v-model="shop_province_id" :options="provinces" optionValue="id"
+                                    :optionLabel="provinceLabelField" :placeholder="t('เลือกจังหวัด')"
+                                    class="w-full h-full custom-border" :filter="true" :showClear="false"
+                                    :invalid="errors?.shop_province_id ? true : false" />
+                                <p class="error-text" v-if="errors?.shop_province_id">{{ errors?.shop_province_id }}</p>
+                            </div>
+
+                            <!-- อำเภอ -->
+                            <div>
+                                <label class="label-input">{{ t('อำเภอ') }}</label>
+                                <Dropdown v-model="shop_district_id" :options="districts" optionValue="id"
+                                    :optionLabel="districtLabelField" :placeholder="t('เลือกอำเภอ')"
+                                    class="w-full h-full custom-border" :filter="true" :showClear="false"
+                                    :invalid="errors?.shop_district_id ? true : false" />
+                                <p class="error-text" v-if="errors?.shop_district_id">{{ errors?.shop_district_id }}</p>
+                            </div>
+
+                            <!-- ตำบล -->
+                            <div>
+                                <label class="label-input">{{ t('ตำบล') }}</label>
+                                <Dropdown v-model="shop_subdistrict_id" :options="subdistricts" optionValue="id"
+                                    :optionLabel="subdistrictLabelField" :placeholder="t('เลือกตำบล')"
+                                    class="w-full h-full custom-border" :filter="true" :showClear="false"
+                                    :invalid="errors?.shop_subdistrict_id ? true : false" />
+                                <p class="error-text" v-if="errors?.shop_subdistrict_id">{{ errors?.shop_subdistrict_id
+                                }}</p>
+                            </div>
+
+                            <!-- Address -->
+                            <div>
+                                <label class="label-input">{{ t('ที่อยู่') }}</label>
+                                <InputText v-model="business_address[lang.code]" class="w-full custom-border"
+                                    :class="{ 'p-invalid': getFieldError('business_address', lang.code) }"
+                                    :placeholder="lang.code === 'th' ? t('ที่อยู่') : lang.code === 'en' ? 'Address' : '地址'" />
+                                <p v-if="getFieldError('business_address', lang.code)" class="error-text">
+                                    {{ getFieldError('business_address', lang.code) }}
+                                </p>
+                            </div>
+
+                            <!-- Contact -->
+                            <div>
+                                <label class="label-input">{{ t('ติดต่อ') }}</label>
+                                <InputText v-model="business_contact" class="w-full custom-border"
+                                    :class="{ 'p-invalid': getFieldError('business_contact') }"
+                                    :placeholder="t('เบอร์โทรศัพท์')" />
+                                <p v-if="getFieldError('business_contact') && activeLangTab === idx" class="error-text">
+                                    {{ getFieldError('business_contact') }}
+                                </p>
+                            </div>
+
+                            <!-- Email -->
+                            <div>
+                                <label class="label-input">{{ t('อีเมล') }}</label>
+                                <InputText v-model="business_email" class="w-full custom-border"
+                                    :class="{ 'p-invalid': getFieldError('business_email') }"
+                                    :placeholder="t('อีเมล')" />
+                                <p v-if="getFieldError('business_email') && activeLangTab === idx" class="error-text">
+                                    {{ getFieldError('business_email') }}
+                                </p>
+                            </div>
+
+                            <!-- Files -->
+                            <div>
+                                <label class="label-input">{{ t('เอกสารรับรองหน่วยงาน') }}</label>
+                                <div class="flex justify-start">
+                                    <FileUpload mode="basic" @select="onFileSelect" customUpload rounded auto
+                                        :chooseLabel="t('เอกสาร')" chooseIcon="pi pi-file" :multiple="true"
+                                        class="upload-button" />
+                                </div>
+
+                                <ul class="mt-4 space-y-2" v-if="listFiles && listFiles.length > 0">
+                                    <li v-for="(file, index) in listFiles" :key="index"
+                                        class="flex justify-between items-center bg-gray-50 p-2 rounded-md">
+                                        <div class="flex items-center space-x-3">
+                                            <img v-if="file.file?.type?.startsWith('image/')" :src="file.src"
+                                                class="w-8 h-8 object-cover rounded-md" />
+                                            <span class="text-sm text-gray-800">{{ file.file?.name || 'document'
+                                            }}</span>
+                                        </div>
+                                        <button type="button" @click="removeFile(index)">
+                                            <i class="fa-solid fa-xmark text-red-700"></i>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 pb-10">
+                            <Button :label="t('ยืนยัน')" :loading="isloadingAxi" class="w-full" severity="primary"
+                                rounded :pt="{ root: { class: '!h-12 !rounded-full !text-base' } }" type="submit" />
+                        </div>
+                    </div>
+                </van-tab>
+            </van-tabs>
+
+            <!-- Confirm dialog สำหรับลบเอกสาร -->
+            <!-- <ConfirmDialog /> -->
+            <NotifyMessage v-model:show="toast.show" :type="toast.type" :title="toast.title" :message="toast.message"
+                :life="toast.life" />
+            <NotificationPopup v-model:visible="notification.visible" :state="notification.state"
+                :title="notification.title" :detail="notification.detail" :timeout="notification.timeout"
+                :redirect-url="notification.redirectUrl" :auto-close="notification.autoClose" />
+        </Form>
+    </div>
+</template>
+
+<style scoped>
+/* .card { @apply bg-white rounded-sm border border-zinc-200 p-4; }
+.label-input { @apply block mb-1 text-sm text-zinc-700; }
+.error-text { @apply text-red-500 text-sm mt-1; }
+.custom-border :deep(.p-inputtext),
+:deep(.p-dropdown),
+:deep(.p-select) { @apply w-full; } */
+</style>
