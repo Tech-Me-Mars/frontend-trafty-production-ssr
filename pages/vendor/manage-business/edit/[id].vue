@@ -7,18 +7,45 @@ const { t, locale, setLocale } = useI18n();
 
 const isloadingAxi = useState("isloadingAxi");
 const router = useRouter();
+const route = useRoute();
 
 import { useFieldArray, useForm, Form, useField } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as zod from "zod";
-import * as dataApi from "../../api/data.js";
-const stepsBar = ref([
-    { step: 1, active: false },
-    { step: 2, active: false },
-    { step: 3, active: false },
-    { step: 4, active: true },
-    { step: 5, active: false },
-]);
+import * as dataApi from "./api/data.js";
+
+const toast = ref({
+    show: false,
+    type: null,
+    title: null,
+    message: null,
+    life: null,
+})
+const notification = reactive({
+    visible: false,
+    state: 'success',
+    title: '',
+    detail: '',
+    timeout: 0,
+    redirectUrl: null,
+    autoClose: true
+})
+// Methods
+const showNotification = (config) => {
+    Object.assign(notification, {
+        visible: true,
+        ...config
+    })
+}
+
+// URL -> File (ถ้า CORS บล็อค จะ fallback เป็นแค่ preview ได้)
+// const urlToFile = async (url, filename = 'image.jpg') => {
+//   const res = await fetch(url, { mode: 'cors' })
+//   const blob = await res.blob()
+//   return new File([blob], filename, { type: blob.type || 'image/jpeg' })
+// }
+
+
 
 
 
@@ -139,7 +166,7 @@ const validationSchema = toTypedSchema(
 
         social_media: zod.array(
             zod.object({
-                social_media_id: zod.string().nonempty(t('เลือกประเภทโซเชียล')),
+                social_media_id: zod.string().nonempty(t('เลือกประเภทโซเชียล')).default(""),
                 social_media_link: zod
                     .string()
                     .url(t('กรุณาระบุลิงก์ที่ถูกต้อง'))
@@ -194,22 +221,22 @@ const validationSchema = toTypedSchema(
         }),
     })
 );
-const { handleSubmit, handleReset, errors } = useForm({
+const { setValues, handleSubmit, handleReset, errors } = useForm({
     initialValues: {
-        social_media: [
-            {
-                social_media_id: "",
-                social_media_link: ""
+        // social_media: [
+        //     {
+        //         social_media_id: "",
+        //         social_media_link: ""
 
-            },
-        ],
-        business_bank: [
-            {
-                business_bank_name_i18n: { th: '', en: '', cn: '' },
-                business_bank_account_i18n: { th: '', en: '', cn: '' },
-                business_bank_account_number: '',
-            },
-        ],
+        //     },
+        // ],
+        // business_bank: [
+        //     {
+        //         business_bank_name_i18n: { th: '', en: '', cn: '' },
+        //         business_bank_account_i18n: { th: '', en: '', cn: '' },
+        //         business_bank_account_number: '',
+        //     },
+        // ],
 
     },
     validationSchema,
@@ -241,7 +268,6 @@ const shop_name = ref({
     get cn() { return shopNameCn.value },
     set cn(v) { shopNameCn.value = v }
 });
-
 
 const shop_address = ref({
     get th() { return shopAddressTh.value },
@@ -405,75 +431,261 @@ watch(shop_district_id, val => {
 const { remove: remove1, push: push1, fields: fields1 } = useFieldArray("social_media");
 const { remove: removeBank, push: pushBank, fields: fieldsBank } = useFieldArray('business_bank')
 
+const deletingIdx = ref(null) // index ที่กำลังลบอยู่ เพื่อโชว์ loading ที่ปุ่มเฉพาะแถวนั้น
+
+const deleteShopSocialMedia = async (index, field) => {
+    // ป้องกันคลิกรัว
+    if (deletingIdx.value !== null) return
+    deletingIdx.value = index
+    try {
+        const id = field?.value?.id
+        if (id) {
+            // ปรับ URL ให้ตรงกับ backend ของคุณ
+            await dataApi.deleteShopSocialMedia(id)
+        }
+        toast.value = {
+            show: true,
+            type: 'success',
+            title: t('สำเร็จ'),
+            message: t('ลบรายการโซเชียลออกจากรายการสำเร็จ'),
+            life: 1500
+        }
+        remove1(index)
+        // ลบออกจาก array บน UI
+        // fields1.value.splice(index, 1)
+        // TODO: ถ้ามีระบบ toast:
+        // toast.add({ severity: 'success', summary: t('ลบสำเร็จ'), life: 2000 })
+    } catch (err) {
+        console.error('deleteShopSocialMedia error:', err)
+        // TODO: ถ้ามีระบบ toast/dialog กลาง:
+        // toast.add({ severity: 'error', summary: t('ลบไม่สำเร็จ'), detail: err?.message || '', life: 3000 })
+    } finally {
+        deletingIdx.value = null
+    }
+}
+
+const onRemoveBank = async (index) => {
+    // กันลบเมื่อเหลือแถวสุดท้าย
+    if (fieldsBank.value.length <= 1) return
+
+    const item = fieldsBank.value[index]?.value
+    try {
+        isloadingAxi.value = true
+        // ถ้ามี id ให้ยิงลบก่อน
+        if (item?.id) {
+            await dataApi.deleteShopBank(item.id)
+        }
+
+        // ลบออกจาก array ของฟอร์ม
+        toast.value = {
+            show: true,
+            type: 'success',
+            title: t('สำเร็จ'),
+            message: t('ลบรายการบัญชีธนาคารออกจากรายการสำเร็จ'),
+            life: 1500
+        }
+        removeBank(index)
+    } catch (e) {
+        console.error('delete bank failed:', e)
+    } finally {
+        isloadingAxi.value = false
+    }
+}
 // const { value: business_name } = useField('business_name', null, {
 //     initialValue: null
 // })
+// --- helpers ---
+const guessExt = (n) => (n?.split('.').pop() || '').toLowerCase()
+const mimeFromExt = (ext) =>
+    ({ jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', avif: 'image/avif' }[ext] || 'application/octet-stream')
+
+// ----- URL -> File (client first) -----
+async function urlToFileClient(url, fallbackName = 'image.jpg') {
+    const res = await fetch(url, { credentials: 'omit' })
+    if (!res.ok) throw new Error('fetch failed')
+    const blob = await res.blob()
+    const clean = decodeURIComponent((url.split('?')[0].split('/').pop()) || fallbackName)
+    return new File([blob], clean, { type: blob.type || mimeFromExt(guessExt(clean)) })
+}
+
+// ----- URL -> File (server proxy fallback ป้องกัน CORS) -----
+// สร้าง endpoint นี้ที่ /server/api/file-proxy.ts (ดูด้านล่าง)
+async function urlToFileProxy(url, fallbackName = 'image.jpg') {
+    const res = await fetch(`/api/file-proxy?url=${encodeURIComponent(url)}`)
+    if (!res.ok) throw new Error('proxy failed')
+    const blob = await res.blob()
+    return new File([blob], fallbackName, { type: blob.type || mimeFromExt(guessExt(fallbackName)) })
+}
+
+// ----- รวมเป็นตัวเดียว: client -> proxy -----
+async function urlToFileAny(url, fallbackName = 'image.jpg') {
+    try { return await urlToFileClient(url, fallbackName) }
+    catch { return await urlToFileProxy(url, fallbackName) }
+}
+
+/** URL -> File (ถ้า CORS ไม่เปิดจะ throw -> ไปต่อแบบไม่มีไฟล์) */
+async function urlToFile(url, fallbackName = 'image.jpg') {
+    const res = await fetch(url)                    // ควรเป็น signed URL/S3 ที่เปิด CORS แล้ว
+    if (!res.ok) throw new Error('fetch failed')
+    const blob = await res.blob()
+    const cleanName = decodeURIComponent((url.split('?')[0].split('/').pop()) || fallbackName)
+    const ext = guessExt(cleanName)
+    const type = blob.type || mimeFromExt(ext)
+    return new File([blob], cleanName, { type })
+}
+
+/** รวมรูปทั้งหมดให้พร้อมส่ง: ไฟล์ใหม่ + ไฟล์จาก URL + list id เดิม */
+async function prepareBusinessImages(items = []) {
+    const outFiles = []
+    const outIds = []
+
+    for (let i = 0; i < items.length; i++) {
+        const it = items[i] || {}
+        if (it.id) outIds.push({ id: it.id, status: true })     // คงรูปเดิมไว้
+
+        // มีไฟล์จากผู้ใช้เลือกแล้ว → ใช้เลย
+        if (it.file instanceof File) {
+            outFiles.push(it.file)
+            continue
+        }
+        // ไม่มีไฟล์แต่มี src (รูปเดิมจากระบบ) → แปลง URL เป็น File
+        if (it.src) {
+            try {
+                const f = await urlToFile(it.src, `image_${i}.jpg`)
+                outFiles.push(f)
+            } catch (_) {
+                // ถ้าแปลงไม่ได้เพราะ CORS → ข้าม (รูปจะคงเดิมเพราะเราส่ง id กลับไปแล้ว)
+            }
+        }
+    }
+    return { files: outFiles, ids: outIds }
+}
 import { format } from 'date-fns';
-import { useFormStore } from "@/store/businessStore.js";
-const formStore = useFormStore(); // ใช้ Pinia Store
-const handleNext = handleSubmit((values) => {
+async function mustFile(objOrFile, fallbackName = 'image.jpg') {
+    // รับได้ทั้ง File หรือ { src, file }
+    if (objOrFile instanceof File) return objOrFile
+    if (objOrFile?.file instanceof File) return objOrFile.file
+    if (objOrFile?.src) {
+        // แปลงจาก src (URL หรือ data:) เป็น File เสมอ
+        return await urlToFileAny(objOrFile.src, fallbackName)
+    }
+    throw new Error(`ต้องแนบไฟล์: ${fallbackName}`)
+}
+const handleNext = handleSubmit(async (values) => {
     try {
-        console.log('Form shop_name:', shop_name.value);
-        console.log('Form values:', values);
 
-        const time_start = format(shop_time_s.value, "HH:mm");
-        const time_end = format(shop_time_e.value, "HH:mm");
+        // เวลาเปิด-ปิด -> "HH:mm-HH:mm"
+        const time_start = format(shop_time_s.value, 'HH:mm')
+        const time_end = format(shop_time_e.value, 'HH:mm')
         const shop_time = `${time_start}-${time_end}`
-        const sortedShopDays = {};
-        ['th', 'en', 'cn'].forEach(lang => {
-            sortedShopDays[lang] = [...shop_days.value[lang]].sort(
-                (a, b) => days.map(day => day[lang]).indexOf(a) - days.map(day => day[lang]).indexOf(b)
-            )
-        })
 
-        const business_img_array = business_img.value.map((item) => item);
+        // จัดเรียงวันทำการให้คงลำดับมาตรฐาน
+        const sortedShopDays = {}
+            ;['th', 'en', 'cn'].forEach(lang => {
+                sortedShopDays[lang] = [...(shop_days.value[lang] || [])].sort(
+                    (a, b) => days.map(d => d[lang]).indexOf(a) - days.map(d => d[lang]).indexOf(b)
+                )
+            })
 
-        const social_media_array = fields1.value.map((field) => ({
-            social_media_id: field.value.social_media_id || null,
-            social_media_link: field.value.social_media_link || null,
-        }));
-        const business_bank_array = (fieldsBank?.value || []).map((field) => ({
+        // social media (รองรับทั้งแก้ไข/เพิ่มใหม่)
+        const social_media_array = (fields1.value || []).map(f => ({
+            id: f.value?.id || '',                        // ว่าง = add ใหม่
+            social_media_id: f.value?.social_media_id || null,
+            social_media_link: f.value?.social_media_link || null,
+        }))
+
+        // bank (รองรับทั้งแก้ไข/เพิ่มใหม่)
+        const business_bank_array = (fieldsBank.value || []).map(f => ({
+            id: f.value?.id || '',
             business_bank_name_i18n: {
-                th: field.value?.business_bank_name_i18n?.th || '',
-                en: field.value?.business_bank_name_i18n?.en || '',
-                cn: field.value?.business_bank_name_i18n?.cn || '',
+                th: f.value?.business_bank_name_i18n?.th || '',
+                en: f.value?.business_bank_name_i18n?.en || '',
+                cn: f.value?.business_bank_name_i18n?.cn || '',
             },
             business_bank_account_i18n: {
-                th: field.value?.business_bank_account_i18n?.th || '',
-                en: field.value?.business_bank_account_i18n?.en || '',
-                cn: field.value?.business_bank_account_i18n?.cn || '',
+                th: f.value?.business_bank_account_i18n?.th || '',
+                en: f.value?.business_bank_account_i18n?.en || '',
+                cn: f.value?.business_bank_account_i18n?.cn || '',
             },
-            // เก็บเฉพาะตัวเลข/ตัดช่องว่าง (ถ้าไม่ต้องการให้ตัด ให้ใช้ String(...) เฉย ๆ)
-            business_bank_account_number: String(field.value?.business_bank_account_number ?? ''),
-        }));
-        // console.log('shop_details', shop_details.value)
+            business_bank_account_number: String(f.value?.business_bank_account_number ?? ''),
+        }))
 
-        // เก็บข้อมูลลง Pinia แทน LocalStorage
-        formStore.setForm4(
-            values.shop_name,
-            values.shop_address,
-            values.shop_province_id,
-            values.shop_district_id,
-            values.shop_subdistrict_id,
-            sortedShopDays,
-            shop_time,
-            values.shop_phone,
-            values.shop_details,
-            image_cover.value,
-            image_profile.value,
-            business_img_array,
-            business_bank_array,
-            social_media_array,
-            latitude.value,
-            longitude.value
-        );
+        // business_img: แนบไฟล์เฉพาะที่มี, และส่ง id เดิมกลับไปด้วย
+        const bizImgIds = []
+            ; (business_img.value || []).forEach(img => {
+                if (img?.id) bizImgIds.push({ id: img.id, status: true })
+            })
 
-        // เปลี่ยนหน้าไป form5
-        formStore.nextPage();
+        // >>> สร้าง FormData ตามรูปแบบ API <<<
+        const fd = new FormData()
+
+        // (ใส่พารามิเตอร์ชุดนี้ถ้า endpoint ต้องการครบ; มีจาก store อยู่แล้ว)
+        if (resGetBusiness.value?.service_type_id) fd.append('service_type_id', resGetBusiness.value?.service_type_id)
+        if (resGetBusiness.value?.business_type_id) fd.append('business_type_id', resGetBusiness.value?.business_type_id)
+        if (resGetBusiness.value?.business_model_id) fd.append('business_model_id', resGetBusiness.value?.business_model_id)
+
+        // i18n fields
+        fd.append('shop_name_i18n', JSON.stringify(values.shop_name))
+        fd.append('shop_address_i18n', JSON.stringify(values.shop_address))
+        fd.append('shop_details_i18n', JSON.stringify(values.shop_details))
+
+        // วันทำการ (รูปแบบเดียวกับ cURL: ค่าแต่ละภาษาเป็น "สตริงของ JSON array")
+        fd.append(
+            'business_open_date_i18n',
+            JSON.stringify({
+                th: JSON.stringify(sortedShopDays.th || []),
+                en: JSON.stringify(sortedShopDays.en || []),
+                cn: JSON.stringify(sortedShopDays.cn || []),
+            })
+        )
+
+        // ที่อยู่/พิกัด/เวลา/เบอร์
+        fd.append('shop_province_id', String(values.shop_province_id))
+        fd.append('shop_district_id', String(values.shop_district_id))
+        fd.append('shop_subdistrict_id', String(values.shop_subdistrict_id))
+        fd.append('shop_time', shop_time)
+        fd.append('shop_phone', String(values.shop_phone || ''))
+        fd.append('latitude', String(latitude.value ?? ''))
+        fd.append('longitude', String(longitude.value ?? ''))
+
+        // รูปเดี่ยว: แนบเฉพาะที่มีไฟล์จริง (ถ้าโหลดจาก URL แล้ว CORS บล็อก จะไม่มีไฟล์ -> ปล่อยว่างเพื่อคงรูปเดิม)
+        if (image_cover.value?.file instanceof File) {
+            fd.append('image_cover', image_cover.value.file, image_cover.value.file.name)
+        }
+        if (image_profile.value?.file instanceof File) {
+            fd.append('image_profile', image_profile.value.file, image_profile.value.file.name)
+        }
+
+        // รูปหลายใบ: แนบไฟล์ใหม่ทั้งหมด ...
+
+        for (const img of (business_img.value || [])) {
+            if (img?.file instanceof File) {
+                fd.append('business_img', img.file, img.file.name)
+            }
+        }
+        fd.append('business_img_id', JSON.stringify(bizImgIds))
+
+        // social & bank
+        fd.append('business_social_media', JSON.stringify(social_media_array))
+        fd.append('business_bank', JSON.stringify(business_bank_array))
+
+        // >>> ยิงอัปเดต <<<
+        const res = await dataApi.updateShopById(route.params.id, fd)
+        toast.value = {
+            show: true,
+            type: 'success',
+            title: t('สำเร็จ'),
+            message: t('อัพเดทข้อมูลสถานที่ท่องเที่ยวสำเร็จ'),
+            life: 1500
+        }
+        // ไปหน้าต่อไปหรือจบด้วย toast ก็ได้
+
     } catch (error) {
-        console.error('Error handling form submission:', error);
+        console.error('update error:', error)
+    } finally {
+
     }
-});
+})
 const getFieldError = (fieldName, langCode = null) => {
     if (langCode) {
         return errors.value[`${fieldName}.${langCode}`] || null;
@@ -727,11 +939,13 @@ const search = async (event) => {
 // โหลดแผนที่เมื่อ DOM พร้อม
 
 onMounted(async () => {
+
+    await loadProvinces()
     await useLongdoLoader()
     await nextTick()
     initMap()
     moveMapToTab(activeLangTab.value)
-    loadProvinces()
+    await loadForEdit()
 })
 
 const onSelectChange = (e) => {
@@ -744,14 +958,179 @@ const onSelectChange = (e) => {
     //   }
 };
 
+
+
+// ---------- helpers ----------
+const safeJSON = (v, fb = null) => {
+    try { return typeof v === 'string' ? JSON.parse(v) : (v ?? fb) } catch { return fb }
+}
+const normI18n = (obj) => {
+    const o = safeJSON(obj, {})
+    return { th: o?.th ?? '', en: o?.en ?? '', cn: o?.cn ?? '' }
+}
+const parseOpenDays = (i18n) => {
+    const o = safeJSON(i18n, {})
+    return {
+        th: safeJSON(o?.th, '[]') ? safeJSON(o.th, []) : [],
+        en: safeJSON(o?.en, '[]') ? safeJSON(o.en, []) : [],
+        cn: safeJSON(o?.cn, '[]') ? safeJSON(o.cn, []) : [],
+    }
+}
+const toDateFromHHmm = (hhmm) => {
+    if (!hhmm) return null
+    const [h, m] = hhmm.split(':').map(n => parseInt(n, 10))
+    if (Number.isNaN(h) || Number.isNaN(m)) return null
+    const d = new Date()
+    d.setHours(h, m, 0, 0)
+    return d
+}
+const ensureTri = (obj) => ({
+    th: obj?.th || '',
+    en: obj?.en || '',
+    cn: obj?.cn || '',
+})
+const safeParse = (s) => {
+    try { return JSON.parse(s || '[]') } catch { return [] }
+}
+const hhmmToDate = (hhmm) => {
+    if (!hhmm) return null
+    const [H, M] = hhmm.trim().split(':')
+    const d = new Date()
+    d.setHours(+H || 0, +M || 0, 0, 0)
+    return d
+}
+const resGetBusiness = ref(null)
+const loadForEdit = async () => {
+    try {
+        // handleReset()
+        const { data } = await dataApi.getBusinessById(route.params.id)
+        const d = data?.data || {}
+        resGetBusiness.value = data?.data || {}
+        console.log('d', d)
+
+        // ----- ที่อยู่ / พิกัด -----
+        shop_province_id.value = d.shop_province_id ?? d.business_province_id ?? null
+        await loadDistricts(shop_province_id.value)
+        shop_district_id.value = d.shop_district_id ?? d.business_district_id ?? null
+        await loadSubdistricts(shop_district_id.value)
+        shop_subdistrict_id.value = d.shop_subdistrict_id ?? d.business_subdistrict_id ?? null
+
+        latitude.value = Number(d.latitude) || null
+        longitude.value = Number(d.longitude) || null
+        if (latitude.value && longitude.value) {
+            setTimeout(() => focusOnLocation(latitude.value, longitude.value), 0)
+        }
+
+        // ----- i18n text -----
+        setValues({
+            shop_name: ensureTri(d.shop_name_i18n),
+            shop_address: ensureTri(d.shop_address_i18n),
+            shop_details: ensureTri(d.shop_details_i18n),
+        })
+        // ----- วันเปิดทำการ -----
+        const daysI18n = parseOpenDays(d.business_open_date_i18n)
+        shop_days.value.th = daysI18n.th
+        shop_days.value.en = daysI18n.en
+        shop_days.value.cn = daysI18n.cn
+
+        // ----- เวลาเปิด-ปิด -----
+        const [ts, te] = (d.shop_time || '').split('-').map(s => s.trim())
+        shop_time_s.value = toDateFromHHmm(ts)
+        shop_time_e.value = toDateFromHHmm(te)
+
+        // ----- เบอร์ -----
+        shop_phone.value = d.shop_phone || ''
+
+        // ===== ภาพ: แปลงเป็น File ทันที =====
+        // 1) รูปโปรไฟล์
+        if (d.ImageProfileURL) {
+            try {
+                const f = await urlToFileAny(
+                    d.ImageProfileURL,
+                    (d.image_profile || 'profile.jpg').split('/').pop() || 'profile.jpg'
+                )
+                image_profile.value = { src: d.ImageProfileURL, file: f }
+            } catch {
+                // proxy ก็ยังล้มเหลว -> อย่างน้อยให้พรีวิวได้ และบังคับให้อัปใหม่ตอนบันทึก
+                image_profile.value = { src: d.ImageProfileURL, file: null }
+            }
+        } else {
+            image_profile.value = null
+        }
+
+        // 2) รูปหน้าปก
+        if (d.ImageCoverURL) {
+            try {
+                const f = await urlToFileAny(
+                    d.ImageCoverURL,
+                    (d.image_cover || 'cover.jpg').split('/').pop() || 'cover.jpg'
+                )
+                image_cover.value = { src: d.ImageCoverURL, file: f }
+            } catch {
+                image_cover.value = { src: d.ImageCoverURL, file: null }
+            }
+        } else {
+            image_cover.value = null
+        }
+
+        // 3) รูปแกลเลอรี (จำกัด 3) — โหลดคู่ขนาน
+        const rawImgs = (d.business_img || []).slice(0, 3)
+        const files = await Promise.all(
+            rawImgs.map(async (x, idx) => {
+                const url = x.business_img_url
+                try {
+                    const f = await urlToFileAny(url, (url?.split('/').pop() || `image_${idx}.jpg`))
+                    return { id: x.id, src: url, file: f }
+                } catch {
+                    return { id: x.id, src: url, file: null } // อย่างน้อยมีพรีวิว
+                }
+            })
+        )
+        business_img.value = files
+
+        // ----- Social Media -----
+        fields1.value.splice(0)
+            ; (d.business_social_media || []).forEach(sm => {
+                push1({
+                    id: sm.id,                              // เก็บ id ไว้ส่งกลับ (แก้ไข/คงไว้)
+                    social_media_id: sm.social_media_id,
+                    social_media_link: sm.social_media_link,
+                })
+            })
+
+        // ----- Bank (ถ้ามี) -----
+        fieldsBank.value.splice(0)
+            ; (d.business_bank || []).forEach(b => {
+                pushBank({
+                    id: b.id,
+                    business_bank_name_i18n: normI18n(b.business_bank_name_i18n),
+                    business_bank_account_i18n: normI18n(b.business_bank_account_i18n),
+                    business_bank_account_number: b.business_bank_account_number || '',
+                })
+            })
+    } catch (e) {
+        console.error(e)
+    } finally {
+        isloadingAxi.value = false
+    }
+}
+
 </script>
 <template>
     <div class="bg-zinc-100 min-h-screen">
         <LayoutsBaseHeader :title="t('ข้อมูลธุรกิจในแหล่งท่องเที่ยว')">
             <template #left>
-                <ButtonIconBack @click="formStore.prevPage()" />
+                <!-- <ButtonIconBack @click="formStore.prevPage()" /> -->
             </template>
         </LayoutsBaseHeader>
+        {{ errors }}
+        <!-- <pre>
+    {{ shop_name }}
+    <br>
+    {{ shop_details }}
+    <br>
+    {{ shop_address }}
+</pre> -->
         <section class="max-w-[430px] mx-auto">
 
 
@@ -855,6 +1234,7 @@ const onSelectChange = (e) => {
                                             {{
                                                 t('รูป') }})
                                         </p>
+
                                         <div class="flex flex-wrap gap-2 mb-3 relative">
                                             <div v-for="(image, index) in business_img" :key="index" class="relative">
                                                 <!-- Image Display -->
@@ -1097,14 +1477,15 @@ const onSelectChange = (e) => {
                                     <hr class="border-b-2 mb-3" />
                                     <h4 class="section-title mt-6">{{ t('เลขที่บัญชี') }}</h4>
 
-                                    <Button :loading="isloadingAxi" type="button" :label="t('เพิ่มเลขที่บัญชี')" @click="pushBank({
-                                        business_bank_name_i18n: { th: '', en: '', cn: '' },
-                                        business_bank_account_i18n: { th: '', en: '', cn: '' },
-                                        business_bank_account_number: '',
-                                    })" :pt="{
-                                        label: { class: 'text-white' },
-                                        root: { class: '!border-primary-main !bg-primary-second' },
-                                    }" />
+                                    <Button class="mb-2" :loading="isloadingAxi" type="button"
+                                        :label="t('เพิ่มเลขที่บัญชี')" @click="pushBank({
+                                            business_bank_name_i18n: { th: '', en: '', cn: '' },
+                                            business_bank_account_i18n: { th: '', en: '', cn: '' },
+                                            business_bank_account_number: '',
+                                        })" :pt="{
+                                            label: { class: 'text-white' },
+                                            root: { class: '!border-primary-main !bg-primary-second' },
+                                        }" />
 
                                     <div v-if="fieldsBank?.length > 0" class="mt-3">
                                         <table>
@@ -1170,7 +1551,7 @@ const onSelectChange = (e) => {
                                                     <!-- Actions -->
                                                     <td class="align-top">
                                                         <Button :loading="isloadingAxi" icon="pi pi-times"
-                                                            severity="danger" size="small" @click="removeBank(index)"
+                                                            severity="danger" size="small" @click="onRemoveBank(index)"
                                                             rounded aria-label="Cancel" />
                                                     </td>
                                                 </tr>
@@ -1270,8 +1651,9 @@ const onSelectChange = (e) => {
                                                     <!-- Column: Actions -->
                                                     <td class="align-top">
                                                         <Button :loading="isloadingAxi" icon="pi pi-times"
-                                                            severity="danger" size="small" @click="remove1(index)"
-                                                            rounded aria-label="Cancel" />
+                                                            severity="danger" size="small"
+                                                            @click="deleteShopSocialMedia(index, field)" rounded
+                                                            aria-label="Cancel" />
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -1295,6 +1677,11 @@ const onSelectChange = (e) => {
 
             </div>
         </section>
+        <NotifyMessage v-model:show="toast.show" :type="toast.type" :title="toast.title" :message="toast.message"
+            :life="toast.life" />
+        <NotificationPopup v-model:visible="notification.visible" :state="notification.state"
+            :title="notification.title" :detail="notification.detail" :timeout="notification.timeout"
+            :redirect-url="notification.redirectUrl" :auto-close="notification.autoClose" />
     </div>
 </template>
 

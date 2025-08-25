@@ -52,7 +52,7 @@
                                     class: '!border-primary-main'
                                 },
 
-                            }" @click="navigateTo(`/vendor/manage-business/home/${item.id}`)" />
+                            }" @click="navigateTo(`/vendor/manage-business/edit/${item.id}`)" />
                         <Button :loading="isloadingAxi" :label="t('รายละเอียด')" severity="primary" variant="outlined"
                             class="w-full" :pt="{
                                 label: {
