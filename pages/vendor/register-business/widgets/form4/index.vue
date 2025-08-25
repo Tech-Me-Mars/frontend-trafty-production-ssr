@@ -786,7 +786,7 @@ const onSelectChange = (e) => {
                                                         class="object-cover "
                                                         :pt="{ image: { class: 'object-cover w-12 h-12 rounded-md ' } }"
                                                         preview />
-                                                    <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.5 text-white rounded-full cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 hover:bg-red-300"
+                                                    <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.5 text-white bg-gray-300 rounded-full cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 hover:bg-red-300"
                                                         @click="removeImageBgProfile"></i>
                                                 </div>
 
@@ -826,7 +826,7 @@ const onSelectChange = (e) => {
                                                         class="object-cover "
                                                         :pt="{ image: { class: 'object-cover w-12 h-12 rounded-md ' } }"
                                                         preview />
-                                                    <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.5 text-white rounded-full cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 hover:bg-red-300"
+                                                    <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.5 text-white bg-gray-300 rounded-full cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 hover:bg-red-300"
                                                         @click="removeImageBgCover"></i>
                                                 </div>
 
@@ -863,7 +863,7 @@ const onSelectChange = (e) => {
                                                     preview />
 
                                                 <!-- Delete Icon (Overlay on Top-Right) -->
-                                                <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.5 text-white  rounded-full cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 hover:bg-red-300"
+                                                <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.5 text-white bg-gray-300  rounded-full cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 hover:bg-red-300"
                                                     @click="removeImage(index)"></i>
 
                                             </div>

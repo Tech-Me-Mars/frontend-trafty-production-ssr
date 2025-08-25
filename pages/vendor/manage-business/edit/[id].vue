@@ -1,6 +1,6 @@
 <template>
     <div class="bg-zinc-100 min-h-screen">
-        <LayoutsBaseHeader :title="t('ข้อมูลธุรกิจในแหล่งท่องเที่ยว')">
+        <LayoutsBaseHeader  :title="t('ข้อมูลธุรกิจในแหล่งท่องเที่ยว')" :showBack="true" backTo="/vendor/my-business">
             <template #left>
                 <!-- <ButtonIconBack @click="formStore.prevPage()" /> -->
             </template>

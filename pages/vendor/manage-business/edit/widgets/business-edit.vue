@@ -424,7 +424,6 @@ const handleNext = handleSubmit(async (values) => {
 
 <template>
     <div>
-        {{ errors }}
         <Form @submit="handleNext">
             <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54">
                 <van-tab v-for="(lang, idx) in langs" :key="lang.code" :title="lang.label" :name="idx">

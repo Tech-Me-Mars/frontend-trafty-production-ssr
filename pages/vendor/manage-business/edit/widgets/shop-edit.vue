@@ -452,7 +452,7 @@ const deleteShopSocialMedia = (index) => {
             try {
                 // ถ้ามี id จาก backend → ยิงลบก่อน
                 if (item?.id) {
-                    const res =await dataApi.deleteShopSocialMedia(item.id)
+                    const res = await dataApi.deleteShopSocialMedia(item.id)
                 }
                 // ลบออกจาก array ของฟอร์ม
                 remove1(index)
@@ -715,7 +715,7 @@ const handleNext = handleSubmit(async (values) => {
         // ไปหน้าต่อไปหรือจบด้วย toast ก็ได้
 
     } catch (error) {
-                toast.value = {
+        toast.value = {
             show: true,
             type: 'error',
             title: t('ล้มเหลว'),
@@ -1202,16 +1202,9 @@ const loadForEdit = async () => {
 
 </script>
 <template>
-
     <section>
-
-
         <div class=" ">
             <Form @submit="handleNext">
-                <!-- {{ errors }}
-                <pre>
-            {{ fields1 }}
-        </pre> -->
                 <!-- Map จริง ถูก render ทีเดียว -->
                 <div id="map" class="map-container" style="width: 100%; height: 100%; display: none;" />
                 <!-- {{ activeLangTab }} -->
@@ -1237,7 +1230,7 @@ const loadForEdit = async () => {
                                                     class="object-cover "
                                                     :pt="{ image: { class: 'object-cover w-12 h-12 rounded-md ' } }"
                                                     preview />
-                                                <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.2 text-white bg-red-500 rounded-sm cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 "
+                                                <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.2 text-white bg-gray-300 rounded-full cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 "
                                                     @click="removeImageBgProfile"></i>
                                             </div>
 
@@ -1258,7 +1251,7 @@ const loadForEdit = async () => {
                                         </div>
                                         <p class="error-text" v-if="errors?.image_profile">{{
                                             t('กรุณาเลือกอย่างน้อย')
-                                        }} 1
+                                            }} 1
                                             {{
                                                 t('ภาพ') }}
                                         </p>
@@ -1276,7 +1269,7 @@ const loadForEdit = async () => {
                                                     class="object-cover "
                                                     :pt="{ image: { class: 'object-cover w-12 h-12 rounded-md ' } }"
                                                     preview />
-                                                <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.2 text-white bg-red-500 rounded-sm cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 "
+                                                <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.2 text-white bg-gray-300 rounded-full cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 "
                                                     @click="removeImageBgCover"></i>
                                             </div>
 
@@ -1296,7 +1289,7 @@ const loadForEdit = async () => {
 
                                         </div>
                                         <p class="error-text" v-if="errors?.image_cover">{{ t('กรุณาเลือกอย่างน้อย')
-                                        }}
+                                            }}
                                             1 {{
                                                 t('ภาพ') }}</p>
                                     </div>
@@ -1314,7 +1307,7 @@ const loadForEdit = async () => {
                                                 preview />
 
                                             <!-- Delete Icon (Overlay on Top-Right) -->
-                                            <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.2 text-white bg-red-500  rounded-sm cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 "
+                                            <i class="fa-solid fa-xmark absolute top-0 right-0 p-0.2 text-white bg-gray-300  rounded-full cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-110 "
                                                 @click="removeImage(index)"></i>
 
                                         </div>
@@ -1355,7 +1348,7 @@ const loadForEdit = async () => {
                                                             slotProps.option?.name }}</span>
                                                         <span class="text-sm text-gray-500">{{
                                                             slotProps.option?.address
-                                                        }}</span>
+                                                            }}</span>
                                                     </div>
                                                 </template>
                                             </AutoComplete>
@@ -1365,7 +1358,7 @@ const loadForEdit = async () => {
                                             </div>
                                             <p class="error-text" v-if="errors?.longitude">{{
                                                 t('กรุณาปักหมุดสถานที่ท่องเที่ยวหรือธุรกิจ')
-                                            }}
+                                                }}
                                             </p>
 
                                         </client-only>
@@ -1509,7 +1502,7 @@ const loadForEdit = async () => {
 
                                         <p class="error-text" v-if="errors?.shop_time_s || errors?.shop_time_e">{{
                                             t('กรุณาเลือกเวลาทำการ')
-                                        }}</p>
+                                            }}</p>
 
                                     </div>
                                     <!-- ติดต่อ -->
@@ -1523,7 +1516,7 @@ const loadForEdit = async () => {
 
                                     <div>
                                         <label class="label-input">{{ t('รายละเอียดธุรกิจในแหล่งท่องเที่ยว')
-                                        }}</label>
+                                            }}</label>
                                         <InputText v-model="shop_details[lang.code]" placeholder=""
                                             class="w-full custom-border" :invalid="getFieldError('shop_details')" />
                                         <p class="error-text" v-if="getFieldError('shop_details', lang.code)">{{
@@ -1541,9 +1534,9 @@ const loadForEdit = async () => {
                                         business_bank_account_i18n: { th: '', en: '', cn: '' },
                                         business_bank_account_number: '',
                                     })" :pt="{
-                                            label: { class: 'text-white' },
-                                            root: { class: '!border-primary-main !bg-primary-second' },
-                                        }" />
+                                        label: { class: 'text-white' },
+                                        root: { class: '!border-primary-main !bg-primary-second' },
+                                    }" />
 
                                 <div v-if="fieldsBank?.length > 0" class="mt-3">
                                     <table>
@@ -1625,14 +1618,14 @@ const loadForEdit = async () => {
                                     social_media_id: undefined,
                                     social_media_link: undefined,
                                 })" :pt="{
-                                            label: {
-                                                class: 'text-white'
-                                            },
-                                            root: {
-                                                class: '!border-primary-main !bg-primary-second'
-                                            },
+                                    label: {
+                                        class: 'text-white'
+                                    },
+                                    root: {
+                                        class: '!border-primary-main !bg-primary-second'
+                                    },
 
-                                        }" />
+                                }" />
 
                                 <div id="table-socia-media" v-if="fields1?.length > 0">
                                     <table>
@@ -1678,7 +1671,7 @@ const loadForEdit = async () => {
                                                                         class="text-lg"></i>
                                                                     <span>{{
                                                                         slotProps.option[`social_media_name_${lang.code}`]
-                                                                    }}</span>
+                                                                        }}</span>
                                                                 </div>
                                                             </template>
                                                         </Select>
