@@ -37,30 +37,53 @@ const validationSchema = zod.object({
 // Handle form submission
 const onSubmit = async () => {
   try {
-    // Check validation before submit
-    const isValid = await validationSchema.safeParseAsync({ username: username.value, password: password.value });
-    if (!isValid.success) {
-      return;
+    // Validate ก่อน
+    const isValid = await validationSchema.safeParseAsync({
+      username: username.value,
+      password: password.value,
+    })
+    if (!isValid.success) return
+
+    // Login
+    const payloadReq = { username: username.value, password: password.value }
+    const res = await dataApi.login(payloadReq)
+
+    // เก็บ token
+    const rawToken = res.data.access_token
+    await useEncryptedCookie('token', rawToken)
+
+    // ===== ถอดรหัส JWT แล้วเก็บ role_id / role_name =====
+    const parseJwt = (token) => {
+      try {
+        const base64Url = token.split('.')[1]
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split('')
+            .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        )
+        return JSON.parse(jsonPayload)
+      } catch {
+        return null
+      }
     }
 
-    // Prepare payload and call API
-    const payload = {
-      username: username.value,  // ใช้ username แทน email
-      password: password.value,
-    };
-    const res = await dataApi.login(payload);
-    
-    // Save token and user role in encrypted cookies
-    await useEncryptedCookie("token", res.data.data.access_token);
-    await useEncryptedCookie("role_id", res.data.data.user?.role_id);
+    const decoded = parseJwt(rawToken)
+    if (decoded) {
+      await useEncryptedCookie('role_id', decoded.role_id || '')
+      await useEncryptedCookie('role_name', decoded.role_name || '')
+      // ถ้าต้องการเก็บเพิ่ม:
+      // await useEncryptedCookie('uid', decoded.uid || '')
+      // await useEncryptedCookie('perms', JSON.stringify(decoded.perms || []))
+    }
 
-    // Redirect after successful login (you can change the route as needed)
-    router.push('/');  // ตัวอย่างการเปลี่ยนหน้าไปที่ dashboard
-
+    // ไปหน้าหลังล็อกอิน
+    router.push('/')
   } catch (error) {
-    console.error(error);
+    console.error(error)
   }
-};
+}
 </script>
 
 <template>

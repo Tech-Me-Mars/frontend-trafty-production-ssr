@@ -350,7 +350,7 @@ td.radio-table-cell {
         </div>
 
 
-        <div v-if="role_id == 3 || role_id == 1" class="">
+        <div v-if="role_name == 'police' || role_name == 'Admin'" class="">
           <label class="block text-sm font-medium text-gray-700 mb-2">
             {{ t('รอบการออกตรวจซ้ำ') }}
           </label>
@@ -358,7 +358,7 @@ td.radio-table-cell {
             optionLabel="text" optionValue="id" class="w-full" />
         </div>
 
-        <div v-if="role_id == 3" class="flex items-center justify-between gap-5 md:gap-0 md:justify-start">
+        <div v-if="role_name == 'police' || role_name == 'Admin'" class="flex items-center justify-between gap-5 md:gap-0 md:justify-start">
           <span class="text-sm font-medium text-gray-700 mb-2">{{ t('สถานะการแสดงผล') }}</span>
           <van-switch v-model="status_show" size="24" active-color="#20bc04" />
         </div>
@@ -429,10 +429,10 @@ const props = defineProps({
   }
 })
 
-const role_id = ref(null)
+const role_name = ref(null)
 const loadCheckRole = async () => {
-  const resRole = await useDecryptedCookie('role_id')
-  role_id.value = resRole
+  const resRole = await useDecryptedCookie('role_name')
+  role_name.value = resRole
 
 }
 onMounted(async () => {
@@ -1202,7 +1202,7 @@ const submitAllForms = async () => {
       survey_id: resBusiness.data.data?.template_survey_id,
       business_id: resBusiness.data.data?.id,
       status_show: status_show.value,
-      inspection_round: (role_id.value == 1 || role_id.value == 3)
+      inspection_round: (role_name.value == 'Admin' || role_name.value == 'police')
         ? inspection_round.value
         : 0
     }

@@ -27,7 +27,7 @@ export function getSocialMedia() {
 }
 
 export async function saveBusinessRegister(payload) {
-  const modulepath = await getModulePathByRoleId()
+  const modulepath = await getModulePathByRoleName()
   const url = `/api/v1/${modulepath}/business`
   return request("post", url, payload, true)
 }

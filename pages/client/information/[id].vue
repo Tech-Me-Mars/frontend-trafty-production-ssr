@@ -1,224 +1,153 @@
 <template>
-    <div class="bg-zinc-100 min-h-screen">
-        <!-- <van-nav-bar :title="t('รายละเอียด')" left-arrow @click-left="navigateTo('/')">
-            <template #right>
-                <div class="flex gap-2">
-                    <i @click="showShare = true" class="fa-solid fa-arrow-up-from-bracket"
-                        style="color: white;font-size: 22px;"></i>
-                </div>
-            </template>
-        </van-nav-bar> -->
-        <LayoutsBaseHeader :title="t('รายละเอียด')" :showBack="true" backTo="/"
-        :showMenu="false">
-        <template #right>
-                <div class="flex gap-2">
-                    <i @click="showShare = true" class="fa-solid fa-arrow-up-from-bracket"
-                        style="color: white;font-size: 22px;"></i>
-                </div>
-            </template>
+  <div class="bg-zinc-100 min-h-screen">
+    <LayoutsBaseHeader :title="t('พรีวิว')" :showBack="true" :back-to="urlBackTo">
+      <template #right>
+        <div class="flex gap-2" v-if="route.query.state === 'preview'">
+          <i class="fa-solid fa-xmark cursor-pointer" style="color: white; font-size: 22px;"
+            @click="navigateTo(`/vendor/manage-business/home/${route.params.id}`)"></i>
+        </div>
+        <div class="flex gap-2" v-if="route.query.state == 'view'">
+          <i @click="showShare = true" class="fa-solid fa-arrow-up-from-bracket"
+            style="color: white;font-size: 22px;"></i>
+        </div>
+      </template>
     </LayoutsBaseHeader>
 
+    <section class="max-w-[430px] mx-auto">
+      <!-- ✅ Loading state -->
+      <div v-if="isLoading" class="p-4 space-y-4">
+        <div class="w-full h-48 bg-zinc-200 animate-pulse rounded-xl"></div>
+        <div class="h-6 bg-zinc-200 rounded w-2/3 animate-pulse"></div>
+        <div class="h-4 bg-zinc-200 rounded w-1/3 animate-pulse"></div>
+        <div class="h-4 bg-zinc-200 rounded w-1/2 animate-pulse"></div>
+        <div class="h-20 bg-zinc-200 rounded animate-pulse"></div>
+      </div>
 
-
-        <!-- <van-share-sheet v-model:show="showShare" title="Share" :options="options" /> -->
+      <!-- ✅ Content -->
+      <div v-else>
         <van-share-sheet v-model:show="showShare" :title="t('แชร์')"
-            :description="`${t('แชร์')} '${resInfo?.shop_name}' ${t('ไปยังโซเชียลให้เพื่อนคุณรู้')}!`"
-            :options="options" @select="onSelect">
-            <template #title>
-                <div class="flex items-center gap-2">
-                    <img :src="resInfo?.image_profile" alt="Logo" class="w-20 h-20 rounded-xl object-cover" />
-                    <span class="text-md font-bold text-gray-800">{{ resInfo?.shop_name }}</span>
-                </div>
-            </template>
-
-            <!-- Custom Description -->
-            <template #description>
-                <p class="text-sm text-gray-500  border-b border-gray-300 pb-2">
-                    {{ t('แชร์') }} '{{ resInfo?.shop_name }}' {{ t('ไปยังโซเชียลให้เพื่อนคุณรู้') }}!
-                </p>
-            </template>
+          :description="`${t('แชร์')} '${resInfo?.shop_name}' ${t('ไปยังโซเชียลให้เพื่อนคุณรู้')}!`" :options="options"
+          @select="onSelect">
+          <template #title>
+            <div class="flex items-center gap-2">
+              <img :src="resInfo?.image_profile" alt="Logo" class="w-20 h-20 rounded-xl object-cover" />
+              <span class="text-md font-bold text-gray-800">{{ getI18n(resInfo?.shop_name_i18n, locale) }}</span>
+            </div>
+          </template>
+          <template #description>
+            <p class="text-sm text-gray-500 border-b border-gray-300 pb-2">
+              {{ t('แชร์') }} '{{ getI18n(resInfo?.shop_name_i18n, locale) }}' {{ t('ไปยังโซเชียลให้เพื่อนคุณรู้') }}!
+            </p>
+          </template>
         </van-share-sheet>
+
         <div class="relative">
-            <img :src="resInfo?.image_cover" alt="Food" class="rounded-t-lg w-full h-48 object-cover" />
+          <img :src="useImage(resInfo?.ImageCoverURL)" alt="Food" class="w-full h-48 object-cover" />
         </div>
-        <div class="p-4  bg-white">
-            <!-- Title and Rating Section -->
-            <div class="flex items-center justify-between mt-4">
-                <h1 class="text-xl font-semibold">{{ resInfo?.shop_name }}</h1>
-                <div class="flex items-center text-gray-700">
-                    <i class="fa-heart cursor-pointer text-gray-400 transition-all duration-300 transform" :class="{
-                        'fa-regular': !isLiked,
-                        'fa-solid text-rose-600 scale-110': isLiked,
-                    }" @click="toggleLike" style="font-size: 22px"></i>
-                </div>
-            </div>
-            <div class="flex items-center text-orange-500">
-                <star-review class="mr-1" />
-                <span class="text-sm font-semibold">{{ resInfo?.star }}</span>
-            </div>
-            <p class="text-sm text-gray-400">{{ resInfo?.business_type_name }}</p>
-            <p class="text-sm text-gray-700">{{ resInfo?.shop_address }}</p>
 
-            <!-- Details Section -->
-            <!-- <div class="mt-4">
-                <h2 class="text-gray-800 font-semibold">{{ t('รายละเอียด') }}</h2>
-                <p class="text-sm text-gray-600 mt-2">
-                    {{ resInfo?.shop_details }}
-                </p>
-                <div class="mt-2 text-sm text-gray-600">
-                    <p><strong>{{ t('วันที่ทำการ') }}:</strong>
-                        <span v-for="(item, index) in resInfo?.shop_days" :key="index">
-                            {{ item?.day_name }}<span v-if="index !== resInfo.shop_days.length - 1">,</span>
-                        </span>
-                    </p>
-                    <p><strong>{{ t('เวลาเปิด - ปิด') }}:</strong> {{ resInfo?.shop_time }}</p>
-                    <p><strong>{{ t('เบอร์ติดต่อ') }}:</strong> {{ resInfo?.shop_phone }}</p>
-                </div>
+        <div class="p-4 bg-white">
+          <!-- Title and Rating Section -->
+          <div class="flex items-center justify-between mt-4">
+            <h1 class="text-xl font-semibold">{{ getI18n(resInfo?.shop_name_i18n, locale) }}</h1>
+            <!-- <div class="flex items-center text-gray-700">
+              <i class="fa-heart cursor-pointer text-gray-400 transition-all duration-300 transform" :class="{
+                'fa-regular': !isLiked,
+                'fa-solid text-rose-600 scale-110': isLiked,
+              }" @click="toggleLike" style="font-size: 22px"></i>
             </div> -->
-            <div class="mt-2 text-sm text-gray-800 space-y-2">
-                <h2 class="text-gray-800 font-semibold">{{ t('รายละเอียด') }}</h2>
-                <p class="text-sm text-gray-600 mt-2">
-                    {{ resInfo?.shop_details }}
-                </p>
-                <p class="flex items-start gap-2">
-                    <i class="pi pi-calendar text-yellow-500 text-lg mt-1" />
-                    <span>
-                        <strong class="text-black">{{ t('วันที่ทำการ') }} :</strong>
-                        <span class="text-primary-700">
-                            <template v-for="(item, index) in resInfo?.shop_days" :key="index">
-                                {{ item?.day_name }}<span v-if="index !== resInfo.shop_days.length - 1"> - </span>
-                            </template>
-                        </span>
-                    </span>
-                </p>
+          </div>
+          <div class="flex items-center text-orange-500">
+            <star-review class="mr-1" />
+            <span class="text-sm font-semibold">{{ resInfo?.star }}</span>
+          </div>
+          <p class="text-sm text-gray-400">
+            {{ getI18n(resInfo?.business_type?.business_type_name_i18n, locale) }}
+          </p>
+          <p class="text-sm text-gray-700">
+            {{ getI18n(resInfo?.shop_address, locale) }}
+            {{ getI18n(resInfo?.shop_subdistrict?.subdistrict_name_i18n, locale) }}
+            {{ getI18n(resInfo?.shop_district?.district_name_i18n, locale) }}
+            {{ getI18n(resInfo?.shop_province?.provinces_name_i18n, locale) }}
+            {{ resInfo?.shop_subdistrict?.zip_code }}
+          </p>
 
-                <p class="flex items-start gap-2">
-                    <i class="pi pi-clock text-blue-500 text-lg mt-1" />
-                    <span>
-                        <strong class="text-black">{{ t('เวลาเปิด - ปิด') }} :</strong>
-                        <span class="text-primary-700">{{ resInfo?.shop_time }}</span>
-                    </span>
-                </p>
-
-                <p class="flex items-start gap-2">
-                    <i class="pi pi-phone text-green-500 text-lg mt-1" />
-                    <span>
-                        <strong class="text-black">{{ t('เบอร์ติดต่อ') }} :</strong>
-                        <span class="text-primary-700">{{ resInfo?.shop_phone }}</span>
-                    </span>
-                </p>
-            </div>
-            <widgetSocial :resInfo="resInfo?.social_medias" />
+          <div class="mt-2 text-sm text-gray-800 space-y-2">
+            <h2 class="text-gray-800 font-semibold">{{ t('รายละเอียด') }}</h2>
+            <p class="text-sm text-gray-600 mt-2">
+              {{ getI18n(resInfo?.shop_details_i18n, locale) }}
+            </p>
+            <!-- ... (เนื้อหาที่คุณมีอยู่แล้ว) ... -->
+          </div>
+          <!-- <widgetSocial :resInfo="resInfo" /> -->
         </div>
-        <widgetItemsBusiness :resInfo="resInfo?.business_lists" />
+        <widgetItemsBusiness class="mt-2" :resInfo="resInfo?.business_list" />
+        <widgetSocialEdit :resInfo="resInfo" />
+        <widgetPolicy class="mt-2" />
+        <ConfirmDialog />
 
-
-        <widgetReview :resInfo="resInfo?.comments" />
-        <widgetPolicy />
-
-        <div class="flex justify-center gap-2 mt-10 pb-2" v-if="resProfile?.role_id == 3">
-            <Button :loading="isloadingAxi"
-                @click="navigateTo(`/inspector/inspec-vender/${route.params.id}/safety-form/form1/`)"
-                :label="t('ตรวจสอบมาตรฐาน')" rounded severity="primary" class="" />
-            <Button :loading="isloadingAxi" icon="fa-regular fa-comment-dots" :label="t('ติดต่อ')" rounded
-                severity="primary" variant="outlined" class="" :pt="{
-                    label: {
-                        class: 'text-primary-main'
-                    },
-                    root: {
-                        class: '!border-primary-main'
-                    },
-
-                }" />
-        </div>
-    </div>
+      </div>
+    </section>
+  </div>
 </template>
-<style scoped>
-.van-nav-bar {
-    --van-nav-bar-background: #281c74;
-    --van-nav-bar-text-color: white;
-    --van-nav-bar-icon-color: white;
-    --van-nav-bar-title-text-color: white;
-    --van-nav-bar-height: 70px
-}
-</style>
+
 <script setup>
-// definePageMeta({
-//     middleware: ["auth"],
-// });
-import { useEncryptedCookie, useDecryptedCookie, useClearEncryptedCookie } from '~/composables/useEncryptedCookie'
+// หน้านีนี้มี3 state => preview,edit,view
+import { ref, onMounted } from 'vue'
 import * as dataApi from './api/data.js'
 import widgetSocial from './widgets/widget-social.vue';
+import widgetSocialEdit from './widgets/social-edit.vue';
 import widgetItemsBusiness from './widgets/widget-items-business.vue';
-import widgetReview from './widgets/widget-review.vue';
 import widgetPolicy from './widgets/widget-policy.vue';
-const router = useRouter();
-const route = useRoute();
-const isloadingAxi = useState("isloadingAxi");
 import { useI18n } from 'vue-i18n';
-const { t } = useI18n();
-const localPath = useLocalePath();
+const { t, locale } = useI18n()
+const route = useRoute();
 
-const showShare = ref(false);
-const options = [
-    {
-        name: 'Facebook',
-        icon: '/image/social/facebook.png',
-    },
-    {
-        name: 'Line',
-        icon: '/image/social/line.png',
-    },
-    {
-        name: 'Discord',
-        icon: '/image/social/discord.png',
-    },
-    {
-        name: 'Twitter',
-        icon: '/image/social/twitter.png',
-    },
-];
+// กรอง query: เอาเฉพาะคีย์ที่มีค่า
 
-const resProfile = ref({ role_id: null })
-const loadProfile = async () => {
-    try {
-        const res = await dataApi.getProfile();
-        resProfile.value = res.data.data;
-    } catch (error) {
-        console.error(error)
+const cleanQuery = computed(() => {
+  const out = {}
+  Object.entries(route.query).forEach(([k, v]) => {
+    if (v == null) return
+    if (Array.isArray(v)) {
+      if (v.length === 0) return
+      out[k] = v
+    } else {
+      const sv = String(v)
+      if (sv.trim() === '') return
+      out[k] = v
     }
-}
-// Handle selection
-const onSelect = (option) => {
-    console.log(`Selected: ${option.name}`);
-    // Add share logic here, such as opening links or triggering actions
-};
-
-onMounted(async() => {
-    const token = await useDecryptedCookie('token');
-    if (token) {
-        loadProfile();
-    }
-    loadDataInfo()
+  })
+  return out
 })
+// คำนวณปลายทางย้อนกลับ (ไม่มี side-effect)
+const urlBackTo = computed(() => {
+  const query = cleanQuery.value
+  if (route.query.state === 'preview') {
+    return { path: `/vendor/manage-business/home/${route.params.id}`, query }
+  } else if (route.query.state === 'edit') {
+    // เดิมเคยส่งแค่ ?isBusiness=... ตอนนี้ส่ง query ทั้งชุด
+    return { path: `/inspector/management-place`, query }
+  } else {
+    return { path: `/`, query }
+  }
+})
+const isLoading = ref(true) // ✅ state โหลด
 
 const resInfo = ref();
 const loadDataInfo = async () => {
-    try {
-        const res = await dataApi.getBusinessById(route.params.id);
-        resInfo.value = res.data.data;
-
-        console.log(resInfo.value)
-
-
-    } catch (error) {
-        console.error(error)
-    }
+  try {
+    const res = await dataApi.getBusinessById(route.params.id);
+    resInfo.value = res.data.data;
+  } catch (error) {
+    console.error(error)
+  } finally {
+    isLoading.value = false // ✅ ปิดโหลด
+  }
 }
+onMounted(() => loadDataInfo())
 
 const isLiked = ref(false);
-
 const toggleLike = () => {
-    isLiked.value = !isLiked.value;
+  isLiked.value = !isLiked.value;
 };
 </script>

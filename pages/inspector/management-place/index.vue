@@ -105,12 +105,15 @@ const isLoading = ref(true)
 const resList = ref([])
 const loadList = async () => {
     try {
+        const role_name= await getModulePathByRoleName()
         isLoading.value = true
         let url = ""
         if (route.query.isBusiness == 'true') {
-            url = `/api/v1/police/business/get-business-tourist-by-station-id`
-        } else {
-            url = `/api/v1/police/business/get-tourist-by-station-id`
+            url = `/api/v1/${role_name}/business/get-business-tourist-by-station-id`
+        } else if (route.query.isBusiness == 'false') {
+            url = `/api/v1/${role_name}/business/get-tourist-by-station-id`
+        }else{
+            navigateTo(`/inspector/home`)
         }
 
         const res = await request("get", url, {}, true);

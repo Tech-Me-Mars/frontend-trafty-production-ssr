@@ -36,7 +36,7 @@ const avg = ref(0);
 
 const loadComment = async () => {
     try {
-        const res = await dataApi.getComments();
+        const res = await dataApi.getComments(route.params.id);
         resComment.value = res.data.data?.comments;
         avg.value = res.data.data?.AVG
     } catch (error) {
@@ -85,28 +85,15 @@ onMounted(() => loadComment());
 <template>
     <div class="mb-4">
         <div class="mx-auto bg-white shadow-md rounded-lg">
-            <div class="p-4 border-b flex items-center justify-between">
-  <!-- กลุ่มซ้าย: ค่าเฉลี่ย + ดาว + ข้อความ -->
-  <div class="flex items-center gap-2">
-    <div class="flex items-center text-sm font-bold">
-      {{ avg }}
-      <star-review class="ml-1" />
-    </div>
-    <div class="text-gray-500 text-sm">
-      {{ t('คะแนนรีวิว') }} ({{ resInfo.length }})
-    </div>
-  </div>
-
-  <!-- กลุ่มขวา: ดูทั้งหมด -->
-  <NuxtLink
-    :to="`#`"
-    class="text-gray-500 text-sm inline-flex items-center gap-1 hover:text-zinc-700"
-  >
-    {{ t('ดูทั้งหมด') }}
-    <i class="fa-solid fa-chevron-right text-xs"></i>
-  </NuxtLink>
-</div>
-
+            <div class="p-4 border-b flex justify-between items-center">
+                <div class="flex items-center text-lg font-bold">
+                    <star-review class="mr-1" />
+                    {{ avg }}
+                </div>
+                <div class="text-gray-500 text-sm">{{ t('คะแนนรีวิว') }} ({{ resInfo.length }})</div>
+                <NuxtLink :to="`/client/ratings/${route.params.id}`" class="text-gray-500 text-sm">{{ t('ดูทั้งหมด') }}
+                    <i class="fa-solid fa-chevron-right"></i></NuxtLink>
+            </div>
 
             <div v-for="review in resInfo.slice(0, 3)" :key="review.id" class="p-4 border-b">
                 <div class="flex items-center space-x-3">

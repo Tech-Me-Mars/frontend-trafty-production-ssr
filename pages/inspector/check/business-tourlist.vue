@@ -216,7 +216,7 @@ const isLoadingChecked = ref(true)
 const loadList = async () => {
   try {
     isLoadingWait.value = true
-    const modulepath = await getModulePathByRoleId()
+    const modulepath = await getModulePathByRoleName()
     let route_url = ''
     if (route.query.isBusiness == 'true') {
       route_url = `/api/v1/${modulepath}/survey_audit/get-survey-audit-business-tourist-wait`
@@ -237,7 +237,7 @@ const loadList = async () => {
 const loadChecked = async () => {
   try {
     isLoadingChecked.value = true
-    const modulepath = await getModulePathByRoleId()
+    const modulepath = await getModulePathByRoleName()
     let route_url = ''
     if (route.query.isBusiness == 'true') {
       route_url = `/api/v1/${modulepath}/survey_audit/get-survey-audit-business-tourist-finish`

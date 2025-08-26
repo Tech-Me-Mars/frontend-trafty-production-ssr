@@ -1,10 +1,11 @@
 <template>
   <div class="bg-zinc-100 min-h-screen">
-    <LayoutsBaseHeader :title="t('พรีวิว')" :showBack="true" :back-to="`/vendor/manage-business/home/${route.params.id}`">
+    <LayoutsBaseHeader :title="t('พรีวิว')" :showBack="true"
+      :back-to="`/vendor/manage-business/home/${route.params.id}`">
       <template #right>
         <div class="flex gap-2">
-          <i class="fa-solid fa-xmark cursor-pointer" style="color: white; font-size: 22px;"  
-             @click="navigateTo(`/vendor/manage-business/home/${route.params.id}`)"></i>
+          <i class="fa-solid fa-xmark cursor-pointer" style="color: white; font-size: 22px;"
+            @click="navigateTo(`/vendor/manage-business/home/${route.params.id}`)"></i>
         </div>
       </template>
     </LayoutsBaseHeader>
@@ -22,8 +23,8 @@
       <!-- ✅ Content -->
       <div v-else>
         <van-share-sheet v-model:show="showShare" :title="t('แชร์')"
-          :description="`${t('แชร์')} '${resInfo?.shop_name}' ${t('ไปยังโซเชียลให้เพื่อนคุณรู้')}!`"
-          :options="options" @select="onSelect">
+          :description="`${t('แชร์')} '${resInfo?.shop_name}' ${t('ไปยังโซเชียลให้เพื่อนคุณรู้')}!`" :options="options"
+          @select="onSelect">
           <template #title>
             <div class="flex items-center gap-2">
               <img :src="resInfo?.image_profile" alt="Logo" class="w-20 h-20 rounded-xl object-cover" />

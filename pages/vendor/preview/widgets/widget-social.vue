@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center gap-4 mt-4" v-if="socials.length">
+  <div class="flex flex-wrap items-center gap-4 mt-4" v-if="socials.length">
     <div v-for="s in socials" :key="s.id">
       <a
         :href="s.social_link"

@@ -49,7 +49,7 @@ onMounted(async () => {
 
 const conditionAppendMenu = async () => {
   try {
-    const role_id = await useDecryptedCookie('role_id')
+    const role_name = await useDecryptedCookie('role_name')
     const token = await useDecryptedCookie('token')
 
     const dynamicMenu = [...baseMenu.value]
@@ -68,13 +68,13 @@ const conditionAppendMenu = async () => {
       }
     )
 
-    if (role_id == 2 || role_id == 3 || role_id == 1) {
+    if (role_name == 'business' || role_name == 'police' || role_name == 'Admin') {
       dynamicMenu.push({
         label: t('ธุรกิจของฉัน'),
         icon: '',
         path: '/vendor/my-business'
       })
-    } if (role_id == 3 || role_id == 1) {
+    } if (role_name == 'police' || role_name == 'Admin') {
       dynamicMenu.push({
         label: t('ตรวจสอบข้อมูล'),
         icon: '',

@@ -108,7 +108,7 @@
 
                 <!-- Approval Status -->
                 <!-- Preview pill (ขวาสุด) -->
-                <button @click="navigateTo(`/vendor/preview/${route.params.id}`)" class="ml-3 shrink-0 px-3 py-1.5 rounded-full text-xs font-medium 
+                <button @click="navigateTo(`/client/information/${route.params.id}?state=preview`)" class="ml-3 shrink-0 px-3 py-1.5 rounded-full text-xs font-medium 
            border border-zinc-300 !text-zinc-600 bg-zinc-50 hover:bg-zinc-200">
                     {{ t('พรีวิว') }}
                 </button>
@@ -351,8 +351,8 @@ const loadBusinessAll = async () => {
 const responsiblePerson = ref(null)
 const loadResponsible = async () => {
     try {
-        const role_id = await useDecryptedCookie("role_id")
-        if (role_id == '3' || role_id == '1') {
+        const role_name = await useDecryptedCookie("role_name")
+        if (role_name == 'police' || role_name == 'Admin') {
             const res = await dataApi.getResponsiblePerson(route.params.id);
             responsiblePerson.value = res.data.data.map((item) => ({
                 ...item,

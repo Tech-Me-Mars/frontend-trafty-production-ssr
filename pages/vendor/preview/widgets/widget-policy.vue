@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="p-4 border-b flex items-center justify-between">
       <h1 class="text-lg font-bold">{{ t('มาตรฐานความปลอดภัย') }}</h1>
-      <NuxtLink :to="`/vendor/preview/policy-full/${route.params.id}`" class="text-gray-500 text-sm hover:text-gray-700 transition">
+      <NuxtLink :to="`/client/information/policy-full/${route.params.id}`" class="text-gray-500 text-sm hover:text-gray-700 transition">
         {{ t('ดูทั้งหมด') }} <i class="fa-solid fa-chevron-right"></i>
       </NuxtLink>
     </div>
