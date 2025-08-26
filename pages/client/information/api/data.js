@@ -36,3 +36,14 @@ export async function getSocialMedia() {
   const url = `/api/v1/${modulepath}/social_media`;
   return request("get", url, {}, true);
 }
+
+export async function updateBusinessBankSocial(id,payload) {
+  const modulepath = await getModulePathByRoleName();
+  const url = `/api/v1/${modulepath}/business/update-business-bank-social/${id}`;
+  return request("put", url, payload, true);
+}
+export async function deleteShopBank(id) {
+  const modulepath = await getModulePathByRoleName()
+  const url = `/api/v1/${modulepath}/business_document/delete-business-bank/${id}`;
+  return request("delete", url, {}, true);
+}

@@ -32,24 +32,30 @@
                             </div>
                             <hr class="border-zinc-200 mb-2" />
                             <div class="flex gap-2 mt-3">
-                                <Button v-if="item?.business_station_id != null" :label="t('จัดการข้อมูล')" :loading="isloadingAxi" severity="primary"
-                                    variant="outlined" class="w-full" :pt="{
+                                <Button v-if="item?.business_station_id != null" :label="t('จัดการข้อมูล')"
+                                    :loading="isloadingAxi" severity="primary" variant="outlined" class="w-full" :pt="{
                                         label: { class: 'text-primary-main text-xs' },
                                         root: { class: '!border-primary-main' },
-                                    }"
-                                    @click="navigateTo(`/vendor/manage-business/home/${item.business_id}`)" />
+                                    }" @click="navigateTo(`/vendor/manage-business/home/${item.business_id}`)" />
                                 <Button :label="t('ดูรายละเอียด')" :loading="isloadingAxi" severity="primary"
                                     variant="outlined" class="w-full" :pt="{
                                         label: { class: 'text-primary-main text-xs' },
                                         root: { class: '!border-primary-main' },
                                     }"
                                     @click="navigateTo(`/inspector/do-recheck/${item.business_id}/${item.id}?isBusiness=${route.query.isBusiness}`)" />
-                                <Button :label="t('ไม่แสดงในระบบ')" :loading="isloadingAxi" severity="danger"
-                                    variant="outlined" class="w-full" :pt="{
-                                        label: { class: 'text-xs' },
-                                    }"
-                                    @click="navigateTo(`/inspector/do-recheck/${item.business_id}/${item.id}?isBusiness=${route.query.isBusiness}`)" />
+                                    <Button
+  :label="item?.station?.status ? t('ไม่แสดงในระบบ') : t('แสดงในระบบ')"
+  :loading="item?._loading"
+  :disabled="item?._loading"
+  severity="danger"
+  variant="outlined"
+  class="w-full"
+  :pt="{ label: { class: 'text-xs' } }"
+  @click="showConfirmToggle(item)"
+/>
                             </div>
+
+
                         </div>
                     </template>
 
@@ -61,7 +67,7 @@
                 </template>
             </div>
         </section>
-
+        <ConfirmDialog />
         <NotifyMessage v-model:show="toast.show" :type="toast.type" :title="toast.title" :message="toast.message"
             :life="toast.life" />
         <NotificationPopup v-model:visible="notification.visible" :state="notification.state"
@@ -105,14 +111,14 @@ const isLoading = ref(true)
 const resList = ref([])
 const loadList = async () => {
     try {
-        const role_name= await getModulePathByRoleName()
+        const role_name = await getModulePathByRoleName()
         isLoading.value = true
         let url = ""
         if (route.query.isBusiness == 'true') {
             url = `/api/v1/${role_name}/business/get-business-tourist-by-station-id`
         } else if (route.query.isBusiness == 'false') {
             url = `/api/v1/${role_name}/business/get-tourist-by-station-id`
-        }else{
+        } else {
             navigateTo(`/inspector/home`)
         }
 
@@ -125,6 +131,65 @@ const loadList = async () => {
     }
 }
 
+import { useConfirm } from 'primevue/useconfirm'
+const confirm = useConfirm()
+
+// เรียกตอนกดปุ่ม เพื่อโชว์ dialog
+const showConfirmToggle = (item) => {
+  const isActive = !!item?.station?.status
+  confirm.require({
+    header: t('ยืนยัน'),
+    message: isActive
+      ? t('ยืนยันการซ่อนธุรกิจนี้ไม่ให้แสดงในระบบ?')
+      : t('ยืนยันการแสดงธุรกิจนี้ในระบบ?'),
+    icon: 'pi pi-exclamation-triangle',
+    acceptLabel: t('ตกลง'),
+    rejectLabel: t('ยกเลิก'),
+    rejectProps: { severity: 'secondary', outlined: true },
+    accept: () => updateStatusBusiness(item),
+  })
+}
+
+// เดิมของคุณ แต่ให้รับ item เข้ามา (และใช้ item ตรง ๆ)
+const updateStatusBusiness = async (item) => {
+  const prevStatus = !!item?.station?.status
+  const nextStatus = !prevStatus
+  item._loading = true
+
+  try {
+    const role_name = await getModulePathByRoleName()
+    const payload = {
+      by_user_id: item.station.by_user_id,
+      status: nextStatus,
+    }
+    const url = `/api/v1/${role_name}/business/update-business-status-by-business-id/${item.business_id}`
+    await request('put', url, payload, true)
+
+    // optimistic update
+    if (!item.station) item.station = {}
+    item.station.status = nextStatus
+
+    toast.value = {
+      show: true,
+      type: 'success',
+      title: t('สำเร็จ'),
+      message: t('เปลี่ยนสถานะสำเร็จ'),
+      life: 1500
+    }
+  } catch (error) {
+    if (item?.station) item.station.status = prevStatus
+    toast.value = {
+      show: true,
+      type: 'danger',
+      title: t('ผิดพลาด'),
+      message: error?.response?.data?.message || t('เกิดข้อผิดพลาด'),
+      life: null
+    }
+    console.error(error)
+  } finally {
+    item._loading = false
+  }
+}
 
 onMounted(() => {
     loadList()

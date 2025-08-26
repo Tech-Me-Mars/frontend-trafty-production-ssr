@@ -45,9 +45,9 @@
           <img :src="useImage(resInfo?.ImageCoverURL)" alt="Food" class="w-full h-48 object-cover" />
         </div>
 
-        <div class="p-4 bg-white">
+        <div class="p-4 bg-white mb-2">
           <!-- Title and Rating Section -->
-          <div class="flex items-center justify-between mt-4">
+          <div class="flex items-center justify-between mt-4 mb-2">
             <h1 class="text-xl font-semibold">{{ getI18n(resInfo?.shop_name_i18n, locale) }}</h1>
             <!-- <div class="flex items-center text-gray-700">
               <i class="fa-heart cursor-pointer text-gray-400 transition-all duration-300 transform" :class="{
@@ -56,14 +56,14 @@
               }" @click="toggleLike" style="font-size: 22px"></i>
             </div> -->
           </div>
-          <div class="flex items-center text-orange-500">
+          <div class="flex items-center text-orange-500 mb-2">
             <star-review class="mr-1" />
             <span class="text-sm font-semibold">{{ resInfo?.star }}</span>
           </div>
-          <p class="text-sm text-gray-400">
+          <p class="text-sm text-gray-400 mb-2">
             {{ getI18n(resInfo?.business_type?.business_type_name_i18n, locale) }}
           </p>
-          <p class="text-sm text-gray-700">
+          <p class="text-sm text-gray-700 mb-2">
             {{ getI18n(resInfo?.shop_address, locale) }}
             {{ getI18n(resInfo?.shop_subdistrict?.subdistrict_name_i18n, locale) }}
             {{ getI18n(resInfo?.shop_district?.district_name_i18n, locale) }}
@@ -71,17 +71,61 @@
             {{ resInfo?.shop_subdistrict?.zip_code }}
           </p>
 
-          <div class="mt-2 text-sm text-gray-800 space-y-2">
-            <h2 class="text-gray-800 font-semibold">{{ t('รายละเอียด') }}</h2>
+        </div>
+
+        <div class="p-4 bg-white mb-2">
+
+          <div class="mt-2 text-gray-800 space-y-2">
+            <h2 class="font-semibold text-lg mb-2">{{ t('รายละเอียด') }}</h2>
             <p class="text-sm text-gray-600 mt-2">
               {{ getI18n(resInfo?.shop_details_i18n, locale) }}
             </p>
-            <!-- ... (เนื้อหาที่คุณมีอยู่แล้ว) ... -->
+            <p class="flex items-start gap-2">
+              <i class="pi pi-calendar text-yellow-500 text-lg mt-1" />
+              <span>
+                <strong class="text-black">{{ t('วันที่ทำการ') }} :</strong>
+                <span class="text-primary-700">
+
+                  <template v-if="openDays.length">
+                    <span v-for="(day, i) in openDays" :key="i">
+                      {{ day }}<span v-if="i < openDays.length - 1">, </span>
+                    </span>
+                  </template>
+                  <template v-else>
+                    {{ t('ไม่มีข้อมูลโซเชียลมีเดีย') }}
+                  </template>
+                </span>
+              </span>
+            </p>
+
+            <p class="flex items-start gap-2">
+              <i class="pi pi-clock text-blue-500 text-lg mt-1" />
+              <span>
+                <strong class="text-black">{{ t('เวลาเปิด - ปิด') }} :</strong>
+                <span class="text-primary-700">{{ resInfo?.shop_time }}</span>
+              </span>
+            </p>
+
+            <p class="flex items-start gap-2">
+              <i class="pi pi-phone text-green-500 text-lg mt-1" />
+              <span>
+                <strong class="text-black">{{ t('เบอร์ติดต่อ') }} :</strong>
+                <span class="text-primary-700">{{ resInfo?.shop_phone }}</span>
+              </span>
+            </p>
           </div>
-          <!-- <widgetSocial :resInfo="resInfo" /> -->
+
         </div>
+        <div class="px-4 pb-4 bg-white">
+          <widgetSoCialBankEdit class="" :resInfo="resInfo" />
+
+          <!-- <widgetBankEdit class="mt-5" :resInfo="resInfo" /> -->
+
+        </div>
+
+        <!-- <widgetSocial :resInfo="resInfo" /> -->
+
         <widgetItemsBusiness class="mt-2" :resInfo="resInfo?.business_list" />
-        <widgetSocialEdit :resInfo="resInfo" />
         <widgetPolicy class="mt-2" />
         <ConfirmDialog />
 
@@ -95,7 +139,7 @@
 import { ref, onMounted } from 'vue'
 import * as dataApi from './api/data.js'
 import widgetSocial from './widgets/widget-social.vue';
-import widgetSocialEdit from './widgets/social-edit.vue';
+import widgetSoCialBankEdit from './widgets/social-bank-edit.vue';
 import widgetItemsBusiness from './widgets/widget-items-business.vue';
 import widgetPolicy from './widgets/widget-policy.vue';
 import { useI18n } from 'vue-i18n';
@@ -144,6 +188,17 @@ const loadDataInfo = async () => {
     isLoading.value = false // ✅ ปิดโหลด
   }
 }
+const openDays = computed(() => {
+  const i18n = resInfo.value?.business_open_date_i18n
+  if (!i18n) return []
+  const raw = i18n[locale.value] ?? i18n.th ?? '[]'
+  try {
+    const arr = JSON.parse(raw)
+    return Array.isArray(arr) ? arr : []
+  } catch {
+    return []
+  }
+})
 onMounted(() => loadDataInfo())
 
 const isLiked = ref(false);
