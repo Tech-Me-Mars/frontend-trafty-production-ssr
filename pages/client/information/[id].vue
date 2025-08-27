@@ -1,10 +1,15 @@
 <template>
   <div class="bg-zinc-100 min-h-screen">
-    <LayoutsBaseHeader :title="t('พรีวิว')" :showBack="true" :back-to="urlBackTo">
+    <LayoutsBaseHeader :title="pageTitle"
+      :showBack="true" :back-to="urlBackTo">
       <template #right>
-        <div class="flex gap-2" v-if="route.query.state === 'preview'">
+        <div class="flex gap-2" v-if="route.query.state == 'preview'">
           <i class="fa-solid fa-xmark cursor-pointer" style="color: white; font-size: 22px;"
             @click="navigateTo(`/vendor/manage-business/home/${route.params.id}`)"></i>
+        </div>
+        <div class="flex gap-2" v-if="route.query.state == 'preview-by-area'">
+          <i class="fa-solid fa-xmark cursor-pointer" style="color: white; font-size: 22px;"
+            @click="navigateTo(`/inspector/area-duty`)"></i>
         </div>
         <div class="flex gap-2" v-if="route.query.state == 'view'">
           <i @click="showShare = true" class="fa-solid fa-arrow-up-from-bracket"
@@ -85,15 +90,16 @@
               <span>
                 <strong class="text-black">{{ t('วันที่ทำการ') }} :</strong>
                 <span class="text-primary-700">
+                    <template v-if="openDays.length">
+                      <span v-for="(day, i) in openDays" :key="i">
+                        {{ day }}<span v-if="i < openDays.length - 1">, </span>
+                      </span>
+                    </template>
+                    <template v-else>
+                      {{ t('ไม่มีข้อมูลโซเชียลมีเดีย') }}
+                    </template>
 
-                  <template v-if="openDays.length">
-                    <span v-for="(day, i) in openDays" :key="i">
-                      {{ day }}<span v-if="i < openDays.length - 1">, </span>
-                    </span>
-                  </template>
-                  <template v-else>
-                    {{ t('ไม่มีข้อมูลโซเชียลมีเดีย') }}
-                  </template>
+
                 </span>
               </span>
             </p>
@@ -115,12 +121,12 @@
             </p>
           </div>
 
+          <widgetSocial v-if="route.query.state != 'edit'" :resInfo="resInfo" />
+
         </div>
-        <div class="px-4 pb-4 bg-white">
+        <div v-if="route.query.state == 'edit' && (role_name == 'Admin' || role_name == 'police')"
+          class="px-4 pb-4 bg-white">
           <widgetSoCialBankEdit class="" :resInfo="resInfo" />
-
-          <!-- <widgetBankEdit class="mt-5" :resInfo="resInfo" /> -->
-
         </div>
 
         <!-- <widgetSocial :resInfo="resInfo" /> -->
@@ -148,6 +154,12 @@ const route = useRoute();
 
 // กรอง query: เอาเฉพาะคีย์ที่มีค่า
 
+const pageTitle = computed(() => {
+  if (query.state.value == 'preview' || query.state.value == 'view-by-area') {
+    return t('พรีวิว')
+  }
+  return t('รายการธุรกิจในแหล่งท่องเที่ยว')
+})
 const cleanQuery = computed(() => {
   const out = {}
   Object.entries(route.query).forEach(([k, v]) => {
@@ -169,9 +181,12 @@ const urlBackTo = computed(() => {
   if (route.query.state === 'preview') {
     return { path: `/vendor/manage-business/home/${route.params.id}`, query }
   } else if (route.query.state === 'edit') {
-    // เดิมเคยส่งแค่ ?isBusiness=... ตอนนี้ส่ง query ทั้งชุด
     return { path: `/inspector/management-place`, query }
-  } else {
+  } else if (route.query.state === 'preview-by-area') {
+    // เดิมเคยส่งแค่ ?isBusiness=... ตอนนี้ส่ง query ทั้งชุด
+    return { path: `/inspector/area-duty` }
+  } 
+  else {
     return { path: `/`, query }
   }
 })
@@ -188,18 +203,37 @@ const loadDataInfo = async () => {
     isLoading.value = false // ✅ ปิดโหลด
   }
 }
+function toArray(v) {
+  if (!v) return []
+  if (Array.isArray(v)) return v
+  if (typeof v === 'string') {
+    try {
+      const parsed = JSON.parse(v)
+      return Array.isArray(parsed) ? parsed : []
+    } catch { return [] }
+  }
+  return []
+}
+
 const openDays = computed(() => {
   const i18n = resInfo.value?.business_open_date_i18n
   if (!i18n) return []
-  const raw = i18n[locale.value] ?? i18n.th ?? '[]'
-  try {
-    const arr = JSON.parse(raw)
-    return Array.isArray(arr) ? arr : []
-  } catch {
-    return []
-  }
+  // เลือกตาม locale ปัจจุบัน ถ้าไม่มี fallback -> th -> []
+  const raw = i18n[locale.value] ?? i18n.th ?? []
+  return toArray(raw)
 })
-onMounted(() => loadDataInfo())
+const role_name = ref("")
+const getRoleName = async () => {
+  try {
+    role_name.value = await useDecryptedCookie('role_name')
+  } catch (error) {
+
+  }
+}
+onMounted(async () => {
+  await getRoleName();
+  loadDataInfo()
+})
 
 const isLiked = ref(false);
 const toggleLike = () => {

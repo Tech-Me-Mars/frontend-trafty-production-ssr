@@ -41,18 +41,17 @@
                                     variant="outlined" class="w-full" :pt="{
                                         label: { class: 'text-primary-main text-xs' },
                                         root: { class: '!border-primary-main' },
-                                    }"
-                                    @click="navigateTo(`/inspector/do-recheck/${item.business_id}/${item.id}?isBusiness=${route.query.isBusiness}`)" />
-                                    <Button
-  :label="item?.station?.status ? t('ไม่แสดงในระบบ') : t('แสดงในระบบ')"
-  :loading="item?._loading"
-  :disabled="item?._loading"
-  severity="danger"
-  variant="outlined"
-  class="w-full"
-  :pt="{ label: { class: 'text-xs' } }"
-  @click="showConfirmToggle(item)"
-/>
+                                    }" @click="navigateTo({
+                                        path: `/client/information/${item.business_id}`,
+                                        query: {
+                                            ...route.query,  // ส่ง query ที่มีอยู่ไปด้วย
+                                            state: 'edit'    // บังคับเพิ่มหรือแก้ไข state=edit
+                                        }
+                                    })" />
+                                <Button :label="item?.station?.status ? t('ไม่แสดงในระบบ') : t('แสดงในระบบ')"
+                                    :loading="item?._loading" :disabled="item?._loading" severity="danger"
+                                    variant="outlined" class="w-full" :pt="{ label: { class: 'text-xs' } }"
+                                    @click="showConfirmToggle(item)" />
                             </div>
 
 
@@ -136,59 +135,59 @@ const confirm = useConfirm()
 
 // เรียกตอนกดปุ่ม เพื่อโชว์ dialog
 const showConfirmToggle = (item) => {
-  const isActive = !!item?.station?.status
-  confirm.require({
-    header: t('ยืนยัน'),
-    message: isActive
-      ? t('ยืนยันการซ่อนธุรกิจนี้ไม่ให้แสดงในระบบ?')
-      : t('ยืนยันการแสดงธุรกิจนี้ในระบบ?'),
-    icon: 'pi pi-exclamation-triangle',
-    acceptLabel: t('ตกลง'),
-    rejectLabel: t('ยกเลิก'),
-    rejectProps: { severity: 'secondary', outlined: true },
-    accept: () => updateStatusBusiness(item),
-  })
+    const isActive = !!item?.station?.status
+    confirm.require({
+        header: t('ยืนยัน'),
+        message: isActive
+            ? t('ยืนยันการซ่อนธุรกิจนี้ไม่ให้แสดงในระบบ?')
+            : t('ยืนยันการแสดงธุรกิจนี้ในระบบ?'),
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: t('ตกลง'),
+        rejectLabel: t('ยกเลิก'),
+        rejectProps: { severity: 'secondary', outlined: true },
+        accept: () => updateStatusBusiness(item),
+    })
 }
 
 // เดิมของคุณ แต่ให้รับ item เข้ามา (และใช้ item ตรง ๆ)
 const updateStatusBusiness = async (item) => {
-  const prevStatus = !!item?.station?.status
-  const nextStatus = !prevStatus
-  item._loading = true
+    const prevStatus = !!item?.station?.status
+    const nextStatus = !prevStatus
+    item._loading = true
 
-  try {
-    const role_name = await getModulePathByRoleName()
-    const payload = {
-      by_user_id: item.station.by_user_id,
-      status: nextStatus,
-    }
-    const url = `/api/v1/${role_name}/business/update-business-status-by-business-id/${item.business_id}`
-    await request('put', url, payload, true)
+    try {
+        const role_name = await getModulePathByRoleName()
+        const payload = {
+            by_user_id: item.station.by_user_id,
+            status: nextStatus,
+        }
+        const url = `/api/v1/${role_name}/business/update-business-status-by-business-id/${item.business_id}`
+        await request('put', url, payload, true)
 
-    // optimistic update
-    if (!item.station) item.station = {}
-    item.station.status = nextStatus
+        // optimistic update
+        if (!item.station) item.station = {}
+        item.station.status = nextStatus
 
-    toast.value = {
-      show: true,
-      type: 'success',
-      title: t('สำเร็จ'),
-      message: t('เปลี่ยนสถานะสำเร็จ'),
-      life: 1500
+        toast.value = {
+            show: true,
+            type: 'success',
+            title: t('สำเร็จ'),
+            message: t('เปลี่ยนสถานะสำเร็จ'),
+            life: 1500
+        }
+    } catch (error) {
+        if (item?.station) item.station.status = prevStatus
+        toast.value = {
+            show: true,
+            type: 'danger',
+            title: t('ผิดพลาด'),
+            message: error?.response?.data?.message || t('เกิดข้อผิดพลาด'),
+            life: null
+        }
+        console.error(error)
+    } finally {
+        item._loading = false
     }
-  } catch (error) {
-    if (item?.station) item.station.status = prevStatus
-    toast.value = {
-      show: true,
-      type: 'danger',
-      title: t('ผิดพลาด'),
-      message: error?.response?.data?.message || t('เกิดข้อผิดพลาด'),
-      life: null
-    }
-    console.error(error)
-  } finally {
-    item._loading = false
-  }
 }
 
 onMounted(() => {

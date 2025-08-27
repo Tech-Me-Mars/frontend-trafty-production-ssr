@@ -89,11 +89,14 @@ const showNotification = (config) => {
 
         <!-- List Section -->
         <van-cell-group class="!m-0 !p-0">
+            <van-cell :title="t('พื้นที่รับผิดชอบ')" is-link
+                @click="navigateTo('/inspector/area-duty')">
+            </van-cell>
             <van-cell :title="t('จัดการแหล่งท่องเที่ยว')" is-link
                 @click="navigateTo('/inspector/management-place?isBusiness=false')">
             </van-cell>
             <van-cell :title="t('จัดการธุรกิจในแหล่งท่องเที่ยว')" is-link
-                @click="navigateTo('/inspector/management-place?isBusiness=false')">
+                @click="navigateTo('/inspector/management-place?isBusiness=true')">
             </van-cell>
 
 
