@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-zinc-100">
 
     <LayoutsBaseHeader :title="t('ธุรกิจในแหล่งท่องเที่ยว')" showBack
-      :backTo="`/inspector/check/business-tourlist?isBusiness=${route.query.isBusiness}`"></LayoutsBaseHeader>
+      :backTo="BackTo"></LayoutsBaseHeader>
     <section class="max-w-[430px] mx-auto">
 
       <template v-if="surveyDataMap">
@@ -53,7 +53,7 @@
                   root: { class: '!border-primary-main' }
                 }" />
               <Button v-if="isPass" :loading="isloadingAxi"
-                @click="navigateTo(`/inspector/check/business-tourlist?isBusiness=${route.query.isBusiness}`)"
+                @click="navigateTo(BackTo)"
                 :label="t('กลับหน้าหลัก')" severity="secondary" rounded class="w-full" :pt="{}" />
 
             </div>
@@ -110,7 +110,15 @@ const showNotification = (config) => {
 // จบการ basic ที่ใช้ทุกหน้า
 
 
-
+const BackTo=computed(()=>{
+  if (route.query.isBusiness=='true' || route.query.isBusiness=='false'){
+    return `/inspector/check/business-tourlist?isBusiness=${route.query.isBusiness}`
+  } else if(route.query.isBusiness=='area'){
+    return `/inspector/area-duty`
+  }else{
+    return navigateTo('/inspector/home')
+  }
+})
 
 const surveyDataMap = ref()
 const model_change = ref([
@@ -263,15 +271,7 @@ const handleFormSubmit = async (allFormsData) => {
     const mergedData = flattenLevel1(allFormsData)
     console.log('after merg', mergedData)
     const res = await dataApi.saveSurveyAudit(mergedData)
-    // console.log('mergedData:', mergedData)
-    // showNotification({
-    //   state: res.data.dialog?.state,
-    //   title: res.data.dialog?.title,
-    //   detail: res.data.dialog?.detail,
-    //   timeout: res.data.dialog?.timeout || 3000,
-    //   redirectUrl: `/vendor/manage-business/home/${route.params.id}`,
-    //   autoClose: true
-    // })
+
     issueWarningId.value = res.data.data.id
     // openDialogFromApi(res?.data?.dialog)
     navigateTo({

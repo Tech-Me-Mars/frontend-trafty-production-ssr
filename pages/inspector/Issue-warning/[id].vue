@@ -5,7 +5,7 @@
             <template #right>
                 <div class="flex gap-2">
                     <i class="fa-solid fa-xmark cursor-pointer" style="color: white; font-size: 22px;"
-                        @click="navigateTo(`/inspector/check/business-tourlist?isBusiness=${route.query.isBusiness}`)"></i>
+                        @click="navigateTo(BackTo)"></i>
                 </div>
             </template>
         </LayoutsBaseHeader>
@@ -120,6 +120,16 @@ const notification = reactive({
 })
 const showNotification = (config) => Object.assign(notification, { visible: true, ...config })
 
+const BackTo=computed(()=>{
+  if (route.query.isBusiness=='true' || route.query.isBusiness=='false'){
+    return `/inspector/check/business-tourlist?isBusiness=${route.query.isBusiness}`
+  } else if(route.query.isBusiness=='area'){
+    return `/inspector/area-duty`
+  }else{
+    return navigateTo('/inspector/home')
+  }
+})
+
 const shopname = ref('')
 const resInfoShop = ref(null)
 const isLoading = ref(true) // ✅ state โหลด
@@ -162,7 +172,7 @@ const sendWarningCard = async () => {
             title: t('บันทึกข้อมูลสำเร็จ'),
             detail: t('ใบเตือนของคุณได้ถูกบันทึกเรียบร้อยแล้ว'),
             timeout: 2000,
-            redirectUrl: `/inspector/check/business-tourlist?isBusiness=${route.query.isBusiness}`,
+            redirectUrl: BackTo,
             autoClose: true
         })
     } catch (error) {

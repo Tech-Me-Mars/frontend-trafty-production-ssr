@@ -48,7 +48,7 @@
             v-else
             :loading="isloadingAxi"
             :label="t('กลับหน้าหลัก')"
-            @click="navigateTo(backToUrl)"
+            @click="navigateTo(BackTo)"
             severity="secondary"
             rounded
             class="w-full"
@@ -94,7 +94,15 @@ const issueWarningId = ref(qp.id ?? qp.warnId ?? qp.survey_audit_id ?? null)
 
 // สำหรับปุ่มกลับหน้าหลัก เราต้องใช้ isBusiness จาก query เดิม
 const isBusiness = qp.isBusiness
-const backToUrl = `/inspector/check/business-tourlist?isBusiness=${isBusiness}`
+const BackTo=computed(()=>{
+  if (route.query.isBusiness=='true' || route.query.isBusiness=='false'){
+    return `/inspector/check/business-tourlist?isBusiness=${route.query.isBusiness}`
+  } else if(route.query.isBusiness=='area'){
+    return `/inspector/area-duty`
+  }else{
+    return navigateTo('/inspector/home')
+  }
+})
 
 // ---------- คำนวณค่าที่ใช้แสดง ----------
 const isPass = computed(() => !!dialogData.value.IsPass)
