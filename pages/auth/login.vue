@@ -91,6 +91,8 @@ const onSubmit = handleSubmit(async (values) => {
     if (decoded) {
       await useEncryptedCookie('role_id', decoded.role_id || '')
       await useEncryptedCookie('role_name', decoded.role_name || '')
+      await useEncryptedCookie('user_id', res.data.user_id || decoded.uid)
+      
     }
 
     // เข้าสู่หน้าหลัก
