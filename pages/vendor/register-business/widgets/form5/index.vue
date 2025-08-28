@@ -10,14 +10,13 @@ import { useFormStore } from "@/store/businessStore.js";
 const formStore = useFormStore(); // ใช้ Pinia Store
 const route = useRoute();
 const router = useRouter();
-
-import { useConfirm } from 'primevue/useconfirm'
-import { useFieldArray, useForm, Form, useField } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/zod";
-import * as zod from "zod";
-import * as dataApi from "../../api/data.js";
-
-
+const toast = ref({
+  show: false,
+  type: null,
+  title: null,
+  message: null,
+  life: null,
+})
 const notification = reactive({
   visible: false,
   state: 'success',
@@ -27,6 +26,15 @@ const notification = reactive({
   redirectUrl: null,
   autoClose: true
 })
+
+import { useConfirm } from 'primevue/useconfirm'
+import { useFieldArray, useForm, Form, useField } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import * as zod from "zod";
+import * as dataApi from "../../api/data.js";
+
+
+
 
 // Methods
 const showNotification = (config) => {
@@ -178,7 +186,7 @@ const saveRegisterBusiness = async () => {
       formData.append("business_social_media", JSON.stringify(formStore.business_social_media));
     }
     if (formStore.business_bank) {
-      formData.append("business_social_media", JSON.stringify(formStore.business_social_media));
+      formData.append("business_bank", JSON.stringify(formStore.business_bank));
     }
     if (formStore.business_img) {
       formStore.business_img.forEach((item, idx) => {

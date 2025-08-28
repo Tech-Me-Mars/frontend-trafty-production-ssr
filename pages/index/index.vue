@@ -2,7 +2,7 @@
   <LayoutsBaseHeader title="" :showBack="false" :showIconWeb="false" :showMenu="true">
     <template #left>
       <img src="/image/logo_erp.png" style="width: 50px;" alt="">
-      <h1 class="text-base font-semibold truncate" >Smart Travel Safety</h1>
+      <h1 class="text-base font-semibold truncate">Smart Travel Safety</h1>
     </template>
     <template #right>
       <div class="flex items-center gap-2">
@@ -10,47 +10,34 @@
         <i class="fa-regular fa-circle-user" style="color: white;font-size: 22px;"></i>
       </div>
     </template>
-</LayoutsBaseHeader>
+  </LayoutsBaseHeader>
 
   <div class="p-4">
     <InputGroup>
-    <InputText 
-      :placeholder="`${t('ชื่อสถานที่')}...`" 
-      v-model="text_search" 
-      @keyup.enter="search" 
-    />
-    <Button :label="t('ค้นหา')" icon="pi pi-search" @click="search" />
-  </InputGroup>
+      <InputText :placeholder="`${t('ชื่อสถานที่')}...`" v-model="text_search" @keyup.enter="search" />
+      <Button :label="t('ค้นหา')" icon="pi pi-search" @click="search" />
+    </InputGroup>
 
     <div class="mt-4">
-    <Swiper
-      :modules="[Autoplay, Navigation, Pagination]"
-      :loop="true"
-      :autoplay="{ delay: 3000, disableOnInteraction: false }"
-      :pagination="{ clickable: true, dynamicBullets: true }"
-      :navigation="false"
-      class="rounded-lg shadow-md overflow-hidden"
-    >
-      <SwiperSlide v-for="(img, i) in images" :key="i">
-        <img
-          :src="img.src"
-          :alt="img.alt"
-          class="w-full h-48 md:h-60 lg:h-80 object-cover"
-        />
-      </SwiperSlide>
-    </Swiper>
-  </div>
+      <Swiper :modules="[Autoplay, Navigation, Pagination]" :loop="true"
+        :autoplay="{ delay: 3000, disableOnInteraction: false }" :pagination="{ clickable: true, dynamicBullets: true }"
+        :navigation="false" class="rounded-lg shadow-md overflow-hidden">
+        <SwiperSlide v-for="(img, i) in images" :key="i">
+          <img :src="img.src" :alt="img.alt" class="w-full h-48 md:h-60 lg:h-80 object-cover" />
+        </SwiperSlide>
+      </Swiper>
+    </div>
 
 
-    <widgetBusinessType />
+    <!-- <widgetBusinessType /> -->
 
     <div class="p-4 mb-4">
-      <widgetRecommentPlace />
-      <widgetHotPlace />
+      <!-- <widgetRecommentPlace /> -->
+      <!-- <widgetHotPlace /> -->
 
     </div>
 
-    <widgetNearPlace/>
+    <!-- <widgetNearPlace /> -->
 
 
   </div>
@@ -102,7 +89,8 @@ const drawervisible = useState('drawervisible');
 <style>
 .swiper-pagination-bullet {
   background-color: white;
-  border: 2px solid #d1d5db; /* สีเทา */
+  border: 2px solid #d1d5db;
+  /* สีเทา */
   opacity: 1;
   width: 10px;
   height: 10px;
@@ -111,9 +99,12 @@ const drawervisible = useState('drawervisible');
 }
 
 .swiper-pagination-bullet-active {
-  background-color: #1d4ed8; /* เปลี่ยนเป็นสี active ที่ต้องการ เช่น สีฟ้าน้ำเงิน */
-  border-color: #1d4ed8;     /* เปลี่ยนสีขอบตอน active */
+  background-color: #1d4ed8;
+  /* เปลี่ยนเป็นสี active ที่ต้องการ เช่น สีฟ้าน้ำเงิน */
+  border-color: #1d4ed8;
+  /* เปลี่ยนสีขอบตอน active */
 }
+
 .menu-item i {
   color: #281c74;
 }

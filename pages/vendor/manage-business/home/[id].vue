@@ -190,7 +190,7 @@
             </div>
 
             <div class="p-4 flex-col space-y-3">
-                <div v-for="(item, index) in resBusinessAll?.business_list" :key="index"
+                <div v-if="(resBusinessAll?.business_list?.length || 0) > 0" v-for="(item, index) in resBusinessAll?.business_list" :key="index"
                     class="border rounded-sm shadow-md bg-white w-full max-w-md mx-auto">
                     <div class="p-3">
                         <!-- ชื่อธุรกิจ -->
@@ -223,6 +223,14 @@
                         </div>
                     </div>
                 </div>
+
+                <div v-else class="border rounded-sm shadow-md bg-white w-full max-w-md mx-auto p-6 text-center">
+    <p class="text-gray-600">{{ t('ยังไม่มีรายการธุรกิจ') }}</p>
+    <!-- ปุ่ม (ถ้าต้องการ) -->
+    <!-- <Button class="mt-3" :label="t('เพิ่มธุรกิจ')" @click="navigateTo('/vendor/register-business')" /> -->
+  </div>
+
+
             </div>
         </section>
 

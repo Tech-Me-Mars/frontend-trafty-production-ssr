@@ -1,18 +1,19 @@
 <template>
-    <div class="min-h-screen bg-white">
+    <div class="min-h-screen bg-zinc-100">
 
         <LayoutsBaseHeader :title="t('ธุรกิจในแหล่งท่องเที่ยว')" showBack
             :backTo="`/vendor/manage-business/home/${route.params.id}`"></LayoutsBaseHeader>
 
 
-        <main>
+        <main class="max-w-[430px] mx-auto">
             <van-tabs v-model:active="activeStatusTab" animated color="#202c54" :line-width="100">
                 <!-- แท็บ: แสดงอยู่ -->
                 <van-tab :title="t('แสดงอยู่')">
-                    <div class="p-4 flex justify-end">
-                        <Button :label="t('เพิ่มรายการสินค้า')" icon="fa-regular fa-square-plus" severity="primary"
-                            @click="openCreate" size="small" />
-                    </div>
+                    <div
+        class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white/95 backdrop-blur border-t border-zinc-200 p-3 z-50 pb-[env(safe-area-inset-bottom)]">
+        <Button :label="t('เพิ่มรายการสินค้า')" icon="fa-regular fa-square-plus" severity="primary"
+          @click="openCreate" size="small" class="w-full" />
+      </div>
                     <div class="p-4 flex-col space-y-3" v-if="listDisplayed.length > 0">
                         <div v-for="(item, index) in listDisplayed" :key="item.id"
                             class="border rounded-sm shadow-md bg-white w-full max-w-md mx-auto">
@@ -48,10 +49,11 @@
 
                 <!-- แท็บ: ไม่แสดง -->
                 <van-tab :title="t('ไม่แสดง')">
-                    <div class="p-4 flex justify-end">
-                        <Button :label="t('เพิ่มรายการสินค้า')" icon="fa-regular fa-square-plus" severity="primary"
-                            @click="openCreate" size="small" />
-                    </div>
+                    <div
+        class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white/95 backdrop-blur border-t border-zinc-200 p-3 z-50 pb-[env(safe-area-inset-bottom)]">
+        <Button :label="t('เพิ่มรายการสินค้า')" icon="fa-regular fa-square-plus" severity="primary"
+          @click="openCreate" size="small" class="w-full" />
+      </div>
                     <div class="p-4 flex-col space-y-3" v-if="listHidden.length > 0">
                         <div v-for="(item, index) in listHidden" :key="item.id"
                             class="border rounded-lg shadow-md bg-white w-full max-w-md mx-auto">
