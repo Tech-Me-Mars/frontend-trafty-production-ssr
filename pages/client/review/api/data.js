@@ -1,4 +1,4 @@
-import { request } from "@/service/AxiosService.js";
+
 
 export function getTypeBusinessComment(payload) {
   const url = `/api/v1/business-comment/get-comment-by-business-id/`;

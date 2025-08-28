@@ -1,4 +1,4 @@
-import { request } from "@/service/AxiosService.js";
+
 
 export function getBusinessById(id) {
   const url = `/api/v1/business/${id}`;

@@ -1,9 +1,10 @@
 import { useEncryptedCookie, useDecryptedCookie, useClearEncryptedCookie } from '~/composables/useEncryptedCookie'
 import axios from "axios";
+// import { navigateTo } from 'nuxt/app'
 
 // ตั้งค่า baseURL
-const config = useRuntimeConfig();
-axios.defaults.baseURL = config.public.api_url
+// const config = useRuntimeConfig();
+axios.defaults.baseURL = "http://localhost:8091"
 
 
 const getToken = async () => {

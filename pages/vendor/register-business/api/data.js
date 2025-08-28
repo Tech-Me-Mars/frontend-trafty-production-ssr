@@ -1,4 +1,4 @@
-import { request } from "@/service/AxiosService.js";
+
 import { useDecryptedCookie } from '@/composables/useEncryptedCookie';
 
 export async function getServiceType() {

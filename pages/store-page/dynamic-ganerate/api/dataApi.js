@@ -1,4 +1,4 @@
-import { request } from "@/service/AxiosService.js";
+
 
 // const runtimeConfig = useRuntimeConfig()
 // console.log('runtimeConfig',runtimeConfig)

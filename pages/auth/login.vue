@@ -92,6 +92,8 @@ const onSubmit = handleSubmit(async (values) => {
       await useEncryptedCookie('role_id', decoded.role_id || '')
       await useEncryptedCookie('role_name', decoded.role_name || '')
       await useEncryptedCookie('user_id', res.data.user_id || decoded.uid)
+      await useEncryptedCookie('refresh_token', res?.data?.refresh_token || '')
+      
       
     }
 

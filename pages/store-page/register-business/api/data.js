@@ -1,4 +1,4 @@
-import { request } from "@/service/AxiosService.js";
+
 
 export function getServiceType() {
   const url = `/api/v1/service-type`;

@@ -1,4 +1,4 @@
-import { request } from "@/service/AxiosService.js";
+
 
 export function getBusinessType() {
   const url = `/api/v1/management/business_type`;
