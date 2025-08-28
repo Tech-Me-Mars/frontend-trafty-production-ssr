@@ -15,7 +15,7 @@ onMounted(async () => {
 // i18n
 const optionsLang = ref([
   { label: 'ไทย', value: 'th' },
-  { label: 'EN',  value: 'en' },
+  { label: 'EN', value: 'en' },
 ])
 const { t, locale, setLocale } = useI18n()
 const localeLang = ref(locale.value || 'th')
@@ -91,10 +91,38 @@ const onSubmit = handleSubmit(async (values) => {
     if (decoded) {
       await useEncryptedCookie('role_id', decoded.role_id || '')
       await useEncryptedCookie('role_name', decoded.role_name || '')
-      await useEncryptedCookie('user_id', res.data.user_id || decoded.uid)
-      await useEncryptedCookie('refresh_token', res?.data?.refresh_token || '')
-      
-      
+    }
+
+    // ---- เก็บ user_id / refresh_token จากผลลัพธ์ login (ถ้ามี) ----
+    if (res?.data?.user_id) {
+      await useEncryptedCookie('user_id', res.data.user_id)
+    }
+    if (res?.data?.refresh_token) {
+      await useEncryptedCookie('refresh_token', res.data.refresh_token)
+    }
+
+    // ---- เรียก Refresh Token ทันที เพื่อรับโทเค็นระยะยาว ----
+    try {
+      const user_id = res?.data?.user_id || (await useDecryptedCookie('user_id'))
+      const refresh_token = res?.data?.refresh_token || (await useDecryptedCookie('refresh_token'))
+
+      if (user_id && refresh_token) {
+        const refreshed = await dataApi.refreshToken({ user_id, refresh_token })
+        const newAccess = refreshed?.data?.access_token
+        const newRefresh = refreshed?.data?.refresh_token
+        const newUserId = refreshed?.data?.user_id
+
+        if (newAccess) await useEncryptedCookie('token', newAccess)
+        if (newRefresh) await useEncryptedCookie('refresh_token', newRefresh)
+        if (newUserId) await useEncryptedCookie('user_id', newUserId)
+      } else {
+        console.warn('ไม่มี user_id หรือ refresh_token จากผล login; ข้ามการ refresh ครั้งแรก')
+      }
+    } catch (e) {
+      console.error('Refresh token หลัง login ล้มเหลว:', e)
+      // ถ้าอยากบังคับให้กลับไปหน้า login เมื่อ refresh fail ให้เคลียร์ token และ redirect ที่นี่
+      // await useClearAllEncryptedCookies()
+      // return router.push('/auth/login')
     }
 
     // เข้าสู่หน้าหลัก
@@ -116,12 +144,8 @@ const onSubmit = handleSubmit(async (values) => {
   <div class="min-h-screen flex flex-col items-center justify-start bg-white">
     <!-- Header image -->
     <div class="w-full">
-      <img
-        src="/image/bg/login-header.png"
-        alt="login-header"
-        class="w-full object-cover"
-        style="border-bottom-left-radius: 50% 10%; border-bottom-right-radius: 50% 10%; width: 100%; height: 11rem;"
-      />
+      <img src="/image/bg/login-header.png" alt="login-header" class="w-full object-cover"
+        style="border-bottom-left-radius: 50% 10%; border-bottom-right-radius: 50% 10%; width: 100%; height: 11rem;" />
     </div>
 
     <div class="z-10 w-full max-w-md px-4">
@@ -129,14 +153,8 @@ const onSubmit = handleSubmit(async (values) => {
         <!-- Language Select -->
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-xl font-bold text-gray-900">{{ t('เข้าสู่ระบบ') }}</h2>
-          <Dropdown
-            v-model="localeLang"
-            :options="optionsLang"
-            optionLabel="label"
-            optionValue="value"
-            class="w-32"
-            @change="onLangChange"
-          />
+          <Dropdown v-model="localeLang" :options="optionsLang" optionLabel="label" optionValue="value" class="w-32"
+            @change="onLangChange" />
         </div>
 
         <!-- Form -->
@@ -145,14 +163,8 @@ const onSubmit = handleSubmit(async (values) => {
           <div>
             <IconField>
               <InputIcon class="pi pi-user" />
-              <InputText
-                v-model="username"
-                class="w-full"
-                :placeholder="t('กรุณากรอกชื่อผู้ใช้')"
-                :class="{ 'p-invalid': !!errors.username }"
-                aria-invalid="true"
-                aria-describedby="username-help"
-              />
+              <InputText v-model="username" class="w-full" :placeholder="t('กรุณากรอกชื่อผู้ใช้')"
+                :class="{ 'p-invalid': !!errors.username }" aria-invalid="true" aria-describedby="username-help" />
             </IconField>
             <p v-if="errors.username" id="username-help" class="text-red-500 text-sm mt-1">
               {{ errors.username }}
@@ -163,15 +175,8 @@ const onSubmit = handleSubmit(async (values) => {
           <div>
             <IconField>
               <InputIcon class="pi pi-lock" />
-              <InputText
-                type="password"
-                v-model="password"
-                class="w-full"
-                :placeholder="t('กรุณากรอกรหัสผ่าน')"
-                :class="{ 'p-invalid': !!errors.password }"
-                aria-invalid="true"
-                aria-describedby="password-help"
-              />
+              <InputText type="password" v-model="password" class="w-full" :placeholder="t('กรุณากรอกรหัสผ่าน')"
+                :class="{ 'p-invalid': !!errors.password }" aria-invalid="true" aria-describedby="password-help" />
             </IconField>
             <p v-if="errors.password" id="password-help" class="text-red-500 text-sm mt-1">
               {{ errors.password }}
@@ -185,13 +190,8 @@ const onSubmit = handleSubmit(async (values) => {
           </div>
 
           <!-- Login Button -->
-          <Button
-            :label="t('เข้าสู่ระบบ')"
-            class="w-full bg-indigo-800 hover:bg-indigo-900 text-white"
-            type="submit"
-            :loading="isloadingAxi || isSubmitting"
-            :disabled="isloadingAxi || isSubmitting"
-          />
+          <Button :label="t('เข้าสู่ระบบ')" class="w-full bg-indigo-800 hover:bg-indigo-900 text-white" type="submit"
+            :loading="isloadingAxi || isSubmitting" :disabled="isloadingAxi || isSubmitting" />
 
           <!-- Divider -->
           <!-- <div class="flex items-center my-6">
