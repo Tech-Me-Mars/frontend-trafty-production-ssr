@@ -1,28 +1,31 @@
 import { request } from "@/service/AxiosService.js";
 import { useDecryptedCookie } from '@/composables/useEncryptedCookie';
 
-export function getServiceType() {
-  const url = `/api/v1/management/service_type`;
+export async function getServiceType() {
+  const modulepath = await getModulePathByRoleName()
+
+  const url = `/api/v1/${modulepath}/service_type`;
   return request("get", url, {}, true);
 }
 
-export function getBusinessType() {
-  const url = `/api/v1/management/business_type`;
-  return request("get", url, {}, true);
-}
-export function getBusinessTypeByServiceId(id) {
-  const url = `/api/v1/business-type/by-service-type-id/${id}`;
+export async function getBusinessType() {
+  const modulepath = await getModulePathByRoleName()
+
+  const url = `/api/v1/${modulepath}/business_type`;
   return request("get", url, {}, true);
 }
 
 
-export function getBusinessModel() {
-  const url = `/api/v1/management/business_model`;
+export async function getBusinessModel() {
+  const modulepath = await getModulePathByRoleName()
+  const url = `/api/v1/${modulepath}/business_model`;
   return request("get", url, {}, true);
 }
 
-export function getSocialMedia() {
-  const url = `/api/v1/management/social_media`;
+export async function getSocialMedia() {
+  const modulepath = await getModulePathByRoleName()
+
+  const url = `/api/v1/${modulepath}/social_media`;
   return request("get", url, {}, true);
 }
 
@@ -33,18 +36,23 @@ export async function saveBusinessRegister(payload) {
 }
 
 
-export function getProvinces() {
-  const url = `/api/v1/management/provinces`;
+export async function getProvinces() {
+  const modulepath = await getModulePathByRoleName()
+  const url = `/api/v1/${modulepath}/provinces`;
   return request("get", url, {}, true);
 }
 
-export function getDistrictByProvinceId(id) {
-  const url = `/api/v1/management/district/get_by_provinces_id/${id}`;
+export async function getDistrictByProvinceId(id) {
+  const modulepath = await getModulePathByRoleName()
+
+  const url = `/api/v1/${modulepath}/district/get_by_provinces_id/${id}`;
   return request("get", url, {}, true);
 }
 
-export function getSubDistrictByDistrictId(id) {
-  const url = `/api/v1/management/subdistrict/get_by_district_id/${id}`;
+export async function getSubDistrictByDistrictId(id) {
+  const modulepath = await getModulePathByRoleName()
+
+  const url = `/api/v1/${modulepath}/subdistrict/get_by_district_id/${id}`;
   return request("get", url, {}, true);
 }
 

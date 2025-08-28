@@ -12,6 +12,7 @@ const { t } = useI18n();
   :line-width="100"    
         <section class="max-w-[430px] mx-auto">
 
+  const modulepath = await getModulePathByRoleName()
 
 
 // basic ที่ใช้ทุกหน้า

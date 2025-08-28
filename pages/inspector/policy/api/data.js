@@ -1,12 +1,14 @@
 import { request } from "@/service/AxiosService.js";
 
-export function getSurveyAuditAllByBusinessId(id) {
-  const url = `/api/v1/management/survey_audit/get-survey-audit-all-by-business-id/${id}`;
+export async function getSurveyAuditAllByBusinessId(id) {
+  const modulepath = await getModulePathByRoleName()
+  const url = `/api/v1/${modulepath}/survey_audit/get-survey-audit-all-by-business-id/${id}`;
   return request("get", url, {}, true);
 }
 
 
-export function updateSurveyStatusShow(id,payload) {
-  const url = `/api/v1/management/survey_audit/update-survey-audit-status-show/${id}`;
+export async function updateSurveyStatusShow(id,payload) {
+  const modulepath = await getModulePathByRoleName()
+  const url = `/api/v1/${modulepath}/survey_audit/update-survey-audit-status-show/${id}`;
   return request("put", url, payload, true);
 }
