@@ -1,66 +1,53 @@
 <template>
   <div class="min-h-screen bg-zinc-100">
 
-    <LayoutsBaseHeader :title="t('ธุรกิจในแหล่งท่องเที่ยว')" showBack
-      :backTo="BackTo"></LayoutsBaseHeader>
+    <LayoutsBaseHeader :title="t('ตรวจสอบแหล่งท่องเที่ยว/ธุรกิจในแหล่งท่องเที่ยว')" showBack :backTo="BackTo">
+    </LayoutsBaseHeader>
     <section class="max-w-[430px] mx-auto">
+      <div class="p-3">
+        <template v-if="surveyDataMap">
+          <Dynamic :survey-data-map="surveyDataMap" @submit="handleFormSubmit" :default-values="mapDefaultValueData"
+            :model-change="model_change" from="police" />
+        </template>
+        <!-- Dialog บังทั้งหน้า -->
+        <Transition name="fade">
+          <div v-if="showDialog" class="fixed inset-0 z-[99999] bg-white flex items-center justify-center">
+            <div class="text-center px-6">
+              <!-- วงแหวนเปอร์เซ็นต์ -->
+              <div class="relative w-28 h-28 mx-auto mb-6">
+                <div class="w-28 h-28 rounded-full" :style="ringStyle"></div>
+                <div
+                  class="absolute inset-2 rounded-full bg-white flex items-center justify-center text-xl font-bold text-[#202c54]">
+                  {{ chosenPercentStr }}
+                </div>
+              </div>
 
-      <template v-if="surveyDataMap">
-        <Dynamic :survey-data-map="surveyDataMap" @submit="handleFormSubmit" :default-values="mapDefaultValueData"
-          :model-change="model_change" />
-      </template>
-      <!-- Dialog บังทั้งหน้า -->
-      <Transition name="fade">
-        <div v-if="showDialog" class="fixed inset-0 z-[99999] bg-white flex items-center justify-center">
-          <div class="text-center px-6">
-            <!-- วงแหวนเปอร์เซ็นต์ -->
-            <div class="relative w-28 h-28 mx-auto mb-6">
-              <div class="w-28 h-28 rounded-full" :style="ringStyle"></div>
-              <div
-                class="absolute inset-2 rounded-full bg-white flex items-center justify-center text-xl font-bold text-[#202c54]">
-                {{ chosenPercentStr }}
+              <!-- หัวข้อใหญ่ -->
+              <h3 class="text-2xl font-semibold mb-3 text-[#202c54]">
+                {{ headerTitle }}
+              </h3>
+
+              <!-- รายละเอียด -->
+              <p class="text-gray-600 text-base leading-relaxed max-w-xs mx-aut mb-20">
+                {{ detailLine }}
+              </p>
+              <!-- Buttons Section -->
+              <div class="max-w-[20rem] mx-auto">
+                <Button v-if="!isPass" :loading="isloadingAxi" :label="t('ส่งใบเตือน')" @click="goIssueWarning"
+                  severity="primary" rounded class="w-full mb-1" :pt="{
+                    label: { class: 'text-primary-main text-white' },
+                    root: { class: '!border-primary-main' }
+                  }" />
+                <Button v-if="isPass" :loading="isloadingAxi" @click="navigateTo(BackTo)" :label="t('กลับหน้าหลัก')"
+                  severity="secondary" rounded class="w-full" :pt="{}" />
+
               </div>
             </div>
-
-            <!-- หัวข้อใหญ่ -->
-            <h3 class="text-2xl font-semibold mb-3 text-[#202c54]">
-              {{ headerTitle }}
-            </h3>
-
-            <!-- รายละเอียด -->
-            <p class="text-gray-600 text-base leading-relaxed max-w-xs mx-aut mb-20">
-              {{ detailLine }}
-            </p>
-
-            <!-- ปุ่ม (ปรับตามที่ต้องการ) -->
-            <!-- <div class="mt-8 flex flex-col items-center gap-5">
-          <button
-            class="px-8 py-3 text-base rounded-full text-white"
-            :class="isPass ? 'bg-green-600' : 'bg-[#202c54]'"
-            @click="onPrimary"
-          >
-            {{ isPass ? 'ตกลง' : 'ส่งใบเตือน' }}
-          </button>
-          <button class="text-[#202c54] underline" @click="onGoHome">
-            กลับสู่หน้าหลัก
-          </button>
-        </div> -->
-            <!-- Buttons Section -->
-            <div class="max-w-[20rem] mx-auto">
-              <Button v-if="!isPass" :loading="isloadingAxi" :label="t('ส่งใบเตือน')" @click="goIssueWarning"
-                severity="primary" rounded class="w-full mb-1" :pt="{
-                  label: { class: 'text-primary-main text-white' },
-                  root: { class: '!border-primary-main' }
-                }" />
-              <Button v-if="isPass" :loading="isloadingAxi"
-                @click="navigateTo(BackTo)"
-                :label="t('กลับหน้าหลัก')" severity="secondary" rounded class="w-full" :pt="{}" />
-
-            </div>
-
           </div>
-        </div>
-      </Transition>
+        </Transition>
+
+      </div>
+
 
       <NotifyMessage v-model:show="toast.show" :type="toast.type" :title="toast.title" :message="toast.message"
         :life="toast.life" />
@@ -110,12 +97,12 @@ const showNotification = (config) => {
 // จบการ basic ที่ใช้ทุกหน้า
 
 
-const BackTo=computed(()=>{
-  if (route.query.isBusiness=='true' || route.query.isBusiness=='false'){
+const BackTo = computed(() => {
+  if (route.query.isBusiness == 'true' || route.query.isBusiness == 'false') {
     return `/inspector/check/business-tourlist?isBusiness=${route.query.isBusiness}`
-  } else if(route.query.isBusiness=='area'){
+  } else if (route.query.isBusiness == 'area') {
     return `/inspector/area-duty`
-  }else{
+  } else {
     return navigateTo('/inspector/home')
   }
 })
@@ -126,18 +113,34 @@ const model_change = ref([
 const mapDefaultValueData = ref({})
 const loadData = async () => {
   try {
+    const role_name = await useDecryptedCookie('role_name') // 'business'
+
     const res = await dataApi.getSurveyAuditById(route.params.question_template_id)
     const arr = res.data.data.question_groups || []
+
+    // ✅ ถ้าเป็น business ให้ตัดทุกก้อนที่ role === 'police' (ทั้งระดับ group และภายใน questions/choices)
+    const filteredGroups = role_name === 'business'
+      ? arr
+        .filter(g => g?.role !== 'police')
+        .map(g => ({
+          ...g,
+          questions: (g.questions || [])
+            .filter(q => q?.role !== 'police')
+            .map(q =>
+              q?.question_type === 'group'
+                ? { ...q, choices: (q.choices || []).filter(c => c?.role !== 'police') }
+                : q
+            )
+        }))
+      : arr
 
     // flatten questions - เอา choices ของ group มาไว้ระดับเดียวกัน
     const flattenQuestions = (questions = []) => {
       const out = []
       for (const q of questions) {
-        if (q.question_type === "group" && Array.isArray(q.choices) && q.choices.length > 0) {
-          // ดึง info group ออกมา (ไม่เอา choices)
+        if (q.question_type === 'group' && Array.isArray(q.choices) && q.choices.length > 0) {
           const { choices, ...groupInfo } = q
           out.push(groupInfo)
-          // แตก choices ทุกอันตามหลัง
           out.push(...q.choices)
         } else {
           out.push(q)
@@ -146,18 +149,17 @@ const loadData = async () => {
       return out
     }
 
-    // เปลี่ยน array group เป็น object โดยใช้ group_name เป็น key
-    // และเปลี่ยน questions เป็น _question (flatten แล้ว)
-    const flatObject = arr.reduce((acc, cur) => {
+    // เปลี่ยน array group เป็น object โดยใช้ group_name เป็น key และเปลี่ยน questions เป็น _question
+    const flatObject = filteredGroups.reduce((acc, cur) => {
       acc[cur.group_name] = {
         ...cur,
         _question: flattenQuestions(cur.questions)
       }
-      delete acc[cur.group_name].questions // ลบ field questions เดิมออก (ถ้าไม่ต้องการ)
+      delete acc[cur.group_name].questions
       return acc
     }, {})
 
-    // ผลลัพธ์ flatObject ตามที่ต้องการ
+    // ผลลัพธ์
     console.log('flatObject', flatObject)
     surveyDataMap.value = flatObject
   } catch (error) {

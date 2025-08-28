@@ -1,13 +1,13 @@
 <template>
     <div class="bg-zinc-100 min-h-screen w-full">
         <LayoutsBaseHeader title="มาตรฐานความปลอดภัย" :showBack="true"
-            :back-to="`/client/information/${route.params.id}`" />
+            :back-to="backTo" />
         <section class="max-w-[430px] mx-auto">
             <div class="p-4">
                 <div class="mx-auto bg-white rounded-lg shadow-md px-4 py-2">
                     <div class="border-b flex justify-between">
                         <div class="flex justify-between flex-wrap w-full py-3">
-                            <h2 class="font-bold">มาตรฐาานความปลอดภัย</h2>
+                            <h2 class="font-bold">{{ t('มาตรฐาานความปลอดภัย') }}</h2>
                             <!-- <ConfirmSwitch v-model="isOpen" message-on="คุณต้องการเปิดรีวิวนี้ให้ผู้อื่นเห็นหรือไม่?"
                                 message-off="คุณต้องการปิดรีวิวนี้ใช่หรือไม่?" /> -->
                         </div>
@@ -89,6 +89,10 @@ const notification = reactive({
 const showNotification = (config) => {
     Object.assign(notification, { visible: true, ...config })
 }
+const backTo = computed(() => ({
+  path: `/client/information/${route.params.id}`,
+  query: { ...route.query }, // คืนทุก query เดิม
+}))
 
 // --------------------
 // Data + Loading state

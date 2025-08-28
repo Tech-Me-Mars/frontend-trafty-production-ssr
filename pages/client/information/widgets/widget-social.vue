@@ -22,8 +22,8 @@ import { useI18n } from 'vue-i18n'
 const { locale } = useI18n()
 
 const props = defineProps({
-  // รับโครงจาก API ตรง ๆ: resInfo.business_social_media
-  resInfo: {
+  // รับ array จาก API โดยตรง: business_social_media
+  business_social_media: {
     type: Array,
     default: () => []
   }
@@ -40,7 +40,6 @@ const getI18nLocal = (val) => {
   }
 }
 
-// โดเมนจากลิงก์ (ไว้โชว์เป็นชื่อถ้าเป็น website)
 const getHost = (url) => {
   try {
     const u = new URL(url)
@@ -50,56 +49,52 @@ const getHost = (url) => {
   }
 }
 
-// ตรวจว่าเป็นแพลตฟอร์มโซเชียลยอดนิยมไหม
-const isKnownBrand = (key = '') => {
+const ensureHttp = (url) => {
+  if (!url) return '#'
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`
+}
+
+const isKnownBrandKey = (key = '') => {
   const k = key.toLowerCase()
   return (
     k.includes('facebook') || k.includes('line') || k.includes('discord') ||
-    k.includes('twitter') || k.includes('x.com') || k.includes(' x') ||
-    k.includes('instagram') || k.includes('youtube') || k.includes('tiktok')
+    k.includes('twitter') || k.includes('x-twitter') || k === 'x' || k.includes('instagram') ||
+    k.includes('youtube') || k.includes('tiktok')
   )
 }
 
-// สีตามแบรนด์ + website
-const brandColor = (iconOrName = '') => {
-  const key = (iconOrName || '').toLowerCase()
-  if (key.includes('facebook')) return '#1877F2'
-  if (key.includes('line'))     return '#00C300'
-  if (key.includes('discord'))  return '#5865F2'
-  if (key.includes('twitter') || key.includes('x-twitter') || key.includes(' x')) return '#14171A'
-  if (key.includes('instagram')) return '#E1306C'
-  if (key.includes('youtube'))   return '#FF0000'
-  if (key.includes('tiktok'))    return '#000000'
-  if (key.includes('website') || key.includes('globe')) return '#0ea5e9' // website
+const brandColor = (key = '') => {
+  const k = key.toLowerCase()
+  if (k.includes('facebook')) return '#1877F2'
+  if (k.includes('line'))     return '#00C300'
+  if (k.includes('discord'))  return '#5865F2'
+  if (k.includes('twitter') || k.includes('x-twitter') || k === 'x') return '#14171A'
+  if (k.includes('instagram')) return '#E1306C'
+  if (k.includes('youtube'))   return '#FF0000'
+  if (k.includes('tiktok'))    return '#000000'
+  if (k.includes('globe') || k.includes('website')) return '#0ea5e9'
   return '#202c54'
 }
 
-// เป็น website ไหม? (ลิงก์ทั่วไป/ชื่อบอกว่าเว็บไซต์/ไอคอน globe)
-const isWebsite = ({ icon, name, link }) => {
-  const key = `${icon || ''} ${name || ''}`.toLowerCase()
-  const nameLooksWebsite =
-    key.includes('website') || key.includes('web') || key.includes('ไซต์') || key.includes('เว็บไซต์') || key.includes('เวบไซต์')
-  const hasGlobeIcon = key.includes('globe')
-  const urlHost = getHost(link)
-  const hostLooksBrand = isKnownBrand(urlHost)
-  return !hostLooksBrand && (nameLooksWebsite || hasGlobeIcon || !!urlHost)
-}
-
-// map ข้อมูลจาก API -> โครงที่ template ใช้
 const socials = computed(() =>
-  (props.resInfo || []).map(s => {
+  (props.business_social_media || []).map((s) => {
     const nameI18n = getI18nLocal(s.social_media_name_i18n)
-    const link = s.social_media_link || s.social_link || '#'
-    const iconRaw = s.icon || (s.social_type && s.social_type.icon) || ''
+    const linkRaw = s.social_media_link || s.social_link || ''
+    const link = ensureHttp(linkRaw)
+    const iconRaw = s.icon || ''
+    const keyForColor = iconRaw || nameI18n || getHost(link)
 
-    const website = isWebsite({ icon: iconRaw, name: nameI18n, link })
-    const icon = iconRaw || (website ? 'fa-solid fa-globe' : 'fa-solid fa-share-nodes')
-    const bg = s.bg_color || brandColor(iconRaw || (website ? 'website' : nameI18n))
-    const displayName = nameI18n || (website ? getHost(link) : '')
+    // ถ้า icon เป็นแบรนด์อยู่แล้ว ให้คง icon นั้นไว้
+    const hasBrandIcon = isKnownBrandKey(iconRaw)
+    // ถ้าไม่มี brand icon ให้ fallback เป็น globe
+    const icon = hasBrandIcon ? iconRaw : 'fa-solid fa-globe'
+
+    const bg = s.bg_color || brandColor(hasBrandIcon ? iconRaw : 'website')
+    const displayName = nameI18n || getHost(link) || 'website'
 
     return {
       id: s.id,
-      name: displayName || 'website',
+      name: displayName,
       icon,
       social_link: link,
       bg_color: bg,

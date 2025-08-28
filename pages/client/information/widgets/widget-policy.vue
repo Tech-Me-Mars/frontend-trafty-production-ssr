@@ -3,12 +3,10 @@
     <!-- Header -->
     <div class="p-4 border-b flex items-center justify-between">
       <h1 class="text-lg font-bold">{{ t('มาตรฐานความปลอดภัย') }}</h1>
-<NuxtLink
-  :to="{ path: `/client/information/policy-full/${route.params.id}`, query: route.query }"
-  class="text-gray-500 text-sm hover:text-gray-700 transition"
->
-  {{ t('ดูทั้งหมด') }} <i class="fa-solid fa-chevron-right"></i>
-</NuxtLink>
+      <NuxtLink :to="{ path: `/client/information/policy-full/${route.params.id}`, query: route.query }"
+        class="text-gray-500 text-sm hover:text-gray-700 transition">
+        {{ t('ดูทั้งหมด') }} <i class="fa-solid fa-chevron-right"></i>
+      </NuxtLink>
     </div>
 
     <!-- Loading state -->
@@ -31,19 +29,9 @@
 
       <!-- List -->
       <ul v-if="items.length" class="space-y-5">
-        <li
-          v-for="(item, index) in items"
-          :key="index"
-          class="flex items-start space-x-3"
-        >
-          <i
-            v-if="item.FieldValue === '1'"
-            class="fa-solid fa-circle-check text-blue-700 mt-1"
-          ></i>
-          <i
-            v-else
-            class="fa-solid fa-circle-xmark text-red-600 mt-1"
-          ></i>
+        <li v-for="(item, index) in items" :key="index" class="flex items-start space-x-3">
+          <i v-if="item.FieldValue === '1'" class="fa-solid fa-circle-check text-blue-700 mt-1"></i>
+          <i v-else class="fa-solid fa-circle-xmark text-red-600 mt-1"></i>
 
           <div class="flex-1">
             <span class="block">
@@ -146,7 +134,7 @@ onMounted(loadPolicy)
 <style scoped>
 /* เพิ่ม touch-friendly spacing เล็กน้อยบนจอเล็ก */
 @media (max-width: 480px) {
-  li > span {
+  li>span {
     line-height: 1.4;
   }
 }

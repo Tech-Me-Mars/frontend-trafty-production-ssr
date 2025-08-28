@@ -49,8 +49,11 @@
                                         }
                                     })" />
                                 <Button :label="item?.station?.status ? t('ไม่แสดงในระบบ') : t('แสดงในระบบ')"
-                                    :loading="item?._loading" :disabled="item?._loading" severity="danger"
-                                    variant="outlined" class="w-full" :pt="{ label: { class: 'text-xs' } }"
+                                    :loading="item?._loading" :disabled="item?._loading" :severity="item?.station?.status==true?'danger' : 'primary'"
+                                    variant="outlined" class="w-full"   :pt="{
+    label: { class: (item?.station?.status ? 'text-red-600' : 'text-primary-main') + ' text-xs' },
+    root:  { class: item?.station?.status ? '!border-red-500' : '!border-primary-main' }
+  }"
                                     @click="showConfirmToggle(item)" />
                             </div>
 

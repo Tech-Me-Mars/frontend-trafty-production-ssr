@@ -76,7 +76,7 @@ export async function request(method, url, data, auth = true) {
     // ---------- เริ่มส่วนจัดการ error ----------
     // ถ้า 401: ลอง refresh แล้ว retry 1 ครั้ง
     if (error?.response?.status === 401 && auth) {
-        return;
+        // return;
       try {
         const refreshed = await refreshTokenOnce()
 

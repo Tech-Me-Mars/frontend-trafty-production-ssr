@@ -80,7 +80,7 @@ const onSubmit = handleSubmit(async (values) => {
       password: values.password,
     })
 
-    const rawToken = res?.data?.access_token
+    const rawToken = res?.data?.data?.access_token
     if (!rawToken) throw new Error('NO_TOKEN')
 
     // Save token (encrypted cookie)
@@ -94,23 +94,23 @@ const onSubmit = handleSubmit(async (values) => {
     }
 
     // ---- เก็บ user_id / refresh_token จากผลลัพธ์ login (ถ้ามี) ----
-    if (res?.data?.user_id) {
-      await useEncryptedCookie('user_id', res.data.user_id)
+    if (res?.data?.data?.user_id) {
+      await useEncryptedCookie('user_id', res.data?.data.user_id)
     }
-    if (res?.data?.refresh_token) {
-      await useEncryptedCookie('refresh_token', res.data.refresh_token)
+    if (res?.data?.data?.refresh_token) {
+      await useEncryptedCookie('refresh_token', res.data.data.refresh_token)
     }
 
     // ---- เรียก Refresh Token ทันที เพื่อรับโทเค็นระยะยาว ----
     try {
-      const user_id = res?.data?.user_id || (await useDecryptedCookie('user_id'))
-      const refresh_token = res?.data?.refresh_token || (await useDecryptedCookie('refresh_token'))
+      const user_id = res?.data?.data?.user_id || (await useDecryptedCookie('user_id'))
+      const refresh_token = res?.data?.data?.refresh_token || (await useDecryptedCookie('refresh_token'))
 
       if (user_id && refresh_token) {
         const refreshed = await dataApi.refreshToken({ user_id, refresh_token })
-        const newAccess = refreshed?.data?.access_token
-        const newRefresh = refreshed?.data?.refresh_token
-        const newUserId = refreshed?.data?.user_id
+        const newAccess = refreshed?.data?.data?.access_token
+        const newRefresh = refreshed?.data?.data?.refresh_token
+        const newUserId = refreshed?.data?.data?.user_id
 
         if (newAccess) await useEncryptedCookie('token', newAccess)
         if (newRefresh) await useEncryptedCookie('refresh_token', newRefresh)

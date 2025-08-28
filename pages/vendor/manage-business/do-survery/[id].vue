@@ -2,17 +2,21 @@
   <div class="min-h-screen bg-zinc-50">
 
     <LayoutsBaseHeader :title="t('ธุรกิจในแหล่งท่องเที่ยว')" showBack></LayoutsBaseHeader>
+    <section class="max-w-[430px] mx-auto">
 
-    <template v-if="surveyDataMap">
+      <div class="p-3">
+        <template v-if="surveyDataMap">
       <Dynamic :survey-data-map="surveyDataMap" @submit="handleFormSubmit" :default-values="mapDefaultValueData"
-        :model-change="model_change" />
+        :model-change="model_change" from="store" />
     </template>
+      </div>
 
     <NotifyMessage v-model:show="toast.show" :type="toast.type" :title="toast.title" :message="toast.message"
       :life="toast.life" />
     <NotificationPopup v-model:visible="notification.visible" :state="notification.state" :title="notification.title"
       :detail="notification.detail" :timeout="notification.timeout" :redirect-url="notification.redirectUrl"
       :auto-close="notification.autoClose" @close="onNotificationClose" />
+      </section>
   </div>
 </template>
 <script setup>
@@ -64,18 +68,35 @@ const model_change = ref([
 const mapDefaultValueData = ref({})
 const loadData = async () => {
   try {
+    const role_name = await useDecryptedCookie('role_name') // 'business'
+
     const res = await dataApi.getSurveyById(route.params.id)
     const arr = res.data.data.question_groups || []
 
-    // flatten questions - เอา choices ของ group มาไว้ระดับเดียวกัน
+    // ✅ ถ้าเป็น business ให้ตัดทุกก้อนที่ role === 'police' ทิ้ง
+    const filteredGroups = role_name == 'business'
+      ? arr
+          // ตัดกลุ่มที่เป็น police ทั้งก้อน
+          .filter(g => g?.role !== 'police')
+          // ตัดภายใน questions/choices ด้วย
+          .map(g => ({
+            ...g,
+            questions: (g.questions || [])
+              .filter(q => q?.role !== 'police')
+              .map(q => q?.question_type === 'group'
+                ? { ...q, choices: (q.choices || []).filter(c => c?.role !== 'police') }
+                : q
+              )
+          }))
+      : arr
+
+    // flatten questions - เอา choices ของ group มาไว้ระดับเดียวกัน (เหมือนเดิม)
     const flattenQuestions = (questions = []) => {
       const out = []
       for (const q of questions) {
-        if (q.question_type === "group" && Array.isArray(q.choices) && q.choices.length > 0) {
-          // ดึง info group ออกมา (ไม่เอา choices)
+        if (q.question_type === 'group' && Array.isArray(q.choices) && q.choices.length > 0) {
           const { choices, ...groupInfo } = q
           out.push(groupInfo)
-          // แตก choices ทุกอันตามหลัง
           out.push(...q.choices)
         } else {
           out.push(q)
@@ -85,17 +106,15 @@ const loadData = async () => {
     }
 
     // เปลี่ยน array group เป็น object โดยใช้ group_name เป็น key
-    // และเปลี่ยน questions เป็น _question (flatten แล้ว)
-    const flatObject = arr.reduce((acc, cur) => {
+    const flatObject = filteredGroups.reduce((acc, cur) => {
       acc[cur.group_name] = {
         ...cur,
         _question: flattenQuestions(cur.questions)
       }
-      delete acc[cur.group_name].questions // ลบ field questions เดิมออก (ถ้าไม่ต้องการ)
+      delete acc[cur.group_name].questions
       return acc
     }, {})
 
-    // ผลลัพธ์ flatObject ตามที่ต้องการ
     console.log('flatObject', flatObject)
     surveyDataMap.value = flatObject
   } catch (error) {

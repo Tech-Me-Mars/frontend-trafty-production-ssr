@@ -1,7 +1,6 @@
 <template>
   <div class="bg-zinc-100 min-h-screen">
-    <LayoutsBaseHeader :title="pageTitle"
-      :showBack="true" :back-to="urlBackTo">
+    <LayoutsBaseHeader :title="pageTitle" :showBack="true" :back-to="urlBackTo">
       <template #right>
         <div class="flex gap-2" v-if="route.query.state == 'preview'">
           <i class="fa-solid fa-xmark cursor-pointer" style="color: white; font-size: 22px;"
@@ -90,14 +89,14 @@
               <span>
                 <strong class="text-black">{{ t('วันที่ทำการ') }} :</strong>
                 <span class="text-primary-700">
-                    <template v-if="openDays.length">
-                      <span v-for="(day, i) in openDays" :key="i">
-                        {{ day }}<span v-if="i < openDays.length - 1">, </span>
-                      </span>
-                    </template>
-                    <template v-else>
-                      {{ t('ไม่มีข้อมูลโซเชียลมีเดีย') }}
-                    </template>
+                  <template v-if="openDays.length">
+                    <span v-for="(day, i) in openDays" :key="i">
+                      {{ day }}<span v-if="i < openDays.length - 1">, </span>
+                    </span>
+                  </template>
+                  <template v-else>
+                    {{ t('ไม่มีข้อมูลโซเชียลมีเดีย') }}
+                  </template>
 
 
                 </span>
@@ -112,13 +111,16 @@
               </span>
             </p>
 
-            <p class="flex items-start gap-2">
+            <p class="flex items-start gap-2 mb-2">
               <i class="pi pi-phone text-green-500 text-lg mt-1" />
               <span>
                 <strong class="text-black">{{ t('เบอร์ติดต่อ') }} :</strong>
                 <span class="text-primary-700">{{ resInfo?.shop_phone }}</span>
               </span>
             </p>
+
+            <widgetSocial :business_social_media="resInfo?.business_social_media" />
+
           </div>
 
           <widgetSocial v-if="route.query.state != 'edit'" :resInfo="resInfo" />
@@ -129,7 +131,6 @@
           <widgetSoCialBankEdit class="" :resInfo="resInfo" />
         </div>
 
-        <!-- <widgetSocial :resInfo="resInfo" /> -->
 
         <widgetItemsBusiness class="mt-2" :resInfo="resInfo?.business_list" />
         <widgetPolicy class="mt-2" />
@@ -155,7 +156,7 @@ const route = useRoute();
 // กรอง query: เอาเฉพาะคีย์ที่มีค่า
 
 const pageTitle = computed(() => {
-  if (query.state.value == 'preview' || query.state.value == 'view-by-area') {
+  if (route.query.state == 'preview' || route.query.state == 'view-by-area') {
     return t('พรีวิว')
   }
   return t('รายการธุรกิจในแหล่งท่องเที่ยว')
@@ -185,7 +186,7 @@ const urlBackTo = computed(() => {
   } else if (route.query.state === 'preview-by-area') {
     // เดิมเคยส่งแค่ ?isBusiness=... ตอนนี้ส่ง query ทั้งชุด
     return { path: `/inspector/area-duty` }
-  } 
+  }
   else {
     return { path: `/`, query }
   }

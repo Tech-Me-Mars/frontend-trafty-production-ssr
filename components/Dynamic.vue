@@ -90,7 +90,7 @@ td.radio-table-cell {
 }
 </style>
 <template>
-  <!-- <pre>{{ surveyDataMap }}</pre> -->
+  <!-- <pre>{{ formValuesMap }}</pre> -->
   <form ref="formRef" @submit.prevent="submitAllForms" class="space-y-4">
     <template v-for="(formData, formKey) in surveyDataMap" :key="formKey">
       <!-- {{ formData }} -->
@@ -350,7 +350,7 @@ td.radio-table-cell {
         </div>
 
 
-        <div v-if="role_name == 'police' || role_name == 'Admin'" class="">
+        <div v-if="role_name == 'police' || role_name == 'Admin'" class="mb-5">
           <label class="block text-sm font-medium text-gray-700 mb-2">
             {{ t('รอบการออกตรวจซ้ำ') }}
           </label>
@@ -358,7 +358,7 @@ td.radio-table-cell {
             optionLabel="text" optionValue="id" class="w-full" />
         </div>
 
-        <div v-if="role_name == 'police' || role_name == 'Admin'" class="flex items-center justify-between gap-5 md:gap-0 md:justify-start">
+        <div v-if="role_name == 'police' || role_name == 'Admin'" class="flex items-center justify-between">
           <span class="text-sm font-medium text-gray-700 mb-2">{{ t('สถานะการแสดงผล') }}</span>
           <van-switch v-model="status_show" size="24" active-color="#20bc04" />
         </div>
@@ -372,7 +372,8 @@ td.radio-table-cell {
       <!-- <Button :loading="isloadingAxi" type="submit" label="บันทึกข้อมูลทั้งหมด"
         class="bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-lg px-6 py-2 shadow transition disabled:opacity-60"
         severity="primary" size="large" icon="pi pi-save" iconPos="left" /> -->
-      <Button :label="t('บันทึกข้อมูลทั้งหมด')" type="submit" rounded :loading="isloadingAxi" severity="primary"  class="w-full"/>
+      <Button :label="t('บันทึกข้อมูลทั้งหมด')" type="submit" rounded :loading="isloadingAxi" severity="primary"
+        class="w-full" />
     </div>
   </form>
 
@@ -420,6 +421,10 @@ const isloadingAxi = useState('isloadingAxi')
 const props = defineProps({
   surveyDataMap: {
     type: Object,
+    required: true
+  },
+  from: {
+    type: String,
     required: true
   },
   defaultValues: Object,
@@ -1153,11 +1158,21 @@ const normalizeRadioBlanksToZero = (surveyMap, values) => {
         const name = q.field_name
         const current = out?.[groupKey]?.[name]
         // ว่างจริง ๆ เท่านั้นที่จะแปลง (ไม่ไปยุ่งกับ '0')
-        if (current === '' || current === null || typeof current === 'undefined') {
-          if (!out[groupKey]) out[groupKey] = {}
-          // ใช้ unchecked_value เป็นหลัก ถ้าไม่มีให้ fallback เป็น '0'
-          out[groupKey][name] = String(q?.unchecked_value ?? '0')
+
+        if (props.from == 'store') {
+          if (current === '' || current === null || typeof current === 'undefined') {
+            if (!out[groupKey]) out[groupKey] = {}
+            // ใช้ unchecked_value เป็นหลัก ถ้าไม่มีให้ fallback เป็น '0'
+            out[groupKey][name] = String(q?.unchecked_value ?? '0')
+          }
+        } else {
+          if (current != 1) {
+            if (!out[groupKey]) out[groupKey] = {}
+            // ใช้ unchecked_value เป็นหลัก ถ้าไม่มีให้ fallback เป็น '0'
+            out[groupKey][name] = String(q?.unchecked_value ?? '0')
+          }
         }
+
       }
     }
   }
@@ -1171,14 +1186,6 @@ const submitAllForms = async () => {
       throw new Error('มีข้อผิดพลาดในการกรอกฟอร์ม กรุณาตรวจสอบอีกครั้ง')
     }
     await validateAndUploadSignatures()
-    // for (const [groupKey, groupValue] of Object.entries(props.surveyDataMap)) {
-    //   const questions = (groupValue && groupValue._question) || []
-    //   for (const q of questions) {
-    //     if (q.question_type === 'files') {
-    //       await uploadFiles(groupKey, q.field_name)
-    //     }
-    //   }
-    // }
     for (const [groupKey, groupValue] of Object.entries(props.surveyDataMap)) {
       if (groupValue._question && groupValue._question.length > 0) {
         for (const question of groupValue._question) {
@@ -1195,8 +1202,8 @@ const submitAllForms = async () => {
     // ส่งข้อมูล
     // const base = getSubmitPayload(props.surveyDataMap, formValuesMap.value)
 
-   const normalizedValues = normalizeRadioBlanksToZero(props.surveyDataMap, formValuesMap.value)
-   const base = getSubmitPayload(props.surveyDataMap, normalizedValues)
+    const normalizedValues = normalizeRadioBlanksToZero(props.surveyDataMap, formValuesMap.value)
+    const base = getSubmitPayload(props.surveyDataMap, normalizedValues)
     const payload = {
       ...base,
       survey_id: resBusiness.data.data?.template_survey_id,
@@ -1393,6 +1400,7 @@ async function fetchTemplates() {
 }
 // import * as apiTemplate from '@/service/api/preview.js'
 import { v4 as uuidv4 } from 'uuid';
+import { string } from 'yup'
 const onInsertTemplate = ref(false);
 const confirmTemplate = async () => {
   try {
