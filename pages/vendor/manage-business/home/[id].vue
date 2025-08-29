@@ -154,6 +154,7 @@
                             getI18n(resBusinessAll?.station?.station_name_i18n,locale) }}</span>
                     </p>
                     <label class="text-lg font-semibold">{{ t('แก้ไขผู้รับผิดชอบสถานที่') }}</label>
+         
                     <Dropdown v-model="selectedResponsibleId" :options="responsiblePerson" option-label="fullname"
                         option-value="user_id" :filter="true" :filter-placeholder="t('ค้นหาชื่อผู้รับผิดชอบ')"
                         size="small" :placeholder="t('เลือกผู้รับผิดชอบสถานที่')" class="w-full mb-4 custom-border" />
@@ -642,7 +643,7 @@ async function updateResponsible() {
         return
     }
 
-    const payload = { user_id: parseInt(selectedResponsibleId.value) } // ← ตามสเปกที่ให้มา
+    const payload = { user_id: (selectedResponsibleId.value) } // ← ตามสเปกที่ให้มา
 
     try {
         isSaving.value = true
