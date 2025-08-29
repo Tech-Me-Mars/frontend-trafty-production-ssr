@@ -6,7 +6,7 @@ export default defineNuxtConfig({
     cookieSecret: process.env.COOKIE_SECRET,
     longdoMapKey: process.env.LONGDO_MAP_KEY, // 🔒 ใช้ฝั่ง server เท่านั้น
     public: {
-      api_url:"http://localhost:8091"
+      api_url: "https://uat-api.sts-nat.com"
     }
   },
 
@@ -47,7 +47,7 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: ['@pinia/nuxt','@primevue/nuxt-module', '@nuxtjs/tailwindcss', '@vant/nuxt', '@nuxtjs/google-fonts', '@nuxtjs/i18n', '@nuxtjs/leaflet'
+  modules: ['@pinia/nuxt', '@primevue/nuxt-module', '@nuxtjs/tailwindcss', '@vant/nuxt', '@nuxtjs/google-fonts', '@nuxtjs/i18n', '@nuxtjs/leaflet'
 
   ],
   i18n: {
@@ -95,7 +95,7 @@ export default defineNuxtConfig({
     options: {
       ripple: false, // เปิดเอฟเฟกต์ Ripple
       // inputVariant: 'filled', // สไตล์อินพุตแบบเติมสี
-      
+
       // theme: {
       //   preset: Aura, // ธีม Aura
       //   options: {
@@ -107,11 +107,11 @@ export default defineNuxtConfig({
       //   }
       // }
       // pt:{
-        // button:{
-        //   root:{
-        //     class: '!border-primary-main'
-        // },
-        // }
+      // button:{
+      //   root:{
+      //     class: '!border-primary-main'
+      // },
+      // }
       // }
     }
   },
