@@ -117,7 +117,7 @@
             <!-- Progress Section -->
             <div class="w-full card">
                 <h2 class="text-lg font-bold mb-5">{{ t('ข้อมูลธุรกิจในแหล่งท่องเที่ยว') }}</h2>
-                <NuxtLink v-if="resBusinessAll?.score_percent != null"
+                <NuxtLink v-if="resBusinessAll?.SurveyAuditCount != 0"
                     :to="`/vendor/manage-business/safety-standards/${route.params.id}`">
                     <div class="flex items-center gap-4 cursor-pointer mb-5">
                         <!-- Knob Component -->
