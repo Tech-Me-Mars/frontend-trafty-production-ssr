@@ -33,9 +33,10 @@
                   </div>
                   <hr class="border-zinc-200 mb-2" />
                   <div class="flex gap-2 mt-3">
+                    <!-- :disabled="item?.survey_keyword !='Pending approval / รออนุมัติ' ? true : false" -->
                     <Button
                       :label="item?.survey_keyword =='Pending approval / รออนุมัติ'? t('ตรวจสอบ') : 'ตรวจสอบแล้ว'"
-                      :disabled="item?.survey_keyword !='Pending approval / รออนุมัติ' ? true : false"
+                      
                       :loading="isloadingAxi"
                       severity="primary"
                       variant="outlined"
