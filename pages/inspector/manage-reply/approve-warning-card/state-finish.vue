@@ -22,7 +22,7 @@
                         fill="transparent" />
                     <!-- progress -->
                     <circle :cx="center" :cy="center" :r="radius"
-                        :class="isSuccess ? 'stroke-green-500' : 'stroke-rose-500'" :stroke-width="stroke"
+                        :class="isPass ? 'stroke-green-500' : 'stroke-rose-500'" :stroke-width="stroke"
                         stroke-linecap="round" fill="transparent" :stroke-dasharray="circumference"
                         :stroke-dashoffset="dashOffset" />
                 </svg>
@@ -35,20 +35,17 @@
 
             <!-- ผลลัพธ์ผ่าน/ไม่ผ่าน -->
             <div class="mt-4 text-center">
-                <p v-if="IsPass" class="text-xl font-semibold" :class="'text-green-600'">
-                    {{ isPass ? t('ผ่านเกณฑ์') : t('ไม่ผ่านเกณฑ์') }}
-                </p>
-                <p v-else class="text-xl font-semibold" :class="'text-rose-600'">
+                <p v-if="isPass == true" class="text-xl font-semibold mb-5">
                     {{ isPass ? t('ผ่านเกณฑ์') : t('ไม่ผ่านเกณฑ์') }}
                 </p>
 
                 <!-- คำอธิบาย -->
                 <p class="text-zinc-600 mt-2 leading-relaxed">
-                    <template >
+               
                         <!-- {{ t('ผ่านการรับรองและอนุมัติตามมาตรฐานความปลอดภัยแล้ว') }} -->
                         {{ isPass ? t('ผ่านการรับรองและอนุมัติตามมาตรฐานความปลอดภัยแล้ว') :
                             t('ไม่ผ่านการรับรองและอนุมัติตามมาตรฐานความปลอดภัย') }}
-                    </template>
+                  
                     <!-- <template v-else>
                         {{ detailDisplay || t('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง') }}
                     </template> -->

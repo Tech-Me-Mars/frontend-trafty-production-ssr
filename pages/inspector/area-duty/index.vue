@@ -43,7 +43,7 @@
                                                 path: `/client/information/${item.business_id}`,
                                                 query: {
                                                     ...route.query,  // ส่ง query ที่มีอยู่ไปด้วย
-                                                    isBusiness:'area'
+                                                    state:'preview-by-area'
                                                 }
                                             })" />
                                         <Button :label="t('ตรวจสอบ')" :loading="isloadingAxi" severity="primary"
@@ -51,9 +51,9 @@
                                                 label: { class: 'text-primary-main text-xs' },
                                                 root: { class: '!border-primary-main' },
                                             }" @click="navigateTo({
-                                                path: `/inspector/do-recheck/${item.business_id}/${item.template_survey_id}`,
+                                                path: `/inspector/area-recheck/${item.business_id}`,
                                                 query: {
-                                                    state: 'area'
+                                                    isBusiness: 'area'
                                                 }
                                             })" />
                                     </div>
@@ -109,7 +109,7 @@
                                                 path: `/client/information/${item.business_id}`,
                                                 query: {
                                                     ...route.query,  // ส่ง query ที่มีอยู่ไปด้วย
-                                                    isBusiness:'area' 
+                                                    state:'preview-by-area'
                                                 }
                                             })" />
                                         <Button :label="t('ตรวจสอบ')" :loading="isloadingAxi" severity="primary"
@@ -117,9 +117,9 @@
                                                 label: { class: 'text-primary-main text-xs' },
                                                 root: { class: '!border-primary-main' },
                                             }" @click="navigateTo({
-                                                path: `/inspector/do-recheck/${item.business_id}/${item.template_survey_id}`,
+                                                path: `/inspector/area-recheck/${item.business_id}`,
                                                 query: {
-                                                    state: 'area'
+                                                    isBusiness: 'area'
                                                 }
                                             })" />
                                     </div>

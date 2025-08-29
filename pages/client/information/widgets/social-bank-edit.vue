@@ -156,7 +156,7 @@
                                         class="bg-white border rounded-sm shadow-sm p-4">
                                         <div class="flex items-center justify-between mb-3">
                                             <h4 class="text-sm font-medium text-zinc-700">
-                                                {{ t('บัญชีธนาคาร') }} #{{ index + 1 }}
+                                                {{ t('บัญชีธนาคาร') }}
                                             </h4>
                                             <Button :loading="isloadingAxi" icon="pi pi-times" severity="danger"
                                                 size="small" @click="onRemoveBank(index)" rounded aria-label="Remove" />

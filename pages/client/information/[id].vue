@@ -184,7 +184,6 @@ const urlBackTo = computed(() => {
   } else if (route.query.state === 'edit') {
     return { path: `/inspector/management-place`, query }
   } else if (route.query.state === 'preview-by-area') {
-    // เดิมเคยส่งแค่ ?isBusiness=... ตอนนี้ส่ง query ทั้งชุด
     return { path: `/inspector/area-duty` }
   }
   else {
