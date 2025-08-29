@@ -60,9 +60,13 @@
               {{ t('สถานะการแสดงผล') }}
             </span>
             <div class="">
-              <ConfirmSwitch v-model="isOpen" :message-on="t('คุณต้องการเปิดรีวิวนี้ให้ผู้อื่นเห็นหรือไม่?')"
-                :message-off="t('คุณต้องการปิดรีวิวนี้ใช่หรือไม่?')" :disabled="isSaving"
-                @update:modelValue="toggleReviewVisibility" />
+              <ConfirmSwitch
+  v-model="item.isVisible"
+  :message-on="t('คุณต้องการเปิดรีวิวนี้ให้ผู้อื่นเห็นหรือไม่?')"
+  :message-off="t('คุณต้องการปิดรีวิวนี้ใช่หรือไม่?')"
+  :disabled="isSaving"
+  @update:modelValue="(val) => toggleReviewVisibility(item, val)"
+/>
               <!-- <ConfirmSwitch v-model="item.isVisible" :message-on="`${t('คุณต้องการเปิดรีวิวนี้ให้ผู้อื่นเห็นหรือไม่?')}`"
                             :message-off="`${t('คุณต้องการปิดรีวิวนี้ใช่หรือไม่?')}`"
                             /> -->
@@ -121,7 +125,7 @@
       :life="toast.life" />
     <NotificationPopup v-model:visible="notification.visible" :state="notification.state" :title="notification.title"
       :detail="notification.detail" :timeout="notification.timeout" :redirect-url="notification.redirectUrl"
-      :auto-close="notification.autoClose" @close="onNotificationClose" />
+      :auto-close="notification.autoClose" />
 
   </div>
 </template>
@@ -165,7 +169,7 @@ const starOptions = [
   { value: 4, label: 'คะแนน 4 ดาว' },
   { value: 5, label: 'คะแนน 5 ดาว' },
 ]
-const selectedStar = ref(1)            // 0 = ทั้งหมด
+const selectedStar = ref(5)            // 0 = ทั้งหมด
 const isLoading = ref(false)
 const comments = ref([])
 
@@ -239,24 +243,25 @@ const loadComments = async () => {
   }
 }
 
-const isOpen = ref(false)     // ค่าเริ่มต้นมาจาก item.isVisible
+
 const isSaving = ref(false)
-const commentId = ref()  // ไอดีคอมเมนต์ของการ์ดนี้
-const toggleReviewVisibility = async (newVal) => {
+const toggleReviewVisibility = async (item, newVal) => {
   if (isSaving.value) return
   isSaving.value = true
-  const prev = !newVal              // ของเดิมก่อน toggle
+  const prev = !newVal
 
   try {
-    await updateCommentVisibility(commentId.value, { status: newVal })
-    // ถ้าต้อง sync กับโครงสร้าง item ด้วย
-    // item.isVisible = newVal
-  } catch (err) {
-    isOpen.value = prev             // rollback UI
-    // แจ้งเตือน
+    await dataApi.updateCommentVisibility(item.id, { status: newVal }) // ✅ ส่ง item.id ไปอัปเดต
+    // สำเร็จ: ไม่ต้องทำอะไรเพิ่ม เพราะ v-model ทำให้ UI เป็น newVal แล้ว
+  } catch (error) {
+    console.error(error)
+    item.isVisible = prev // ❗️rollback UI กรณี error
     toast.value = {
-      show: true, type: 'danger', title: t('ผิดพลาด'),
-      message: t('อัปเดตสถานะแสดงผลไม่สำเร็จ'), life: 4000
+      show: true,
+      type: 'danger',
+      title: t('ผิดพลาด'),
+      message: t('อัปเดตสถานะแสดงผลไม่สำเร็จ'),
+      life: 4000
     }
   } finally {
     isSaving.value = false

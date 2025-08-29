@@ -800,7 +800,7 @@ const onSelectChange = (e) => {
                                                     </label>
                                                     <!-- Hidden File Input -->
                                                     <input ref="fileInputBgProfile" id="upload-image" type="file"
-                                                        accept="image/*" @change="onFileSelectBgProfile"
+                                                    accept=".jpg,.jpeg,.png,image/jpeg,image/png" @change="onFileSelectBgProfile"
                                                         class="hidden" />
                                                 </div>
 
@@ -808,7 +808,7 @@ const onSelectChange = (e) => {
                                             </div>
                                             <p class="error-text" v-if="errors?.image_profile">{{
                                                 t('กรุณาเลือกอย่างน้อย')
-                                                }} 1
+                                            }} 1
                                                 {{
                                                     t('ภาพ') }}
                                             </p>
@@ -840,13 +840,13 @@ const onSelectChange = (e) => {
                                                     </label>
                                                     <!-- Hidden File Input -->
                                                     <input ref="fileInputBgCover" id="upload-image-bg-cover" type="file"
-                                                        accept="image/*" @change="onFileSelectBgCover" class="hidden" />
+                                                    accept=".jpg,.jpeg,.png,image/jpeg,image/png" @change="onFileSelectBgCover" class="hidden" />
                                                 </div>
 
 
                                             </div>
                                             <p class="error-text" v-if="errors?.image_cover">{{ t('กรุณาเลือกอย่างน้อย')
-                                                }}
+                                            }}
                                                 1 {{
                                                     t('ภาพ') }}</p>
                                         </div>
@@ -875,7 +875,7 @@ const onSelectChange = (e) => {
                                                         class="pi pi-plus text-2xl text-gray-600 hover:scale-110 transition-transform"></i>
                                                 </label>
                                                 <FileUpload ref="fileInput" id="upload-image-store"
-                                                    inputId="upload-image-store" mode="basic" accept="image/*"
+                                                    inputId="upload-image-store" mode="basic" accept=".jpg,.jpeg,.png,image/jpeg,image/png"
                                                     @select="onFileSelect" customUpload :auto="true" class="!hidden"
                                                     multiple />
                                             </div>
@@ -904,7 +904,7 @@ const onSelectChange = (e) => {
                                                                 slotProps.option?.name }}</span>
                                                             <span class="text-sm text-gray-500">{{
                                                                 slotProps.option?.address
-                                                                }}</span>
+                                                            }}</span>
                                                         </div>
                                                     </template>
                                                 </AutoComplete>
@@ -914,7 +914,7 @@ const onSelectChange = (e) => {
                                                 </div>
                                                 <p class="error-text" v-if="errors?.longitude">{{
                                                     t('กรุณาปักหมุดสถานที่ท่องเที่ยวหรือธุรกิจ')
-                                                    }}
+                                                }}
                                                 </p>
 
                                             </client-only>
@@ -1071,7 +1071,7 @@ const onSelectChange = (e) => {
 
                                             <p class="error-text" v-if="errors?.shop_time_s || errors?.shop_time_e">{{
                                                 t('กรุณาเลือกเวลาทำการ')
-                                                }}</p>
+                                            }}</p>
 
                                         </div>
                                         <!-- ติดต่อ -->
@@ -1085,7 +1085,7 @@ const onSelectChange = (e) => {
 
                                         <div>
                                             <label class="label-input">{{ t('รายละเอียดธุรกิจในแหล่งท่องเที่ยว')
-                                                }}</label>
+                                            }}</label>
                                             <InputText v-model="shop_details[lang.code]" placeholder=""
                                                 class="w-full custom-border" :invalid="getFieldError('shop_details')" />
                                             <p class="error-text" v-if="getFieldError('shop_details', lang.code)">{{
@@ -1124,7 +1124,7 @@ const onSelectChange = (e) => {
                                                 <!-- ชื่อธนาคาร (i18n) -->
                                                 <div>
                                                     <label class="block text-sm text-zinc-700 mb-1">{{ t('ธนาคาร')
-                                                    }}</label>
+                                                        }}</label>
                                                     <InputText v-model="field.value.business_bank_name_i18n[lang.code]"
                                                         class="w-full custom-border focusable"
                                                         :placeholder="t('ธนาคาร')"
@@ -1140,7 +1140,7 @@ const onSelectChange = (e) => {
                                                 <!-- ชื่อบัญชี (i18n) -->
                                                 <div>
                                                     <label class="block text-sm text-zinc-700 mb-1">{{ t('ชื่อบัญชี')
-                                                    }}</label>
+                                                        }}</label>
                                                     <InputText
                                                         v-model="field.value.business_bank_account_i18n[lang.code]"
                                                         class="w-full custom-border focusable"
@@ -1157,7 +1157,7 @@ const onSelectChange = (e) => {
                                                 <!-- เลขบัญชี -->
                                                 <div class="sm:col-span-2">
                                                     <label class="block text-sm text-zinc-700 mb-1">{{ t('เลขบัญชี')
-                                                    }}</label>
+                                                        }}</label>
                                                     <InputText v-model="field.value.business_bank_account_number"
                                                         v-keyfilter.int class="w-full custom-border focusable"
                                                         :placeholder="t('เลขบัญชี')"
@@ -1249,7 +1249,7 @@ const onSelectChange = (e) => {
                                                                             class="text-lg"></i>
                                                                         <span>{{
                                                                             slotProps.option[`social_media_name_${lang.code}`]
-                                                                            }}</span>
+                                                                        }}</span>
                                                                     </div>
                                                                 </template>
                                                             </Select>
@@ -1286,14 +1286,14 @@ const onSelectChange = (e) => {
                                     </div>
                                     <!-- Empty state (ใช้เดิมได้ ถ้าอยากเพิ่มความสวยงามก็ส่วนนี้) -->
                                     <div v-else
-  class="mt-4 border-2 border-dashed border-zinc-200 rounded-2xl p-8 text-center bg-white">
-  <div class="flex flex-col items-center gap-2">
-    <i class="pi pi-share-alt text-3xl text-zinc-500"></i>
-    <p class="text-zinc-600">
-      {{ t('ยังไม่มีข้อมูลโซเชียล กรุณาเพิ่มรายการใหม่') }}
-    </p>
-    <!-- ปุ่มเพิ่ม (ถ้าต้องการให้ผู้ใช้กดเพิ่มเลย) -->
-    <!--
+                                        class="mt-4 border-2 border-dashed border-zinc-200 rounded-2xl p-8 text-center bg-white">
+                                        <div class="flex flex-col items-center gap-2">
+                                            <i class="pi pi-share-alt text-3xl text-zinc-500"></i>
+                                            <p class="text-zinc-600">
+                                                {{ t('ยังไม่มีข้อมูลโซเชียล กรุณาเพิ่มรายการใหม่') }}
+                                            </p>
+                                            <!-- ปุ่มเพิ่ม (ถ้าต้องการให้ผู้ใช้กดเพิ่มเลย) -->
+                                            <!--
     <Button
       :loading="isloadingAxi"
       :label="t('เพิ่มโซเชียลแรก')"
@@ -1304,8 +1304,8 @@ const onSelectChange = (e) => {
       }"
     />
     -->
-  </div>
-</div>
+                                        </div>
+                                    </div>
 
                                 </div>
                             </div>
