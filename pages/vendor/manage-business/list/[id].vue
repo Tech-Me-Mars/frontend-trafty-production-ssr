@@ -9,11 +9,7 @@
             <van-tabs v-model:active="activeStatusTab" animated color="#202c54" :line-width="100">
                 <!-- แท็บ: แสดงอยู่ -->
                 <van-tab :title="t('แสดงอยู่')">
-                    <div
-        class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white/95 backdrop-blur border-t border-zinc-200 p-3 z-50 pb-[env(safe-area-inset-bottom)]">
-        <Button :label="t('เพิ่มรายการสินค้า')" icon="fa-regular fa-square-plus" severity="primary"
-          @click="openCreate" size="small" class="w-full" />
-      </div>
+
                     <div class="p-4 flex-col space-y-3" v-if="listDisplayed.length > 0">
                         <div v-for="(item, index) in listDisplayed" :key="item.id"
                             class="border rounded-sm shadow-md bg-white w-full max-w-md mx-auto">
@@ -49,11 +45,7 @@
 
                 <!-- แท็บ: ไม่แสดง -->
                 <van-tab :title="t('ไม่แสดง')">
-                    <div
-        class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white/95 backdrop-blur border-t border-zinc-200 p-3 z-50 pb-[env(safe-area-inset-bottom)]">
-        <Button :label="t('เพิ่มรายการสินค้า')" icon="fa-regular fa-square-plus" severity="primary"
-          @click="openCreate" size="small" class="w-full" />
-      </div>
+
                     <div class="p-4 flex-col space-y-3" v-if="listHidden.length > 0">
                         <div v-for="(item, index) in listHidden" :key="item.id"
                             class="border rounded-lg shadow-md bg-white w-full max-w-md mx-auto">
@@ -88,6 +80,13 @@
                 </van-tab>
             </van-tabs>
         </main>
+        <!-- แถบล่างแบบ fixed: ชิดขอบล่างเสมอ + รองรับ safe-area -->
+        <div class="fixed bottom-1 left-1/2 -translate-x-1/2 w-full max-w-[430px]
+             p-3 z-50 pb-[env(safe-area-inset-bottom)]">
+            <Button :label="t('เพิ่มรายการสินค้า')" icon="fa-regular fa-square-plus" severity="primary" size="small"
+                class="w-full" @click="openCreate" />
+        </div>
+
 
         <van-action-sheet v-model:show="showEditSheet" :close-on-click-overlay="true" :round="true"
             safe-area-inset-bottom>

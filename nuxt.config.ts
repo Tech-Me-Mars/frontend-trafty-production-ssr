@@ -6,7 +6,9 @@ export default defineNuxtConfig({
     cookieSecret: process.env.COOKIE_SECRET,
     longdoMapKey: process.env.LONGDO_MAP_KEY, // 🔒 ใช้ฝั่ง server เท่านั้น
     public: {
-      api_url: "https://uat-api.sts-nat.com"
+      // api_url: "https://uat-api.sts-nat.com"
+      api_url: "http://localhost:8091"
+
     }
   },
 

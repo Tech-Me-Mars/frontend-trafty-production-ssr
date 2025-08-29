@@ -7,7 +7,7 @@
                 <div class="mx-auto bg-white rounded-lg shadow-md px-4 py-2">
                     <div class="border-b flex justify-between">
                         <div class="flex justify-between flex-wrap w-full py-3">
-                            <h2 class="font-bold">{{ t('มาตรฐาานความปลอดภัย') }}</h2>
+                            <h2 class="font-bold">{{ t('มาตรฐานความปลอดภัย') }}</h2>
                             <!-- <ConfirmSwitch v-model="isOpen" message-on="คุณต้องการเปิดรีวิวนี้ให้ผู้อื่นเห็นหรือไม่?"
                                 message-off="คุณต้องการปิดรีวิวนี้ใช่หรือไม่?" /> -->
                         </div>
@@ -89,10 +89,13 @@ const notification = reactive({
 const showNotification = (config) => {
     Object.assign(notification, { visible: true, ...config })
 }
-const backTo = computed(() => ({
+const backToRoute = computed(() => ({
   path: `/client/information/${route.params.id}`,
   query: { ...route.query }, // คืนทุก query เดิม
 }))
+
+// แปลงเป็น string URL
+const backTo = computed(() => router.resolve(backToRoute.value).href)
 
 // --------------------
 // Data + Loading state

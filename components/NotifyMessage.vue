@@ -36,7 +36,7 @@ const emit = defineEmits(['update:show'])
 
 const bgColor = computed(() => ({
   primary: '#202c54',
-  success: '#07c160',
+  success: '#1eb812',
   danger: '#ee0a24',
   warning: '#fc9003',
 }[props.type] ?? '#202c54'))

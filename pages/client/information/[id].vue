@@ -1,6 +1,6 @@
 <template>
   <div class="bg-zinc-100 min-h-screen">
-    <LayoutsBaseHeader :title="pageTitle" :showBack="true" :back-to="urlBackTo">
+    <LayoutsBaseHeader :title="pageTitle" :showBack="true" :backTo="backToHref">
       <template #right>
         <div class="flex gap-2" v-if="route.query.state == 'preview'">
           <i class="fa-solid fa-xmark cursor-pointer" style="color: white; font-size: 22px;"
@@ -152,9 +152,34 @@ import widgetPolicy from './widgets/widget-policy.vue';
 import { useI18n } from 'vue-i18n';
 const { t, locale } = useI18n()
 const route = useRoute();
+const router = useRouter();
 
 // กรอง query: เอาเฉพาะคีย์ที่มีค่า
 
+const showShare =ref(false);
+const options = [
+    {
+        name: 'Facebook',
+        icon: '/image/social/facebook.png',
+    },
+    {
+        name: 'Line',
+        icon: '/image/social/line.png',
+    },
+    {
+        name: 'Discord',
+        icon: '/image/social/discord.png',
+    },
+    {
+        name: 'Twitter',
+        icon: '/image/social/twitter.png',
+    },
+];
+// Handle selection
+const onSelect = (option) => {
+    console.log(`Selected: ${option.name}`);
+    // Add share logic here, such as opening links or triggering actions
+};
 const pageTitle = computed(() => {
   if (route.query.state == 'preview' || route.query.state == 'view-by-area') {
     return t('พรีวิว')
@@ -185,11 +210,13 @@ const urlBackTo = computed(() => {
     return { path: `/inspector/management-place`, query }
   } else if (route.query.state === 'preview-by-area') {
     return { path: `/inspector/area-duty` }
-  }
-  else {
+  } else {
     return { path: `/`, query }
   }
 })
+
+// แปลงเป็น string
+const backToHref = computed(() => router.resolve(urlBackTo.value).href)
 const isLoading = ref(true) // ✅ state โหลด
 
 const resInfo = ref();

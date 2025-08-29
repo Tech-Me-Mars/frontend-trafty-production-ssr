@@ -15,7 +15,7 @@
       :life="toast.life" />
     <NotificationPopup v-model:visible="notification.visible" :state="notification.state" :title="notification.title"
       :detail="notification.detail" :timeout="notification.timeout" :redirect-url="notification.redirectUrl"
-      :auto-close="notification.autoClose" @close="onNotificationClose" />
+      :auto-close="notification.autoClose"  />
       </section>
   </div>
 </template>
@@ -115,7 +115,6 @@ const loadData = async () => {
       return acc
     }, {})
 
-    console.log('flatObject', flatObject)
     surveyDataMap.value = flatObject
   } catch (error) {
     toast.value = {
