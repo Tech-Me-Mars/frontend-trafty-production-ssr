@@ -255,7 +255,7 @@ td.radio-table-cell {
                     <template v-for="option in normalizeSelectValue(question.select_value)" :key="option.value">
                       <div class="flex items-center space-x-2 flex-shrink-0">
                         <RadioButton v-model="formValuesMap[formKey][question.field_name]"
-                          :inputId="`${formKey}_${question.field_name}_${option.value}`" :value="option.value" />
+                          :inputId="`${formKey}_${question.field_name}_${option.value}`" :value="String(option.value)" />
                         <label :for="`${formKey}_${question.field_name}_${option.value}`"
                           class="text-sm text-gray-700 cursor-pointer" v-if="typeof (option.text) == 'object'">
                           {{ option.text?.[locale] }}
@@ -284,7 +284,7 @@ td.radio-table-cell {
                     <template v-for="option in normalizeSelectValue(question.select_value)" :key="option.value">
                       <div class="flex items-center space-x-2">
                         <RadioButton v-model="formValuesMap[formKey][question.field_name]"
-                          :inputId="`${formKey}_${question.field_name}_${option.value}`" :value="option.value" />
+                          :inputId="`${formKey}_${question.field_name}_${option.value}`" :value="String(option.value)" />
                         <label :for="`${formKey}_${question.field_name}_${option.value}`"
                           class="text-sm text-gray-700 cursor-pointer" v-if="typeof (option.text) == 'object'">
                           {{ option.text?.[locale] }}
