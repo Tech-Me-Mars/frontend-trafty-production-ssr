@@ -114,7 +114,7 @@ const validationSchema = toTypedSchema(
             cn: zod.string().optional().or(zod.literal('')),
         }),
         shop_days: zod.object({
-            th: zod.array(zod.string()).min(1, t('กรุณาเลือกวันที่ทำการ (TH)')),
+            th: zod.array(zod.string()).min(1, t('กรุณาเลือกวันที่ทำการ')),
             en: zod.array(zod.string()).optional().default([]),
             cn: zod.array(zod.string()).optional().default([]),
         }),
@@ -1106,78 +1106,85 @@ const onSelectChange = (e) => {
                                         root: { class: '!border-primary-main !bg-primary-second' },
                                     }" />
 
-                                    <div v-if="fieldsBank?.length > 0" class="mt-3">
-                                        <table>
-                                            <thead>
-                                                <tr>
-                                                    <th class="text-start" style="width: 11rem">{{ t('ธนาคาร') }}</th>
-                                                    <th class="text-start" style="width: 11rem">{{ t('ชื่อบัญชี') }}
-                                                    </th>
-                                                    <th class="text-start" style="width: 10rem">{{ t('เลขบัญชี') }}</th>
-                                                    <th></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr v-for="(field, index) in fieldsBank" :key="field.key">
-                                                    <!-- ชื่อธนาคาร (i18n) -->
-                                                    <td class="align-top">
-                                                        <div class="space-y-0">
-                                                            <InputText
-                                                                v-model="field.value.business_bank_name_i18n[lang.code]"
-                                                                class="w-full custom-border"
-                                                                :placeholder="t('ธนาคาร')" />
-                                                            <p v-if="errors?.[`business_bank[${index}].business_bank_name_i18n.${lang.code}`]"
-                                                                class="text-red-500 text-sm mt-1">
-                                                                {{
-                                                                    errors[`business_bank[${index}].business_bank_name_i18n.${lang.code}`]
-                                                                }}
-                                                            </p>
-                                                        </div>
-                                                    </td>
+                                    <div v-if="fieldsBank?.length > 0" class="mt-3 space-y-3">
+                                        <div v-for="(field, index) in fieldsBank" :key="field.key"
+                                            class="bg-white border rounded-sm shadow-sm p-4 sm:p-5 hover:shadow-md transition-shadow">
+                                            <!-- header -->
+                                            <div class="flex items-center justify-between mb-3">
+                                                <h4 class="text-sm font-medium text-zinc-700">
+                                                    {{ t('บัญชีธนาคาร') }} #{{ index + 1 }}
+                                                </h4>
+                                                <Button :loading="isloadingAxi" icon="pi pi-times" severity="danger"
+                                                    size="small" @click="removeBank(index)" rounded
+                                                    aria-label="Remove" />
+                                            </div>
 
-                                                    <!-- ชื่อบัญชี (i18n) -->
-                                                    <td class="align-top">
-                                                        <div class="space-y-0">
-                                                            <InputText
-                                                                v-model="field.value.business_bank_account_i18n[lang.code]"
-                                                                class="w-full custom-border"
-                                                                :placeholder="t('ชื่อบัญชี')" />
-                                                            <p v-if="errors?.[`business_bank[${index}].business_bank_account_i18n.${lang.code}`]"
-                                                                class="text-red-500 text-sm mt-1">
-                                                                {{
-                                                                    errors[`business_bank[${index}].business_bank_account_i18n.${lang.code}`]
-                                                                }}
-                                                            </p>
-                                                        </div>
-                                                    </td>
+                                            <!-- body -->
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                <!-- ชื่อธนาคาร (i18n) -->
+                                                <div>
+                                                    <label class="block text-sm text-zinc-700 mb-1">{{ t('ธนาคาร')
+                                                    }}</label>
+                                                    <InputText v-model="field.value.business_bank_name_i18n[lang.code]"
+                                                        class="w-full custom-border focusable"
+                                                        :placeholder="t('ธนาคาร')"
+                                                        :invalid="!!errors?.[`business_bank[${index}].business_bank_name_i18n.${lang.code}`]" />
+                                                    <p v-if="errors?.[`business_bank[${index}].business_bank_name_i18n.${lang.code}`]"
+                                                        class="text-red-500 text-sm mt-1">
+                                                        {{
+                                                            errors[`business_bank[${index}].business_bank_name_i18n.${lang.code}`]
+                                                        }}
+                                                    </p>
+                                                </div>
 
-                                                    <!-- เลขบัญชี -->
-                                                    <td class="align-top">
-                                                        <div class="space-y-0">
-                                                            <InputText
-                                                                v-model="field.value.business_bank_account_number"
-                                                                v-keyfilter.int class="w-full custom-border"
-                                                                :placeholder="t('เลขบัญชี')" />
-                                                            <p v-if="errors?.[`business_bank[${index}].business_bank_account_number`]"
-                                                                class="text-red-500 text-sm mt-1">
-                                                                {{
-                                                                    errors[`business_bank[${index}].business_bank_account_number`]
-                                                                }}
-                                                            </p>
-                                                        </div>
-                                                    </td>
+                                                <!-- ชื่อบัญชี (i18n) -->
+                                                <div>
+                                                    <label class="block text-sm text-zinc-700 mb-1">{{ t('ชื่อบัญชี')
+                                                    }}</label>
+                                                    <InputText
+                                                        v-model="field.value.business_bank_account_i18n[lang.code]"
+                                                        class="w-full custom-border focusable"
+                                                        :placeholder="t('ชื่อบัญชี')"
+                                                        :invalid="!!errors?.[`business_bank[${index}].business_bank_account_i18n.${lang.code}`]" />
+                                                    <p v-if="errors?.[`business_bank[${index}].business_bank_account_i18n.${lang.code}`]"
+                                                        class="text-red-500 text-sm mt-1">
+                                                        {{
+                                                            errors[`business_bank[${index}].business_bank_account_i18n.${lang.code}`]
+                                                        }}
+                                                    </p>
+                                                </div>
 
-                                                    <!-- Actions -->
-                                                    <td class="align-top">
-                                                        <Button :loading="isloadingAxi" icon="pi pi-times"
-                                                            severity="danger" size="small" @click="removeBank(index)"
-                                                            rounded aria-label="Cancel" />
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
+                                                <!-- เลขบัญชี -->
+                                                <div class="sm:col-span-2">
+                                                    <label class="block text-sm text-zinc-700 mb-1">{{ t('เลขบัญชี')
+                                                    }}</label>
+                                                    <InputText v-model="field.value.business_bank_account_number"
+                                                        v-keyfilter.int class="w-full custom-border focusable"
+                                                        :placeholder="t('เลขบัญชี')"
+                                                        :invalid="!!errors?.[`business_bank[${index}].business_bank_account_number`]" />
+                                                    <p v-if="errors?.[`business_bank[${index}].business_bank_account_number`]"
+                                                        class="text-red-500 text-sm mt-1">
+                                                        {{
+                                                            errors[`business_bank[${index}].business_bank_account_number`]
+                                                        }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <hr class="border-b-2 mb-3" />
+
+                                    <!-- Empty state (ใช้เดิมได้ ถ้าอยากเพิ่มความสวยงามก็ส่วนนี้) -->
+                                    <div v-else
+                                        class="mt-4 border-2 border-dashed border-zinc-200 rounded-2xl p-8 text-center bg-white">
+                                        <div class="flex flex-col items-center gap-2">
+                                            <i class="pi pi-wallet text-3xl"></i>
+                                            <p class="text-zinc-600">{{ t('ยังไม่มีข้อมูลบัญชี กรุณาเพิ่มรายการใหม่') }}
+                                            </p>
+                                            <!-- ปุ่มเพิ่ม ให้เรียกวิธีเดิมของคุณ (เช่น pushBank หรือ onAddBank) -->
+                                            <!-- <Button :loading="isloadingAxi" :label="t('เพิ่มเลขที่บัญชีแรก')" @click="onAddBank()" ... /> -->
+                                        </div>
+                                    </div>
+                                    <hr class="border-b-2 mb-3 mt-3" />
 
 
                                     <h4 class="section-title">{{ t('ช่องทางโซเชียลมีเดีย') }}</h4>
@@ -1277,6 +1284,28 @@ const onSelectChange = (e) => {
                                             </tbody>
                                         </table>
                                     </div>
+                                    <!-- Empty state (ใช้เดิมได้ ถ้าอยากเพิ่มความสวยงามก็ส่วนนี้) -->
+                                    <div v-else
+  class="mt-4 border-2 border-dashed border-zinc-200 rounded-2xl p-8 text-center bg-white">
+  <div class="flex flex-col items-center gap-2">
+    <i class="pi pi-share-alt text-3xl text-zinc-500"></i>
+    <p class="text-zinc-600">
+      {{ t('ยังไม่มีข้อมูลโซเชียล กรุณาเพิ่มรายการใหม่') }}
+    </p>
+    <!-- ปุ่มเพิ่ม (ถ้าต้องการให้ผู้ใช้กดเพิ่มเลย) -->
+    <!--
+    <Button
+      :loading="isloadingAxi"
+      :label="t('เพิ่มโซเชียลแรก')"
+      @click="onAddSocial()"  // หรือ pushSocial
+      :pt="{
+        label: { class: 'text-white' },
+        root: { class: '!border-primary-main !bg-primary-second' },
+      }"
+    />
+    -->
+  </div>
+</div>
 
                                 </div>
                             </div>

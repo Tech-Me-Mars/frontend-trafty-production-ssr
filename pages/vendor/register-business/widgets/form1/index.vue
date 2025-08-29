@@ -103,7 +103,7 @@ const selectedBusinessName = computed(() => {
 
       <div class="mx-auto w-full max-w-md pb-10">
         <p v-if="errors.selectedItem" class="text-red-500 text-center mt-2 text-sm">
-          {{ errors.selectedItem }}
+          {{ t('กรุณาเลือกหมวดหมู่') }}
         </p>
         <div class="max-w-sm w-full mx-auto">
         <Button rounded :label="t('ถัดไป')" type="submit" class="w-full mt-6" />

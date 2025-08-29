@@ -89,15 +89,6 @@ const getFieldError = (fieldName, langCode = null) => {
     return errors.value[fieldName] || null;
 };
 </script>
-<style scoped>
-.van-nav-bar {
-    --van-nav-bar-background: #281c74;
-    --van-nav-bar-text-color: white;
-    --van-nav-bar-icon-color: white;
-    --van-nav-bar-title-text-color: white;
-    --van-nav-bar-height: 70px
-}
-</style>
 <template>
     <div class="bg-zinc-100 min-h-screen">
         <LayoutsBaseHeader :title="t('เพิ่มรายการ')">
@@ -113,7 +104,7 @@ const getFieldError = (fieldName, langCode = null) => {
             <!-- ใช้ Form ของ vee-validate -->
             <Form @submit="handleNext">
                 <van-tabs v-model:active="activeLangTab" type="line" sticky animated color="#202c54"
-                    @change="moveMapToTab" :line-width="100">
+                     :line-width="100">
                     <van-tab v-for="(lang, idx) in langs" :key="lang.code" :title="lang.label" :name="idx">
                         <div class="p-3">
                             <div class="bg-white rounded-sm border border-zinc-200 p-4 shadow-sm">

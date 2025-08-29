@@ -10,7 +10,8 @@
 
             <!-- หัวข้อ -->
             <h1 class="text-2xl font-semibold mt-6 text-center">
-                {{ titleDisplay }}
+                {{ t('อนุมัติใบเตือนสำเร็จ') }}
+
             </h1>
 
             <!-- วงกลมเปอร์เซ็นต์ -->
@@ -34,18 +35,23 @@
 
             <!-- ผลลัพธ์ผ่าน/ไม่ผ่าน -->
             <div class="mt-4 text-center">
-                <p class="text-xl font-semibold" :class="IsPass ? 'text-green-600' : 'text-rose-600'">
+                <p v-if="IsPass" class="text-xl font-semibold" :class="'text-green-600'">
+                    {{ isPass ? t('ผ่านเกณฑ์') : t('ไม่ผ่านเกณฑ์') }}
+                </p>
+                <p v-else class="text-xl font-semibold" :class="'text-rose-600'">
                     {{ isPass ? t('ผ่านเกณฑ์') : t('ไม่ผ่านเกณฑ์') }}
                 </p>
 
                 <!-- คำอธิบาย -->
                 <p class="text-zinc-600 mt-2 leading-relaxed">
-                    <template v-if="isSuccess">
-                        {{ t('ผ่านการรับรองและอนุมัติตามมาตรฐานความปลอดภัยแล้ว') }}
+                    <template >
+                        <!-- {{ t('ผ่านการรับรองและอนุมัติตามมาตรฐานความปลอดภัยแล้ว') }} -->
+                        {{ isPass ? t('ผ่านการรับรองและอนุมัติตามมาตรฐานความปลอดภัยแล้ว') :
+                            t('ไม่ผ่านการรับรองและอนุมัติตามมาตรฐานความปลอดภัย') }}
                     </template>
-                    <template v-else>
+                    <!-- <template v-else>
                         {{ detailDisplay || t('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง') }}
-                    </template>
+                    </template> -->
                 </p>
             </div>
         </div>

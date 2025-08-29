@@ -253,15 +253,6 @@ const saveRegisterBusiness = async () => {
   }
 };
 </script>
-<style scoped>
-.van-nav-bar {
-  --van-nav-bar-background: #281c74;
-  --van-nav-bar-text-color: white;
-  --van-nav-bar-icon-color: white;
-  --van-nav-bar-title-text-color: white;
-  --van-nav-bar-height: 70px
-}
-</style>
 <template>
   <div class="bg-zinc-100 min-h-screen">
     <LayoutsBaseHeader :title="t('รายการธุรกิจในแหล่งท่องเที่ยว')">
@@ -342,6 +333,6 @@ const saveRegisterBusiness = async () => {
       :life="toast.life" />
     <NotificationPopup v-model:visible="notification.visible" :state="notification.state" :title="notification.title"
       :detail="notification.detail" :timeout="notification.timeout" :redirect-url="notification.redirectUrl"
-      :auto-close="notification.autoClose" @close="onNotificationClose" />
+      :auto-close="notification.autoClose" />
   </div>
 </template>

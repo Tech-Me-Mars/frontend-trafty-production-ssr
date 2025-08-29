@@ -35,12 +35,10 @@ const isloadingAxi = useState('isloadingAxi', () => false)
 const schema = zod.object({
   username: zod
     .string({ required_error: t('กรุณากรอกชื่อผู้ใช้') })
-    .min(1, t('กรุณากรอกชื่อผู้ใช้'))
-    .min(3, t('ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร')),
+    .min(1, t('กรุณากรอกชื่อผู้ใช้')),
   password: zod
     .string({ required_error: t('กรุณากรอกรหัสผ่าน') })
-    .min(1, t('กรุณากรอกรหัสผ่าน'))
-    .min(4, t('รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร')),
+    .min(1, t('กรุณากรอกรหัสผ่าน')),
 })
 
 // === useForm: ใช้ validationSchema และดึง errors จาก useForm ===
@@ -185,8 +183,8 @@ const onSubmit = handleSubmit(async (values) => {
 
           <!-- Links -->
           <div class="flex justify-between text-sm mb-2 text-primary">
-            <NuxtLink to="/register" class="hover:underline">{{ t('สมัครสมาชิก') }}</NuxtLink>
-            <NuxtLink to="/forgot-password" class="hover:underline">{{ t('ลืมรหัสผ่าน?') }}</NuxtLink>
+            <NuxtLink to="#" class="hover:underline">{{ t('สมัครสมาชิก') }}</NuxtLink>
+            <NuxtLink to="#" class="hover:underline">{{ t('ลืมรหัสผ่าน?') }}</NuxtLink>
           </div>
 
           <!-- Login Button -->

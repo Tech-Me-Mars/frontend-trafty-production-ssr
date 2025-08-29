@@ -142,7 +142,7 @@ const validationSchema = toTypedSchema(
             cn: zod.string().optional().or(zod.literal('')),
         }),
         shop_days: zod.object({
-            th: zod.array(zod.string()).min(1, t('กรุณาเลือกวันที่ทำการ (TH)')),
+            th: zod.array(zod.string()).min(1, t('กรุณาเลือกวันที่ทำการ')),
             en: zod.array(zod.string()).optional().default([]),
             cn: zod.array(zod.string()).optional().default([]),
         }),
