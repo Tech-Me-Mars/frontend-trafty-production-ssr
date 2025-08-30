@@ -4,7 +4,7 @@
 
         <section class="mx-auto w-full px-3 sm:px-4 pt-0 sm:pt-4">
             <!-- Tabs -->
-            <van-tabs v-model:active="activeTab" :line-width="80" animated swipeable color="#281c74">
+            <van-tabs v-model:active="activeTab" :line-width="100" animated swipeable color="#281c74" >
                 <!-- TAB: ใบเตือนที่ส่ง -->
                 <van-tab :title="t('ใบเตือนที่ส่ง')">
                     <div class="max-w-lg mx-auto">
@@ -94,21 +94,20 @@
                                 <!-- Title (แดง) + subtitle เทา -->
                                 <div class="mt-3">
                                     <p class="text-[15px] font-semibold text-red-600">
-                                        {{ t('ธุรกิจของคุณไม่ผ่านเกณฑ์') }}
+                                       {{ getI18n(row?.respond_warning_note_i18n) }}
                                     </p>
                                     <p class="text-sm text-zinc-600 mt-0.5">
-                                        {{ t('ตามหัวข้อต่อไป...') }}
+                                        {{ t('ตามหัวข้อต่อไปนี้') }}...
                                     </p>
                                 </div>
 
                                 <!-- Respond box -->
-                                <div class="mt-3 border rounded-lg px-3 py-2.5 bg-zinc-50">
+                                <!-- <div class="mt-3 border rounded-lg px-3 py-2.5 bg-zinc-50">
                                     <p class="text-sm text-zinc-800">
                                         <span class="font-semibold">{{ t('การตอบกลับ') }} :</span>
-                                        {{ getI18n(row?.respond_warning_note_i18n) ||
-                                            t('ธุรกิจได้มีการตอบกลับใบเตือนของคุณ') }}
+                                        {{ getI18n(row?.respond_warning_note_i18n) }}
                                     </p>
-                                </div>
+                                </div> -->
 
                                 <!-- CTA -->
                                 <div class="mt-3">
@@ -158,7 +157,7 @@ const notification = reactive({
 const showNotification = (config) => Object.assign(notification, { visible: true, ...config })
 const onNotificationClose = () => { notification.visible = false }
 
-const activeTab = ref(0)
+const activeTab = ref(1)
 
 // data
 

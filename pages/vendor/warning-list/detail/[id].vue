@@ -1,4 +1,5 @@
 <template>
+  <ClientOnly>
   <div class="min-h-screen bg-zinc-100">
     <LayoutsBaseHeader
       :title="t('ดูรายละเอียดใบเตือน')"
@@ -68,6 +69,7 @@
       </template>
     </section>
   </div>
+  </ClientOnly>
 </template>
 
 <script setup>

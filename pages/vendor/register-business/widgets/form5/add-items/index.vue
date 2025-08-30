@@ -1,7 +1,4 @@
 <script setup>
-definePageMeta({
-    middleware: ["auth"],
-});
 import { useI18n } from 'vue-i18n';
 const { t, locale, setLocale } = useI18n();
 const isloadingAxi = useState("isloadingAxi");

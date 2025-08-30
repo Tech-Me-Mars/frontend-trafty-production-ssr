@@ -1,7 +1,4 @@
 <script setup>
-definePageMeta({
-    middleware: ["auth"],
-});
 import { useI18n } from 'vue-i18n';
 const { t, locale, setLocale } = useI18n();
 
@@ -78,7 +75,6 @@ const loadSocialMedia = async () => {
             social_media_name_cn: item.social_media_name_i18n?.cn,
             ...item,
         }));
-        console.log(resSociaMedia.value)
     } catch (error) {
         console.error(error)
     }

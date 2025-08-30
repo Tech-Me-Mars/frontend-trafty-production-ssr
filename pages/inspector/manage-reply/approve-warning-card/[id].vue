@@ -1,4 +1,5 @@
 <template>
+    <ClientOnly >
     <div class="min-h-screen bg-zinc-100">
         <LayoutsBaseHeader :title="t('ดูรายละเอียดใบเตือน')" :showBack="true" backto="/inspector/manage-reply" />
 
@@ -127,9 +128,10 @@
         <NotificationPopup v-model:visible="notification.visible" :state="notification.state"
             :title="notification.title" :detail="notification.detail" :timeout="notification.timeout"
             :redirect-url="notification.redirectUrl" :auto-close="notification.autoClose"
-            @close="onNotificationClose" />
+            />
 
     </div>
+    </ClientOnly>
 </template>
 
 <script setup>
@@ -189,7 +191,7 @@ const schema = toTypedSchema(
                     .enum(['1', '0'], { required_error: t('กรุณาเลือก') })
                     .or(zod.string().min(1, t('กรุณาเลือก')))
             })
-        )
+        ).default([])
     })
 )
 
@@ -268,6 +270,7 @@ const onSubmit = handleSubmit(
             // --- ดึง dialog จาก API แล้ว normalize เป็น query params ---
             const dialog = res?.data?.dialog || {}
             const query = {
+                survey_audit_id:survey_audit_id.value,
                 state: (dialog.state || 'success'),
                 title: (dialog.title || t('ตรวจสอบมาตรฐานความปลอดภัยสำเร็จ')),
                 IsPass: String(dialog.IsPass ?? ''),                       // true/false -> string

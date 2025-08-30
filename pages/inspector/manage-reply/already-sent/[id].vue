@@ -4,8 +4,7 @@
 
 <template>
     <div class="bg-zinc-100 min-h-screen w-full">
-        <LayoutsBaseHeader :title="t('ดูรายละเอียดใบเตือน')" :showBack="true"
-            :backTo="`/inspector/manage-reply`" />
+        <LayoutsBaseHeader :title="t('ดูรายละเอียดใบเตือน')" :showBack="true" :backTo="`/inspector/manage-reply`" />
 
         <main class="max-w-lg w-full mx-auto px-3 sm:px-4 py-4 sm:py-6">
             <!-- Loading / Empty -->
@@ -28,7 +27,8 @@
                     <!-- Header: ชื่อร้าน + วันที่ -->
                     <header class="flex items-start justify-between gap-3 px-4 pt-3">
                         <h2 class="font-semibold text-zinc-900">
-                            {{ getI18n(w?.business?.shop_name_i18n,locale) || getI18n(w?.business?.business_name_i18n,locale) || '-'
+                            {{ getI18n(w?.business?.shop_name_i18n, locale) ||
+                                getI18n(w?.business?.business_name_i18n, locale) || '-'
                             }}
                         </h2>
                         <div class="text-sm text-zinc-500 shrink-0">
@@ -39,11 +39,11 @@
                     <div class="px-4 pb-3">
                         <!-- หัวข้อใบเตือน -->
                         <p class="text-[15px] font-semibold text-red-600 mt-1">
-                            {{ getI18n(w?.warning_title_i18n,locale) }}
+                            {{ getI18n(w?.warning_title_i18n, locale) }}
                         </p>
                         <!-- คำเกริ่น -->
                         <p class="text-sm text-zinc-600 mt-1">
-                            {{ getI18n(w?.warning_details_i18n,locale) }}
+                            {{ getI18n(w?.warning_details_i18n, locale) }}
                         </p>
 
                         <!-- รายการรายละเอียด -->
@@ -51,17 +51,17 @@
                             <li v-for="(d, di) in (w?.detail || [])" :key="d?.survey_audit_detail_id || di"
                                 class=" rounded-lg px-2 py-2.5 ">
                                 <div class="flex items-start gap-2">
-                            <i class="fa-solid fa-circle-xmark text-red-600 mt-1"></i>
-                                    
+                                    <i class="fa-solid fa-circle-xmark text-red-600 mt-1"></i>
+
                                     <div class="flex-1 min-w-0">
                                         <p class="text-[13.5px] text-zinc-800 leading-snug">
-                                            {{ getI18n(d?.questions_field_name_display,locale) || '-' }}
+                                            {{ getI18n(d?.questions_field_name_display, locale) || '-' }}
                                         </p>
 
                                         <p class="text-[13px] text-zinc-700 leading-snug mt-1">
-  <span class="font-semibold text-zinc-800">{{ t('หมายเหตุ') }}: </span>
-  {{ getI18n(d?.survey_audit_detail_note, locale) || '-' }}
-</p>
+                                            <span class="font-semibold text-zinc-800">{{ t('หมายเหตุ') }}: </span>
+                                            {{ getI18n(d?.survey_audit_detail_note, locale) || '-' }}
+                                        </p>
 
                                     </div>
                                 </div>

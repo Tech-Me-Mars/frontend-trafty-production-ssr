@@ -125,7 +125,11 @@ const BackTo=computed(()=>{
     return `/inspector/check/business-tourlist?isBusiness=${route.query.isBusiness}`
   } else if(route.query.isBusiness=='area'){
     return `/inspector/area-duty`
-  }else{
+  } else if (route.query.isBusiness='manage-reply'){
+    return `/inspector/manage-reply`
+  }
+
+  else{
     return navigateTo('/inspector/home')
   }
 })

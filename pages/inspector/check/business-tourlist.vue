@@ -35,7 +35,7 @@
                   <div class="flex gap-2 mt-3">
                     <!-- :disabled="item?.survey_keyword !='Pending approval / รออนุมัติ' ? true : false" -->
                     <Button
-                      :label="item?.survey_status?.survey_keyword =='Pending approval / รออนุมัติ'? t('ตรวจสอบ') : 'ตรวจสอบแล้ว'"
+                      :label="item?.survey_status?.survey_keyword =='Pending approval / รออนุมัติ'? t('ตรวจสอบ') : 'ดำเนินการตรวจสอบ'"
                       :disabled="item?.survey_status?.survey_keyword !='Pending approval / รออนุมัติ' ? true : false"
                       :loading="isloadingAxi"
                       severity="primary"
@@ -62,7 +62,7 @@
 
         <!-- TAB 2 -->
         <van-tab :title="t('ตรวจสอบแล้ว')">
-          <div v-if="activeTab === 1" class="px-3 pt-4">
+          <div  class="p-3">
             <!-- ✅ Skeleton ตรวจสอบแล้ว -->
             <template v-if="isLoadingChecked">
               <div v-for="n in 3" :key="'sk-checked-'+n" class="relative bg-white rounded-sm shadow-sm border border-zinc-200 mb-4 p-4">
@@ -227,7 +227,7 @@ const loadList = async () => {
       return navigateTo('/inspector/home')
     }
     const res = await request('get', route_url, {}, true)
-    resList.value = res.data.data
+    resList.value = res.data.data || []
   } catch (error) {
     toast.value = { show: true, type: 'danger', title: t('ผิดพลาด'), message: error?.response?.data?.message || t('เกิดข้อผิดพลาด'), life: null }
   } finally {
@@ -246,7 +246,7 @@ const loadChecked = async () => {
       route_url = `/api/v1/${modulepath}/survey_audit/get-survey-audit-tourist-finish`
     }
     const res = await request('get', route_url, {}, true)
-    resChecked.value = res.data.data
+    resChecked.value = res.data.data || []
   } catch (error) {
     toast.value = { show: true, type: 'danger', title: t('ผิดพลาด'), message: error?.response?.data?.message || t('เกิดข้อผิดพลาด'), life: null }
   } finally {

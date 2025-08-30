@@ -241,7 +241,7 @@
                 <div class="sticky top-0 bg-white px-4 pt-3 pb-2 border-b border-zinc-200">
                     <div class="flex items-center justify-between">
                         <h3 class="text-base font-semibold text-zinc-800">
-                            {{ t(isEditMode ? 'แก้ไขรายการ' : 'เพิ่มรายการสินค้า') }}
+                            {{ t('แก้ไขรายการ') }}
                         </h3>
                         <button type="button" aria-label="Close" @click="showEditSheet = false" class="w-7 h-7 rounded-full bg-zinc-100 border border-zinc-200
                  text-zinc-500 flex items-center justify-center

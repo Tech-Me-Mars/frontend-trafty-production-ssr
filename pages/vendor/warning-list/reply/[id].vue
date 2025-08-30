@@ -1,4 +1,5 @@
 <template>
+      <ClientOnly>
   <div class="min-h-screen bg-zinc-100">
     <LayoutsBaseHeader :title="t('ตอบกลับใบเตือน')" :showBack="true" />
 
@@ -55,7 +56,7 @@
         </div>
 
         <!-- FORM CONTENT -->
-        <Form v-else @submit="handleNext">
+        <Form v-else @submit="handleNext"  @invalid-submit="onInvalid">
           <!-- Empty state -->
           <SharedNoData v-if="fields.length === 0" />
 
@@ -85,7 +86,9 @@
             <!-- ปุ่มแอคชัน -->
             <div class="flex gap-3 mt-2">
               <InputText
+              
                 v-model="item.value.respond_warning_note_detail"
+                 :id="`respond_${index}`"
                 class="w-full"
                 :placeholder="t('ข้อความโน๊ต')"
                 :invalid="!!errors[`list_survey[${index}].respond_warning_note_detail`]"
@@ -137,9 +140,10 @@
       :life="toast.life" />
     <NotificationPopup v-model:visible="notification.visible" :state="notification.state" :title="notification.title"
       :detail="notification.detail" :timeout="notification.timeout" :redirect-url="notification.redirectUrl"
-      :auto-close="notification.autoClose" @close="onNotificationClose" />
-
+      :auto-close="notification.autoClose"  />
+ 
   </div>
+  </ClientOnly>
 </template>
 
 <script setup>
@@ -242,48 +246,91 @@ const removeImage = (index) => {
   fields.value[index].value.respond_warning_detail_img = null;
 };
 
-// --------- SUBMIT (คงเดิม) ---------
-const handleNext = handleSubmit(async () => {
-  try {
-    const formData = new FormData();
-    formData.append("survey_warning_id", String(route.params.id));
-    formData.append("response_count", String(fields.value.length));
+const scrollToFirstInvalid = (errs) => {
+  // ดึงชื่อฟิลด์ตัวแรกที่ผิด
+  const firstKey = Object.keys(errs || {})[0]
+  if (!firstKey) return
 
-    fields.value.forEach((e, i) => {
-      const v = e.value;
-      formData.append(
-        `responses[${i}][survey_warning_respond_details_id]`,
-        v.survey_warning_respond_details_id || ""
-      );
-      formData.append(
-        `responses[${i}][survey_audit_details_id]`,
-        v.survey_audit_details_id || ""
-      );
-      formData.append(
-        `responses[${i}][respond_warning_note_detail]`,
-        v.respond_warning_note_detail || ""
-      );
-      if (v.respond_warning_detail_img?.file) {
-        const file = v.respond_warning_detail_img.file;
-        formData.append(
-          `responses[${i}][respond_warning_detail_img]`,
-          file,
-          file.name
-        );
-      }
-    });
+  // หา index จาก path เช่น "list_survey[3].respond_warning_note_detail"
+  const m = firstKey.match(/list_survey\[(\d+)\]\.respond_warning_note_detail/)
+  if (!m) return
 
-    await dataApi.creatSurveyWarningRespond(formData);
-    navigateTo(`/vendor/warning-list/reply/success/?BusinessId=${route.query.BusinessId}`);
-  } catch (error) {
-        toast.value = {
-      show: true,
-      type: 'danger',
-      title: t('ผิดพลาด'),
-      message: error?.response?.data?.message || t('เกิดข้อผิดพลาด'),
-      life: null
-    }
-    console.error(error);
+  const idx = Number(m[1])
+  const el = document.getElementById(`respond_${idx}`)
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    // โฟกัสเพื่อให้ผู้ใช้พิมพ์ต่อได้ทันที
+    setTimeout(() => el.focus(), 50)
   }
-});
+}
+
+const SCROLL_OFFSET = 96
+
+const onInvalid = (ctx) => {
+  // ctx.errors คือ object ที่คีย์ = path ของฟิลด์ที่ผิด เช่น:
+  // "list_survey[3].respond_warning_note_detail" หรือ "list_survey.3.respond_warning_note_detail"
+  const keys = Object.keys(ctx?.errors || {})
+  if (!keys.length) return
+
+  const firstKey = keys[0]
+
+  // รองรับทั้งรูปแบบ [i] และ .i
+  const m = firstKey.match(/list_survey(?:\[(\d+)\]|\.([0-9]+))\.respond_warning_note_detail/)
+  const idxStr = m ? (m[1] ?? m[2]) : null
+  const idx = idxStr != null ? Number(idxStr) : NaN
+  if (Number.isNaN(idx)) return
+
+  // หา element เป้าหมายจาก id ที่เราใส่ไว้ใน template
+  const el = document.getElementById(`respond_${idx}`)
+  if (!el) return
+
+  // คำนวณตำแหน่งแบบมี offset (กันหัวชน Header)
+  const y = el.getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET
+  window.scrollTo({ top: y, behavior: 'smooth' })
+
+  // โฟกัสช่องนั้นเพื่อให้พิมพ์แก้ได้ทันที
+  setTimeout(() => {
+    el.focus?.()
+    // ถ้าใช้มือถือ/คีย์บอร์ดเสมือน บางทีโฟกัสช้า เลยกำชับอีกที
+    el.select?.()
+  }, 250)
+}
+
+// --------- SUBMIT (คงเดิม) ---------
+const handleNext = handleSubmit(
+  async () => {
+    try {
+      const formData = new FormData();
+      formData.append("survey_warning_id", String(route.params.id));
+      formData.append("response_count", String(fields.value.length));
+
+      fields.value.forEach((e, i) => {
+        const v = e.value;
+        formData.append(`responses[${i}][survey_warning_respond_details_id]`, v.survey_warning_respond_details_id || "");
+        formData.append(`responses[${i}][survey_audit_details_id]`, v.survey_audit_details_id || "");
+        formData.append(`responses[${i}][respond_warning_note_detail]`, v.respond_warning_note_detail || "");
+        if (v.respond_warning_detail_img?.file) {
+          const file = v.respond_warning_detail_img.file;
+          formData.append(`responses[${i}][respond_warning_detail_img]`, file, file.name);
+        }
+      });
+
+      await dataApi.creatSurveyWarningRespond(formData);
+      navigateTo(`/vendor/warning-list/reply/success/?BusinessId=${route.query.BusinessId}`);
+    } catch (error) {
+      toast.value = {
+        show: true,
+        type: 'danger',
+        title: t('ผิดพลาด'),
+        message: error?.response?.data?.message || t('เกิดข้อผิดพลาด'),
+        life: null
+      }
+      console.error(error);
+    }
+  },
+  // ⭐ onInvalid: เลื่อนไปยังข้อแรกที่ผิด
+  (errs) => {
+    scrollToFirstInvalid(errs)
+  }
+)
 </script>

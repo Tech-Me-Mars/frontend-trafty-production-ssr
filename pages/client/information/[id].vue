@@ -87,7 +87,7 @@
             <p class="flex items-start gap-2">
               <i class="pi pi-calendar text-yellow-500 text-lg mt-1" />
               <span>
-                <strong class="text-black">{{ t('วันที่ทำการ') }} :</strong>
+                <strong class="font-semibold text-md">{{ t('วันที่ทำการ') }} :</strong>
                 <span class="text-primary-700">
                   <template v-if="openDays.length">
                     <span v-for="(day, i) in openDays" :key="i">
@@ -106,7 +106,7 @@
             <p class="flex items-start gap-2">
               <i class="pi pi-clock text-blue-500 text-lg mt-1" />
               <span>
-                <strong class="text-black">{{ t('เวลาเปิด - ปิด') }} :</strong>
+                <strong class="font-semibold text-md">{{ t('เวลาเปิด - ปิด') }} :</strong>
                 <span class="text-primary-700">{{ resInfo?.shop_time }}</span>
               </span>
             </p>
@@ -114,7 +114,7 @@
             <p class="flex items-start gap-2 mb-2">
               <i class="pi pi-phone text-green-500 text-lg mt-1" />
               <span>
-                <strong class="text-black">{{ t('เบอร์ติดต่อ') }} :</strong>
+                <strong class="font-semibold text-md">{{ t('เบอร์ติดต่อ') }} :</strong>
                 <span class="text-primary-700">{{ resInfo?.shop_phone }}</span>
               </span>
             </p>

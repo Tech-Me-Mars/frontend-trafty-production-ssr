@@ -1,5 +1,4 @@
 <script setup>
-definePageMeta({ middleware: ["auth"] });
 
 import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
