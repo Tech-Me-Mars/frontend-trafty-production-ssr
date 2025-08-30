@@ -195,9 +195,9 @@ const saveRegisterBusiness = async () => {
     }
 
     // business_documents
-    if (formStore.listFiles) {
-      formStore.listFiles.forEach((item, idx) => {
-        formData.append("business_documents_img", item.file, item.file.name || `file_${idx}.pdf`);
+    if (formStore.business_documents) {
+      formStore.business_documents.forEach((item, idx) => {
+        formData.append("business_documents", item.file, item.file.name || `file_${idx}.pdf`);
       });
     }
     formData.append("Status", String(true)); // หรือ formStore.status ถ้ามี

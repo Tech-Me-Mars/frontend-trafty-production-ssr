@@ -35,8 +35,8 @@
                   <div class="flex gap-2 mt-3">
                     <!-- :disabled="item?.survey_keyword !='Pending approval / รออนุมัติ' ? true : false" -->
                     <Button
-                      :label="item?.survey_keyword =='Pending approval / รออนุมัติ'? t('ตรวจสอบ') : 'ตรวจสอบแล้ว'"
-                      :disabled="item?.survey_keyword !='Pending approval / รออนุมัติ' ? true : false"
+                      :label="item?.survey_status?.survey_keyword =='Pending approval / รออนุมัติ'? t('ตรวจสอบ') : 'ตรวจสอบแล้ว'"
+                      :disabled="item?.survey_status?.survey_keyword !='Pending approval / รออนุมัติ' ? true : false"
                       :loading="isloadingAxi"
                       severity="primary"
                       variant="outlined"

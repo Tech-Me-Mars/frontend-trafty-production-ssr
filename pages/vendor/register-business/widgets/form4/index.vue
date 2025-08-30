@@ -887,7 +887,7 @@ const onSelectChange = (e) => {
                                         </p>
 
                                         <div>
-                                            <client-only>
+                                            <!-- <client-only> -->
                                                 <h4 class="section-title">{{ t('พิกัดสถานที่ท่องเที่ยวหรือธุรกิจ') }}
                                                 </h4>
 
@@ -917,7 +917,7 @@ const onSelectChange = (e) => {
                                                 }}
                                                 </p>
 
-                                            </client-only>
+                                            <!-- </client-only> -->
 
                                             <div class="mt-2">
                                                 <p class="text-xs text-zinc-600" v-if="latitude && longitude">
