@@ -36,7 +36,7 @@
                     <!-- :disabled="item?.survey_keyword !='Pending approval / รออนุมัติ' ? true : false" -->
                     <Button
                       :label="item?.survey_keyword =='Pending approval / รออนุมัติ'? t('ตรวจสอบ') : 'ตรวจสอบแล้ว'"
-                      
+                      :disabled="item?.survey_keyword !='Pending approval / รออนุมัติ' ? true : false"
                       :loading="isloadingAxi"
                       severity="primary"
                       variant="outlined"
@@ -184,7 +184,6 @@
       :timeout="notification.timeout"
       :redirect-url="notification.redirectUrl"
       :auto-close="notification.autoClose"
-      @close="onNotificationClose"
     />
   </div>
 </template>

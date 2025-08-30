@@ -66,19 +66,19 @@ const showNotification = (config) => {
             <div class="grid grid-cols-3 gap-4 mb-3">
                 <div class="bg-white text-center p-4 border-r-2 cursor-pointer">
                     <div>
-                        <div class="text-xl font-bold">{{ resDataComon?.count_waiting_approval }}</div>
+                        <div class="text-xl font-bold h-2 mb-3"></div>
                         <div class="text-gray-600 text-sm">{{ t('รออนุมัติ') }}</div>
                     </div>
                 </div>
                 <div class="bg-white text-center p-4 border-r-2 cursor-pointer">
                     <div>
-                        <div class="text-xl font-bold">{{ resDataComon?.count_pass }}</div>
+                        <div class="text-xl font-bold h-2 mb-3"></div>
                         <div class="text-gray-600 text-sm">{{ t('อนุมัติแล้ว') }}</div>
                     </div>
                 </div>
                 <div class="bg-white text-center p-4 cursor-pointer">
                     <div @click="navigateTo('/inspector/send-warning')">
-                        <div class="text-xl font-bold">{{ resDataComon?.count_not_pass }}</div>
+                        <div class="text-xl font-bold h-2 mb-3"></div>
                         <div class="text-gray-600 text-sm">{{ t('ไม่ผ่านเกณฑ์') }}</div>
                     </div>
                 </div>
@@ -88,6 +88,7 @@ const showNotification = (config) => {
 
 
         <!-- List Section -->
+         <ClientOnly>
         <van-cell-group class="!m-0 !p-0">
             <van-cell :title="t('พื้นที่รับผิดชอบ')" is-link
                 @click="navigateTo('/inspector/area-duty')">
@@ -133,6 +134,7 @@ const showNotification = (config) => {
                 </template>
             </van-cell> -->
         </van-cell-group>
+        </ClientOnly>
         <NotifyMessage v-model:show="toast.show" :type="toast.type" :title="toast.title" :message="toast.message"
             :life="toast.life" />
         <NotificationPopup v-model:visible="notification.visible" :state="notification.state"
